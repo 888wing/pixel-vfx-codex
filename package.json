@@ -1,0 +1,16 @@
+{
+  "name": "pixel-vfx-codex",
+  "version": "1.0.0",
+  "private": true,
+  "description": "64 game VFX remade as pixel art: one definition, three cameras (3D / 2.5D / 2D), tunable, with copyable implementation prompts.",
+  "license": "MIT",
+  "scripts": {
+    "snap": "node tools/snap.mjs",
+    "qa": "node tools/gallery.mjs",
+    "media": "node tools/media.mjs",
+    "check": "node tools/site-check.mjs"
+  },
+  "devDependencies": {
+    "puppeteer": "^24.11.2"
+  }
+}

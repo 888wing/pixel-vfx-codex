@@ -1,0 +1,1456 @@
+[
+ {
+  "n": 1,
+  "id": "fireball",
+  "zh": "熾焰火球",
+  "en": "Blazing Fireball",
+  "descZh": "火球拖著火尾向前飛，命中爆出弧光與火星，接觸處留下漸暗的裂紋。",
+  "descEn": "A trailing fireball bursts into bright arcs and sparks, leaving fading cracks on contact.",
+  "category": "projectile",
+  "schools": [
+   "fire"
+  ],
+  "tags": "火焰 法師 技能 飛行 火球 Fireball",
+  "color": "#ff823e",
+  "lifecycle": {
+   "start": 0.35,
+   "end": 0.8,
+   "hitEnd": 2
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "loadZh": "白熱爆閃、弧環、火星、碎石與餘熱分層呈現，光暈另需多次畫面合成。"
+ },
+ {
+  "n": 2,
+  "id": "plasma-bolt",
+  "zh": "電漿尖矢",
+  "en": "Plasma Dart",
+  "descZh": "亮白箭頭帶著藍色閃電往前飛，身後留下細小火花。",
+  "descEn": "A bright arrow flies with blue lightning and tiny sparks behind it.",
+  "category": "projectile",
+  "schools": [],
+  "tags": "科幻 能量 子彈 電漿彈 Plasma bolt",
+  "color": "#73e3ff",
+  "lifecycle": {
+   "start": 0.35,
+   "end": 0.8
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "loadZh": "彈體、尾跡、包覆層與光暈透明疊加。"
+ },
+ {
+  "n": 3,
+  "id": "ice-shard",
+  "zh": "霜晶飛矢",
+  "en": "Frostcrystal Dart",
+  "descZh": "一簇尖冰向前飛，身後掉落旋轉的小冰塊與細霜。",
+  "descEn": "A cluster of sharp ice flies forward, shedding little ice pieces and frost.",
+  "category": "projectile",
+  "schools": [
+   "ice"
+  ],
+  "tags": "冰 魔法 射擊 冰晶彈 Ice shard",
+  "color": "#b3dcff",
+  "lifecycle": {
+   "start": 0.35,
+   "end": 0.8
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "loadZh": "實體冰晶搭配批次碎屑與少量尾跡，沒有場景取樣。"
+ },
+ {
+  "n": 4,
+  "id": "arcane-missile",
+  "zh": "符晶飛彈",
+  "en": "Runic Crystal Missiles",
+  "descZh": "三顆魔法水晶一邊繞圈一邊前進，身後拖著發光圖案。",
+  "descEn": "Three magic crystals circle as they fly, trailing glowing shapes.",
+  "category": "projectile",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "魔法 螺旋 法師 奧術飛彈 Arcane missile",
+  "color": "#c99aff",
+  "lifecycle": {
+   "start": 0.35,
+   "end": 0.8
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "loadZh": "多個飛彈與尾跡雖已合併，仍有透明疊加與粒子運算。"
+ },
+ {
+  "n": 5,
+  "id": "continuous-beam",
+  "zh": "繞絲光束",
+  "en": "Threadwoven Beam",
+  "descZh": "細光線持續往前射，光絲繞著它轉，打中時冒出火花。",
+  "descEn": "A steady beam has light swirling around it and sparks where it hits.",
+  "category": "beam",
+  "schools": [],
+  "tags": "雷射 激光 武器 科幻 持續光束 Continuous beam",
+  "color": "#ff6555",
+  "lifecycle": {
+   "start": 0.4,
+   "end": 0.6
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 1,
+  "previewMode": null,
+  "loadZh": "光束核心、外層與兩端光暈持續疊加。"
+ },
+ {
+  "n": 6,
+  "id": "pulse-beam",
+  "zh": "環脈射線",
+  "en": "Ringpulse Ray",
+  "descZh": "光線上亮起一顆顆光球，光圈沿著光線往前跑。",
+  "descEn": "Glowing balls light up along a beam as rings travel forward.",
+  "category": "beam",
+  "schools": [],
+  "tags": "雷射 激光 脈衝 射擊 脈衝光束 Pulse beam",
+  "color": "#71e7dc",
+  "lifecycle": {
+   "start": 0.4,
+   "end": 0.6
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 1,
+  "previewMode": null,
+  "loadZh": "脈衝、兩端光暈及裝飾粒子分成多個繪製批次。"
+ },
+ {
+  "n": 7,
+  "id": "charged-beam",
+  "zh": "蓄能光炮",
+  "en": "Charged Light Cannon",
+  "descZh": "先聚起亮光再持續發射，打中的地方不斷噴出亮光與光圈。",
+  "descEn": "Light gathers before a steady blast fires, with flashes and rings where it hits.",
+  "category": "beam",
+  "schools": [],
+  "tags": "雷射 蓄力 大招 科幻 蓄力光束 Charged beam",
+  "color": "#f6c76c",
+  "lifecycle": {
+   "start": 1.6,
+   "end": 0.6
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 1,
+  "previewMode": null,
+  "loadZh": "蓄力與釋放包含光束、脈衝與多層端點光暈。"
+ },
+ {
+  "n": 8,
+  "id": "arc-ray",
+  "zh": "分岔雷流",
+  "en": "Forked Lightning Stream",
+  "descZh": "藍白閃電連接兩端，小閃電在旁跳動，打中時炸出火花。",
+  "descEn": "Blue-white lightning connects two ends, with little branches and sparks at the hit.",
+  "category": "beam",
+  "schools": [
+   "storm"
+  ],
+  "tags": "閃電 電擊 雷射 電弧射線 Arc ray",
+  "color": "#2878ff",
+  "lifecycle": {
+   "start": 0.4,
+   "end": 0.6
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 1,
+  "previewMode": null,
+  "loadZh": "分支電弧與端點光暈分開繪製，並逐幀更新。"
+ },
+ {
+  "n": 9,
+  "id": "healing-field",
+  "zh": "療光法陣",
+  "en": "Healing Sigil",
+  "descZh": "地上的魔法圖案一圈圈發光，小十字向上飄，適合補血時使用。",
+  "descEn": "A magic pattern sends out rings of light and floating crosses for healing.",
+  "category": "area",
+  "schools": [
+   "light"
+  ],
+  "tags": "回血 治療 輔助 光環 治療領域 Healing field",
+  "color": "#86e9b2",
+  "lifecycle": {
+   "start": 0.7,
+   "end": 1
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "法陣紋理、光環與上升粒子在相同區域疊加。"
+ },
+ {
+  "n": 10,
+  "id": "burning-ground",
+  "zh": "炎紋灼地",
+  "en": "Flame-Etched Ground",
+  "descZh": "地面裂縫發出紅光，火舌不斷冒出又散去，像正在燃燒。",
+  "descEn": "Red cracks glow on the ground as flames keep rising and fading.",
+  "category": "area",
+  "schools": [
+   "fire"
+  ],
+  "tags": "火焰 地板 傷害 範圍 燃燒地面 Burning ground",
+  "color": "#ff914a",
+  "lifecycle": {
+   "start": 0.7,
+   "end": 1
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "地面光層搭配火焰粒子與侵蝕紋理，呈現持續燃燒的效果。"
+ },
+ {
+  "n": 11,
+  "id": "frost-field",
+  "zh": "六芒霜陣",
+  "en": "Sixfold Frost Sigil",
+  "descZh": "雪花形的魔法圖案向外亮起，上方有小冰屑慢慢閃光。",
+  "descEn": "A snowflake-shaped magic pattern lights outward, with ice sparkling above it.",
+  "category": "area",
+  "schools": [
+   "ice"
+  ],
+  "tags": "冰凍 緩速 範圍 雪 冰霜領域 Frost field",
+  "color": "#9bdfff",
+  "lifecycle": {
+   "start": 0.7,
+   "end": 1
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "地面紋理與霜光粒子疊加，材質包含程序紋樣。"
+ },
+ {
+  "n": 12,
+  "id": "magic-barrier",
+  "zh": "符網結界",
+  "en": "Runic Mesh Barrier",
+  "descZh": "半圓形光罩從地面升起，表面有發光格子與閃動的小方塊。",
+  "descEn": "A half-round shield rises from the ground with glowing squares on its surface.",
+  "category": "area",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "護盾 防禦 法陣 範圍 魔法結界 Magic barrier",
+  "color": "#bba3ff",
+  "lifecycle": {
+   "start": 0.7,
+   "end": 1
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "球形屏障、地面紋理與粒子形成多層透明效果。"
+ },
+ {
+  "n": 13,
+  "id": "fire-explosion",
+  "zh": "白熱炎爆",
+  "en": "White-Hot Fireburst",
+  "descZh": "火球炸開並吹出一圈煙，火焰慢慢變成煙霧，留下小火星。",
+  "descEn": "A fireball bursts with a ring of smoke, then cools into smoke and little embers.",
+  "category": "burst",
+  "schools": [
+   "fire"
+  ],
+  "tags": "火焰 爆破 命中 卡通 賽璐璐 火焰爆炸 Fire explosion",
+  "color": "#ff5c26",
+  "lifecycle": {
+   "start": 0.27999999999999997,
+   "end": 1.26
+  },
+  "duration": 2.8,
+  "burst": true,
+  "kind": 3,
+  "previewMode": null,
+  "loadZh": "18 組變形煙焰使用三維噪聲、表面明暗與侵蝕，另有爆風、拋射煙跡、局部光暈與餘燼；固定五個繪製物件。"
+ },
+ {
+  "n": 14,
+  "id": "energy-burst",
+  "zh": "雷弧綻爆",
+  "en": "Lightning Arc Burst",
+  "descZh": "藍白亮光突然炸開，閃電向四周伸展，最後剩下零星電光。",
+  "descEn": "Blue-white light bursts into branching lightning, then fades to scattered flashes.",
+  "category": "burst",
+  "schools": [
+   "storm"
+  ],
+  "tags": "科幻 命中 能量 雷電 放電 電弧 能量爆裂 Energy burst",
+  "color": "#2878ff",
+  "lifecycle": {
+   "start": 0.27999999999999997,
+   "end": 1.26
+  },
+  "duration": 2.8,
+  "burst": true,
+  "kind": 3,
+  "previewMode": null,
+  "loadZh": "電弧、碎屑、煙塵與光環使用多個批次及程序材質。"
+ },
+ {
+  "n": 15,
+  "id": "shockwave",
+  "zh": "揚塵震波",
+  "en": "Dust-Raising Shockwave",
+  "descZh": "一圈塵土向外衝，捲起大片灰塵，小石頭再落回地面。",
+  "descEn": "A ring of dust rushes outward, lifting clouds before small stones fall back down.",
+  "category": "burst",
+  "schools": [],
+  "tags": "衝擊 地面 爆炸 範圍 卡通 賽璐璐 衝擊波 Shockwave",
+  "color": "#f0cf9d",
+  "lifecycle": {
+   "start": 0.27999999999999997,
+   "end": 1.26
+  },
+  "duration": 2.8,
+  "burst": true,
+  "kind": 3,
+  "previewMode": null,
+  "loadZh": "衝擊環、塵霧及碎屑批次在爆發時重疊。"
+ },
+ {
+  "n": 16,
+  "id": "ice-shatter",
+  "zh": "裂晶霜爆",
+  "en": "Shattering Frostburst",
+  "descZh": "冰柱先亮起裂紋，再炸成一塊塊飛散的小冰晶。",
+  "descEn": "Cracks light up on ice pillars before they burst into flying ice pieces.",
+  "category": "burst",
+  "schools": [
+   "ice"
+  ],
+  "tags": "冰 碎片 破碎 命中 卡通 賽璐璐 冰晶碎裂 Ice shatter",
+  "color": "#b8e5ff",
+  "lifecycle": {
+   "start": 0.27999999999999997,
+   "end": 1.26
+  },
+  "duration": 2.8,
+  "burst": true,
+  "kind": 3,
+  "previewMode": null,
+  "loadZh": "冰晶碎裂、碎屑、霜霧與光環分層繪製。"
+ },
+ {
+  "n": 17,
+  "id": "wind-vortex",
+  "zh": "捲葉風旋",
+  "en": "Leaf-Swept Vortex",
+  "descZh": "旋風不停往上捲，葉子穿過中央，地面的灰塵也被捲進去。",
+  "descEn": "Wind spirals upward, carrying leaves through its center and drawing in dust.",
+  "category": "vortex",
+  "schools": [
+   "wind"
+  ],
+  "tags": "風 龍捲風 旋風 卡通 賽璐璐 風旋 Wind vortex",
+  "color": "#a4dfd1",
+  "lifecycle": {
+   "start": 1.7,
+   "end": 1.4
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 4,
+  "previewMode": null,
+  "loadZh": "風柱、風絲、粒子及地面捲流形成多層動畫。"
+ },
+ {
+  "n": 18,
+  "id": "dust-devil",
+  "zh": "飛砂風旋",
+  "en": "Sand-Swept Vortex",
+  "descZh": "一圈圈沙塵交錯往上捲，中央留著空隙，旁邊有砂石飛動。",
+  "descEn": "Bands of sand spiral upward around an open center, with grit flying nearby.",
+  "category": "vortex",
+  "schools": [
+   "sand"
+  ],
+  "tags": "沙 土 龍捲風 沙漠 卡通 賽璐璐 沙塵旋風 Dust devil",
+  "color": "#dcbb87",
+  "lifecycle": {
+   "start": 1.7,
+   "end": 1.4
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 4,
+  "previewMode": null,
+  "loadZh": "旋風柱搭配多層塵霧與流動紋理，呈現捲起沙塵的效果。"
+ },
+ {
+  "n": 19,
+  "id": "fire-vortex",
+  "zh": "捲焰風旋",
+  "en": "Flame-Swept Vortex",
+  "descZh": "橙色火焰繞圈往上捲，底下的煙塵也被火光照亮。",
+  "descEn": "Orange flames spiral upward, lighting the dust and smoke below.",
+  "category": "vortex",
+  "schools": [
+   "fire"
+  ],
+  "tags": "火焰 龍捲風 旋風 卡通 賽璐璐 火焰旋風 Fire vortex",
+  "color": "#ff884b",
+  "lifecycle": {
+   "start": 1.7,
+   "end": 1.4
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 4,
+  "previewMode": null,
+  "loadZh": "火柱搭配旋轉火焰面片與侵蝕紋理，呈現翻捲的火焰。"
+ },
+ {
+  "n": 20,
+  "id": "energy-vortex",
+  "zh": "符環渦流",
+  "en": "Runic Ring Vortex",
+  "descZh": "發光帶繞圈往上捲，魔法圖案沿著中央的空隙流動。",
+  "descEn": "Glowing bands spiral upward as magic symbols move around the open center.",
+  "category": "vortex",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "魔法 能量 傳送 龍捲風 卡通 賽璐璐 能量漩渦 Energy vortex",
+  "color": "#bba5ff",
+  "lifecycle": {
+   "start": 1.7,
+   "end": 1.4
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 4,
+  "previewMode": null,
+  "loadZh": "能量柱、風絲及地面光環使用多個透明批次。"
+ },
+ {
+  "n": 21,
+  "id": "smoke-column",
+  "zh": "湧升煙柱",
+  "en": "Billowing Smoke Column",
+  "descZh": "一團團煙往上冒，越高越散，也慢慢變淡。",
+  "descEn": "Puffs of smoke rise, spread out and fade as they climb.",
+  "category": "smoke",
+  "schools": [],
+  "tags": "煙 環境 燃燒 煙柱 Smoke column",
+  "color": "#aeb9cb",
+  "lifecycle": {
+   "start": 0.5,
+   "end": 1.2
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 5,
+  "previewMode": null,
+  "loadZh": "批次煙霧面片搭配密度與受光計算，呈現煙柱的層次。"
+ },
+ {
+  "n": 22,
+  "id": "ground-fog",
+  "zh": "貼地薄霧",
+  "en": "Ground-Hugging Mist",
+  "descZh": "薄霧貼著地面鋪開，讓場景有神祕感，也能遮住低處。",
+  "descEn": "Low fog spreads across the ground, adding mystery and hiding low areas.",
+  "category": "smoke",
+  "schools": [],
+  "tags": "霧 環境 地面 地面煙霧 Ground fog",
+  "color": "#a6c9ca",
+  "lifecycle": {
+   "start": 0.5,
+   "end": 1.2
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 5,
+  "previewMode": null,
+  "loadZh": "透明霧面搭配雜訊與受光，呈現貼地流動的霧氣。"
+ },
+ {
+  "n": 23,
+  "id": "steam-jet",
+  "zh": "沖天汽柱",
+  "en": "Rising Steam Jet",
+  "descZh": "一股細長蒸汽快速往上衝，到頂端後散成薄霧。",
+  "descEn": "A narrow jet of steam shoots upward and spreads into mist at the top.",
+  "category": "smoke",
+  "schools": [
+   "water"
+  ],
+  "tags": "蒸氣 工業 噴射 蒸汽噴發 Steam jet",
+  "color": "#d1dfe8",
+  "lifecycle": {
+   "start": 0.5,
+   "end": 1.2
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 5,
+  "previewMode": null,
+  "loadZh": "批次蒸氣面片包含密度雜訊與受光計算，仍有透明疊加。"
+ },
+ {
+  "n": 24,
+  "id": "smoke-puff",
+  "zh": "驟散煙團",
+  "en": "Dispersing Smoke Puff",
+  "descZh": "一團煙快速膨脹再散去，適合出現、消失或落地時使用。",
+  "descEn": "A puff swells and fades, useful when something appears, vanishes or lands.",
+  "category": "smoke",
+  "schools": [],
+  "tags": "煙 消失 忍者 落地 消散煙團 Smoke puff",
+  "color": "#b1afc8",
+  "lifecycle": {
+   "start": 0.35000000000000003,
+   "end": 1.575
+  },
+  "duration": 3.5,
+  "burst": true,
+  "kind": 5,
+  "previewMode": null,
+  "loadZh": "批次煙團包含雜訊受光與透明重疊，短暫出現也有瞬間成本。"
+ },
+ {
+  "n": 25,
+  "id": "flame-surge",
+  "zh": "翻湧炎潮",
+  "en": "Surging Flame Tide",
+  "descZh": "大片火焰像扇子一樣往上翻，邊緣散成小火星。",
+  "descEn": "A wide fan of flames rolls upward, breaking into little embers at the edges.",
+  "category": "burst",
+  "schools": [
+   "fire"
+  ],
+  "tags": "火焰 Fire 法術 魔法 火瀑噴湧 Flame surge",
+  "color": "#ff823e",
+  "lifecycle": {
+   "start": 0.30000000000000004,
+   "end": 1.35
+  },
+  "duration": 3,
+  "burst": true,
+  "kind": 3,
+  "previewMode": null,
+  "loadZh": "合併的火焰造型仍包含侵蝕雜訊及內部煙團疊加。"
+ },
+ {
+  "n": 26,
+  "id": "frost-wheel",
+  "zh": "晶齒冰輪",
+  "en": "Crystal-Toothed Ice Wheel",
+  "descZh": "帶著尖冰齒的冰輪快速旋轉，後面掉落細霜。",
+  "descEn": "An ice wheel with sharp teeth spins quickly and leaves frost behind.",
+  "category": "projectile",
+  "schools": [
+   "ice"
+  ],
+  "tags": "冰霜 Ice 法術 魔法 霜輪飛刃 Frost wheel",
+  "color": "#a9dfff",
+  "lifecycle": {
+   "start": 0.35,
+   "end": 0.8
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "loadZh": "輪刃、尾痕與粒子分開繪製，具有程序紋樣與動態形變。"
+ },
+ {
+  "n": 27,
+  "id": "arcane-matrix",
+  "zh": "浮符矩陣",
+  "en": "Floating Rune Matrix",
+  "descZh": "方格魔法圖案一格格連起來，空中的符號上下移動、重新排隊。",
+  "descEn": "A square magic pattern connects piece by piece while floating symbols rearrange.",
+  "category": "area",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "奧術 Arcane 法術 魔法 奧術矩陣 Arcane matrix",
+  "color": "#bd9aff",
+  "lifecycle": {
+   "start": 0.7,
+   "end": 1
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "多組符文雖已合併，地面紋樣與粒子仍需額外計算。"
+ },
+ {
+  "n": 28,
+  "id": "thunder-strike",
+  "zh": "渦雷落擊",
+  "en": "Vortex Lightning Strike",
+  "descZh": "上方先聚起電光，再劈下藍白閃電，打中地面時炸出火花。",
+  "descEn": "Light gathers above, then blue-white lightning strikes the ground with sparks.",
+  "category": "burst",
+  "schools": [
+   "storm"
+  ],
+  "tags": "風暴 Storm 法術 魔法 雷霆落擊 Thunder strike",
+  "color": "#2878ff",
+  "lifecycle": {
+   "start": 0.26,
+   "end": 1.1700000000000002
+  },
+  "duration": 2.6,
+  "burst": true,
+  "kind": 3,
+  "previewMode": null,
+  "loadZh": "電弧主體合併繪製，搭配一組批次粒子，沒有背景取樣。"
+ },
+ {
+  "n": 29,
+  "id": "radiant-beam",
+  "zh": "日輪輝柱",
+  "en": "Solar Halo Beam",
+  "descZh": "圓形印記不斷射出明亮光柱，打中的地方像花瓣一樣綻開。",
+  "descEn": "A round symbol fires a steady pillar of light with petal-like flashes where it hits.",
+  "category": "beam",
+  "schools": [
+   "light"
+  ],
+  "tags": "聖光 Light 法術 魔法 聖輝光束 Radiant beam",
+  "color": "#ffe3a0",
+  "lifecycle": {
+   "start": 0.4,
+   "end": 0.6
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 1,
+  "previewMode": null,
+  "loadZh": "合併光束仍包含核心、外層與沿光束流動的紋理。"
+ },
+ {
+  "n": 30,
+  "id": "binding-curse",
+  "zh": "鉤咒縛陣",
+  "en": "Hooked Binding Sigil",
+  "descZh": "鉤子形的魔法圖案亮起，彎曲光帶輪流收緊，像要把人綁住。",
+  "descEn": "Hook-shaped magic marks glow while curved bands tighten like a binding spell.",
+  "category": "area",
+  "schools": [
+   "dark"
+  ],
+  "tags": "黑暗 Dark 法術 魔法 縛魂咒陣 Binding curse",
+  "color": "#ae7be5",
+  "lifecycle": {
+   "start": 0.7,
+   "end": 1
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "束縛主體與地面符文包含流動紋理、侵蝕及粒子運算。"
+ },
+ {
+  "n": 31,
+  "id": "thorn-crown",
+  "zh": "棘蔓綻冠",
+  "en": "Thornvine Blossom Crown",
+  "descZh": "地上的魔法圖案長出帶刺藤蔓，葉子張開，花朵跟著亮起。",
+  "descEn": "Thorny vines grow from a magic pattern, opening leaves and glowing flowers.",
+  "category": "area",
+  "schools": [
+   "nature"
+  ],
+  "tags": "自然 Nature 法術 魔法 荊棘花冠 Thorn crown",
+  "color": "#88d49a",
+  "lifecycle": {
+   "start": 0.7,
+   "end": 1
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "荊棘幾何、地面紋樣與粒子分批繪製並持續形變。"
+ },
+ {
+  "n": 32,
+  "id": "shadow-glaive",
+  "zh": "殘影弧刃",
+  "en": "Afterimage Glaive",
+  "descZh": "彎曲光刃旋轉著向前衝，身後留下幾道影子，再碎開消失。",
+  "descEn": "A curved blade twists forward, leaving shadows that break apart and vanish.",
+  "category": "projectile",
+  "schools": [
+   "shadow"
+  ],
+  "tags": "暗影 Shadow 法術 魔法 影襲飛刃 Shadow glaive",
+  "color": "#a28bce",
+  "lifecycle": {
+   "start": 0.35,
+   "end": 0.8
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "loadZh": "刃體、尾痕及命中層分開繪製，具有動態形變。"
+ },
+ {
+  "n": 33,
+  "id": "tidal-surge",
+  "zh": "翻浪衝潮",
+  "en": "Breaking Tidal Surge",
+  "descZh": "一道水浪向外推進，浪頭往前翻，邊緣散成泡沫和水滴。",
+  "descEn": "A wave rolls outward, breaking into foam and droplets along its edge.",
+  "category": "burst",
+  "schools": [
+   "water"
+  ],
+  "tags": "水流 Water 法術 魔法 潮汐衝湧 Tidal surge",
+  "color": "#66cddd",
+  "lifecycle": {
+   "start": 0.32000000000000006,
+   "end": 1.4400000000000002
+  },
+  "duration": 3.2,
+  "burst": true,
+  "kind": 3,
+  "previewMode": null,
+  "loadZh": "合併浪體仍包含泡沫雜訊、浪花及透明水層重疊。"
+ },
+ {
+  "n": 34,
+  "id": "quicksand-seal",
+  "zh": "聚砂咒印",
+  "en": "Sand-Gathering Sigil",
+  "descZh": "三角魔法圖案裡的沙堆輪流升起、崩落，周圍細沙往內流。",
+  "descEn": "Sand piles rise and collapse inside a magic triangle as nearby sand flows inward.",
+  "category": "area",
+  "schools": [
+   "sand"
+  ],
+  "tags": "沙塵 Sand 法術 魔法 流砂封印 Quicksand seal",
+  "color": "#dfba7c",
+  "lifecycle": {
+   "start": 0.7,
+   "end": 1
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "沙流紋理、地面圖樣與粒子持續計算，並有透明疊加。"
+ },
+ {
+  "n": 35,
+  "id": "astral-convergence",
+  "zh": "星環聚爆",
+  "en": "Astral Ring Detonation",
+  "descZh": "星光繞圈聚到中央，縮成一團後炸開，留下閃亮的光痕。",
+  "descEn": "Starlight circles inward, squeezes together and bursts into bright trails.",
+  "category": "burst",
+  "schools": [
+   "astral"
+  ],
+  "tags": "星界 Astral 法術 魔法 星軌匯爆 Astral convergence",
+  "color": "#c1b8ff",
+  "lifecycle": {
+   "start": 0.34,
+   "end": 1.53
+  },
+  "duration": 3.4,
+  "burst": true,
+  "kind": 3,
+  "previewMode": null,
+  "loadZh": "多條匯聚造型雖已合併，仍需更新形變與重疊亮紋。"
+ },
+ {
+  "n": 36,
+  "id": "spiral-gale",
+  "zh": "旋流風矛",
+  "en": "Spiraling Wind Spear",
+  "descZh": "旋轉的風像長矛往前衝，身後的風痕慢慢變細、消失。",
+  "descEn": "Spinning wind rushes forward like a spear, leaving a trail that narrows and fades.",
+  "category": "projectile",
+  "schools": [
+   "wind"
+  ],
+  "tags": "風 Wind 法術 魔法 螺旋風槍 Spiral gale",
+  "color": "#b4e5d5",
+  "lifecycle": {
+   "start": 0.35,
+   "end": 0.8
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "loadZh": "螺旋主體、尾流與命中層各自繪製並動態形變。"
+ },
+ {
+  "n": 37,
+  "id": "venom-pool",
+  "zh": "沸泡毒陣",
+  "en": "Bubbling Venom Sigil",
+  "descZh": "地上的綠色魔法圖案冒出毒泡，泡泡破掉後散出小波紋與毒霧。",
+  "descEn": "A green magic pattern bubbles with poison, making ripples and low mist as bubbles pop.",
+  "category": "area",
+  "schools": [
+   "poison"
+  ],
+  "tags": "劇毒 Poison 法術 魔法 腐蝕毒沼 Venom pool",
+  "color": "#acdc6f",
+  "lifecycle": {
+   "start": 0.7,
+   "end": 1
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "毒池、地面紋理、液滴及薄霧使用多個透明批次。"
+ },
+ {
+  "n": 38,
+  "id": "magma-fissure",
+  "zh": "熔脈地裂",
+  "en": "Molten Vein Fissure",
+  "descZh": "地面一路裂開發亮，石片被頂起再落下，最後只剩零星火光。",
+  "descEn": "Glowing cracks spread along the ground, lifting stones before fading to small embers.",
+  "category": "burst",
+  "schools": [
+   "fire"
+  ],
+  "tags": "裂地 地面 熔岩 火焰 Fire 熔痕裂地 Magma fissure",
+  "color": "#ff823e",
+  "lifecycle": {
+   "start": 0.18,
+   "end": 0.81
+  },
+  "duration": 1.8,
+  "burst": true,
+  "kind": 3,
+  "previewMode": null,
+  "loadZh": "合併裂地幾何仍包含多段推進、碎石形變與熔光紋理。"
+ },
+ {
+  "n": 39,
+  "id": "prism-guard",
+  "zh": "稜晶護壁",
+  "en": "Prismatic Crystal Bulwark",
+  "descZh": "幾片水晶盾拼成彎曲護牆，停止使用後再一片片收回。",
+  "descEn": "Crystal shield pieces form a curved wall, then fold away one by one when stopped.",
+  "category": "shield",
+  "schools": [
+   "light"
+  ],
+  "tags": "護盾 防禦 格擋 保護 聖光 Light 稜光護盾 Prism guard",
+  "color": "#73e3ff",
+  "lifecycle": {
+   "start": 0.3,
+   "end": 0.65
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 7,
+  "previewMode": null,
+  "loadZh": "盾片合併成單一主體批次，搭配簡單碎光，沒有真正的場景透射。"
+ },
+ {
+  "n": 40,
+  "id": "prism-parry",
+  "zh": "稜晶瞬擋",
+  "en": "Prismatic Crystal Block",
+  "descZh": "一道亮線突然閃過，小片水晶盾擋下一擊，散出碎光後消失。",
+  "descEn": "A bright line flashes as a small crystal shield blocks a hit and scatters light.",
+  "category": "shield",
+  "schools": [
+   "light"
+  ],
+  "tags": "格擋 彈反 接觸 防禦 聖光 Light 折光格擋 Prism parry",
+  "color": "#ffe3a0",
+  "lifecycle": {
+   "start": 0.055,
+   "end": 0.2475
+  },
+  "duration": 0.55,
+  "burst": true,
+  "kind": 7,
+  "previewMode": null,
+  "loadZh": "格擋碎片合併繪製，搭配一組簡單粒子，沒有背景取樣。"
+ },
+ {
+  "n": 41,
+  "id": "astral-gate",
+  "zh": "星紋之門",
+  "en": "Gate of Astral Tracery",
+  "descZh": "發光門框一段段展開，門內星光流動，停止使用後慢慢關上。",
+  "descEn": "A glowing doorway opens piece by piece, with flowing stars inside, then closes when stopped.",
+  "category": "portal",
+  "schools": [
+   "astral"
+  ],
+  "tags": "門 傳送 空間 星界 Astral 星隙門扉 Astral gate",
+  "color": "#c1b8ff",
+  "lifecycle": {
+   "start": 0.8,
+   "end": 0.8
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 8,
+  "previewMode": null,
+  "loadZh": "門框、星紋膜與粒子分開繪製，開口包含程序紋理。"
+ },
+ {
+  "n": 42,
+  "id": "soul-siphon",
+  "zh": "暗能汲流",
+  "en": "Dark Energy Siphon",
+  "descZh": "一股股黑暗魔力從目標流回使用者，停止後把剩下的魔力收完。",
+  "descEn": "Streams of dark magic flow back from the target and finish draining when stopped.",
+  "category": "beam",
+  "schools": [
+   "dark"
+  ],
+  "tags": "汲取 吸收 靈魂 黑暗 Dark 靈魂汲流 Soul siphon",
+  "color": "#a883e8",
+  "lifecycle": {
+   "start": 0.35,
+   "end": 0.65
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 1,
+  "previewMode": null,
+  "loadZh": "多條汲流雖已合併，仍有流動形變、亮紋與粒子運算。"
+ },
+ {
+  "n": 43,
+  "id": "revival-bloom",
+  "zh": "生機光綻",
+  "en": "Vitality Blossom",
+  "descZh": "柔光從低處聚起，再像花朵往上綻放，適合復活或補血。",
+  "descEn": "Soft light gathers low down and blooms upward like a flower for revival or healing.",
+  "category": "burst",
+  "schools": [
+   "nature",
+   "light"
+  ],
+  "tags": "復活 復甦 治療 生命 自然 Nature 聖光 Light 生命回綻 Revival bloom",
+  "color": "#ff8fbd",
+  "lifecycle": {
+   "start": 0.22,
+   "end": 0.99
+  },
+  "duration": 2.2,
+  "burst": true,
+  "kind": 3,
+  "previewMode": null,
+  "loadZh": "多層光瓣合併繪製，但透明瓣片仍會重疊並逐頂點展開。"
+ },
+ {
+  "n": 44,
+  "id": "frost-lance-rain",
+  "zh": "霜矛落陣",
+  "en": "Falling Frost Spear Array",
+  "descZh": "冰槍從空中接連落下，碰地後碎成小冰塊，霜痕再慢慢消失。",
+  "descEn": "Ice spears fall one after another, shatter on landing and leave fading frost.",
+  "category": "burst",
+  "schools": [
+   "ice"
+  ],
+  "tags": "冰槍 落冰 冰雨 冰霜 Ice 冰槍驟雨 Frost lance rain",
+  "color": "#a9dfff",
+  "lifecycle": {
+   "start": 0.24,
+   "end": 1.08
+  },
+  "duration": 2.4,
+  "burst": true,
+  "kind": 3,
+  "previewMode": null,
+  "loadZh": "多支冰槍與落點碎裂雖已合併，仍需大量幾何與分段動畫運算。"
+ },
+ {
+  "n": 45,
+  "id": "venom-stream",
+  "zh": "濺蝕毒流",
+  "en": "Corrosive Venom Jet",
+  "descZh": "毒液往目標噴去，途中濺出水滴，停止後剩下的毒液會流完。",
+  "descEn": "Poison sprays toward a target with splashing drops, finishing its flow when stopped.",
+  "category": "beam",
+  "schools": [
+   "poison"
+  ],
+  "tags": "噴流 毒液 腐蝕 劇毒 Poison 劇毒噴流 Venom stream",
+  "color": "#acdc6f",
+  "lifecycle": {
+   "start": 0.25,
+   "end": 0.7
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 1,
+  "previewMode": null,
+  "loadZh": "錐形毒流與液滴使用合併批次，仍有動態形變和透明層重疊。"
+ },
+ {
+  "n": 46,
+  "id": "painterly-grass",
+  "zh": "風拂草地",
+  "en": "Windswept Meadow",
+  "descZh": "像畫筆畫出的草地，點綴白色小花，草尖和花朵會隨風輕輕擺動。",
+  "descEn": "Painted-looking grass dotted with white flowers sways gently in the wind.",
+  "category": "environment",
+  "schools": [
+   "nature"
+  ],
+  "tags": "草地 草叢 白花 手繪 油畫 筆觸 植被 環境 自然 grass painterly meadow foliage flowers wind Nature 手繪草地 Painterly Grass",
+  "color": "#829544",
+  "lifecycle": {
+   "start": 0.6,
+   "end": 0.8
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 10,
+  "previewMode": "continuous",
+  "loadZh": "草叢與花朵採實例化繪製，搭配風動與乾筆紋理。"
+ },
+ {
+  "n": 47,
+  "id": "dimensional-rend",
+  "zh": "裂空碎斬",
+  "en": "Rift-Shattering Slashes",
+  "descZh": "刀光劃過時，背景像碎玻璃一樣錯開、散開，再慢慢恢復。",
+  "descEn": "A slash makes the background split like broken glass, spread apart and slowly return.",
+  "category": "area",
+  "schools": [
+   "astral"
+  ],
+  "tags": "斬擊 次元 空間 裂縫 連斬 星界 slash cut rift dimensional rend spatial astral 次元裂斬 Dimensional Rend",
+  "color": "#729dff",
+  "lifecycle": {
+   "start": 0.2,
+   "end": 2.4
+  },
+  "duration": 3.4,
+  "burst": true,
+  "kind": 6,
+  "previewMode": null,
+  "loadZh": "斬痕與碎片使用場景透射取樣，並疊加刀光與衝擊層。"
+ },
+ {
+  "n": 48,
+  "id": "black-hole",
+  "zh": "渦光黑洞",
+  "en": "Luminous Vortex Black Hole",
+  "descZh": "黑洞周圍的亮光不斷往內捲，後面的景物也像被吸力拉彎。",
+  "descEn": "Light spirals into a black hole while the scenery behind it appears to bend.",
+  "category": "area",
+  "schools": [
+   "astral"
+  ],
+  "tags": "黑洞 引力 重力 吸積盤 扭曲 星界 black hole gravity gravitational lens accretion distortion astral 黑洞 Black Hole",
+  "color": "#ffab42",
+  "lifecycle": {
+   "start": 1.1,
+   "end": 1.4
+  },
+  "duration": 6,
+  "burst": false,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "以兩層背景扭曲，搭配水彩光帶與粒子，呈現完整的黑洞演出。"
+ },
+ {
+  "n": 49,
+  "id": "azure-sweep",
+  "zh": "蒼刃迴斬",
+  "en": "Azure Blade Sweep",
+  "descZh": "藍白刀光掃出接近一整圈，停留一下後，尾巴追上前端並消失。",
+  "descEn": "A blue-white slash sweeps almost a full circle, pauses, then closes from tail to tip.",
+  "category": "area",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "斬擊 迴旋 刀光 劍氣 藍色 奧術 slash sweep sword blade arc azure spin arcane 蒼藍迴旋斬 Azure Sweep",
+  "color": "#2878ff",
+  "lifecycle": {
+   "start": 0.08,
+   "end": 0.43
+  },
+  "duration": 0.85,
+  "burst": true,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "通透刀面、亮刃、外暈與批次細流線共四層繪製；沒有場景取樣，但大面積透明疊加仍有成本。"
+ },
+ {
+  "n": 50,
+  "id": "weapon-smear",
+  "zh": "流光刃影",
+  "en": "Gleaming Blade Trail",
+  "descZh": "揮劍時留下透明的藍色光痕，停手後很快消失。",
+  "descEn": "Swinging a sword leaves a see-through blue trail that quickly fades when you stop.",
+  "category": "area",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "武器 拖影 殘影 斬擊 刀光 smear slash weapon trail sword blade arcane 武器拖影 Slash Smear",
+  "color": "#2878ff",
+  "lifecycle": {
+   "start": 0.001,
+   "end": 0.18
+  },
+  "duration": 4,
+  "burst": false,
+  "kind": 2,
+  "previewMode": "continuous",
+  "loadZh": "最多保存64組刀根與刀尖位置，以三層小型帶狀網格繪製；不需貼圖、場景取樣或展示劍。"
+ },
+ {
+  "n": 51,
+  "id": "spatial-sweep",
+  "zh": "裂空迴斬",
+  "en": "Riftblade Sweep",
+  "descZh": "透明刀光掃過一圈，後面的景物被拉扯、錯開，再跟著刀光消失。",
+  "descEn": "A clear curved slash stretches and shifts the scenery behind it, then fades away.",
+  "category": "area",
+  "schools": [
+   "astral"
+  ],
+  "tags": "斬擊 迴旋 透明 空間 扭曲 折射 高速 衝擊 動漫 spatial sweep slash refraction distortion shock anime astral 空間迴旋斬 Spatial Sweep",
+  "color": "#e9f5ff",
+  "lifecycle": {
+   "start": 0.08,
+   "end": 0.43
+  },
+  "duration": 0.85,
+  "burst": true,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "透明刀面會額外取樣不透明場景，搭配亮刃、光暈及細流線；場景越複雜，折射成本越高。"
+ },
+ {
+  "n": 52,
+  "id": "spatial-smear",
+  "zh": "裂空刃影",
+  "en": "Riftblade Trail",
+  "descZh": "揮劍時留下透明光痕，讓後面的景物跟著拉彎，停手後很快消失。",
+  "descEn": "A sword swing leaves a clear trail that bends the view behind it and quickly fades.",
+  "category": "area",
+  "schools": [
+   "astral"
+  ],
+  "tags": "空間 斬擊 拖影 武器 透明 扭曲 折射 滑鼠 spatial slash smear refraction distortion weapon sword trail astral 空間斬拖影 Spatial Slash Smear",
+  "color": "#e9f5ff",
+  "lifecycle": {
+   "start": 0.001,
+   "end": 0.18
+  },
+  "duration": 4,
+  "burst": false,
+  "kind": 2,
+  "previewMode": "continuous",
+  "loadZh": "以最多64組刀根刀尖位置生成拖影，並額外取樣不透明場景；折射成本取決於場景複雜度。"
+ },
+ {
+  "n": 53,
+  "id": "darkchain-detonation",
+  "zh": "闇鏈崩陣",
+  "en": "Darkchain Sigil Rupture",
+  "descZh": "魔法陣把鎖鏈和煙吸向黑球，黑球縮小後炸開，震散鎖鏈並噴出紅紫閃電。",
+  "descEn": "Magic circles draw chains and smoke toward a dark ball, which shrinks and bursts with red-purple lightning.",
+  "category": "area",
+  "schools": [
+   "dark"
+  ],
+  "tags": "闇鏈 聚爆 黑暗 紫色 魔法陣 鎖鏈 聚集 蓄力 脈動 能量球 爆炸 darkchain detonation dark purple lightning discharge magic circle sigil chains charge pulse orb explosion 暗能 雷裂 電弧 壓力波 闇鏈聚爆 Darkchain Detonation",
+  "color": "#8300ff",
+  "lifecycle": {
+   "start": 0.45,
+   "end": 1.35
+  },
+  "duration": 5.15,
+  "burst": true,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "多層煙霧、能量光暈與空間扭曲疊加，同屏多組時成本較高。"
+ },
+ {
+  "n": 54,
+  "id": "electric-magic-arrow-strike",
+  "zh": "金刃雷矢",
+  "en": "Golden-Bladed Lightning Arrow",
+  "descZh": "金色箭身纏著閃電往前飛，打中時炸出雷光與兩道光圈。",
+  "descEn": "A golden arrow flies wrapped in lightning, bursting into flashes and two rings on impact.",
+  "category": "projectile",
+  "schools": [
+   "storm"
+  ],
+  "tags": "雷光 魔箭 雷電 魔法箭 蓄力 命中 弓箭 投射物 電擊 電流 金色 electric magic arrow strike lightning charge impact projectile golden 雷光魔箭 Electric Magic Arrow Strike",
+  "color": "#ffd36a",
+  "lifecycle": {
+   "start": 1.2,
+   "end": 1.4
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "loadZh": "最多八個繪製批次；四片立體金刃與重用放電池更新粗細電弧，大型雷電網與破碎雙環產生透明疊加成本，不需場景取樣。"
+ },
+ {
+  "n": 55,
+  "id": "golden-chain-rain",
+  "zh": "金鏈驟雨",
+  "en": "Golden Chain Rain",
+  "descZh": "金鏈連落三波，箭頭插地炸出金色碎片；地裂散出柔光，碎片沿裂縫緩緩浮起。",
+  "descEn": "Golden chains fall in three waves, bursting into gold shards on contact; glowing cracks release slowly rising fragments.",
+  "category": "area",
+  "schools": [
+   "light"
+  ],
+  "tags": "金鏈 鎖鏈 驟雨 聖光 金色 落擊 三波 範圍 地裂 插地 漣漪 水波 碎片 golden chain rain holy light gold cracks embedded arrows ripples fragments",
+  "color": "#ffd166",
+  "lifecycle": {
+   "start": 0.35,
+   "end": 1.1
+  },
+  "duration": 7.5,
+  "burst": true,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "鏈身流紋、水波與柔光有多層覆蓋成本；落地另有一批爆射碎片。預設裝飾粒子共 1083，最高數量與密度共 2454，不需背景取樣。"
+ },
+ {
+  "n": 56,
+  "id": "billowing-airburst",
+  "zh": "烈焰空爆",
+  "en": "Billowing Airburst",
+  "descZh": "火球在空中炸開，粗大的煙尾往四周噴出，火焰慢慢變成煙霧散去。",
+  "descEn": "A fireball bursts in midair with thick smoke trails, then cools into fading smoke.",
+  "category": "burst",
+  "schools": [
+   "fire"
+  ],
+  "tags": "火焰 爆炸 空爆 煙霧 煙尾 噴發 命中 火球 飛彈 fire explosion airburst billowing smoke jets impact 烈焰空爆 Billowing Airburst",
+  "color": "#ff7a24",
+  "lifecycle": {
+   "start": 0.15,
+   "end": 1.8
+  },
+  "duration": 2.4,
+  "burst": true,
+  "kind": 3,
+  "previewMode": null,
+  "loadZh": "火球、煙尾、外擴波紋與火星尾跡重疊較多；降低密度只會減少火星。"
+ },
+ {
+  "n": 57,
+  "id": "spell-indicator-circle",
+  "zh": "紅色圓形預警",
+  "en": "Red Circle Spell Indicator",
+  "descZh": "紅色圓圈標出危險區，顏色慢慢填滿提醒攻擊將到，倒數結束後消失。",
+  "descEn": "A red circle marks danger and fills as an attack approaches, disappearing when the countdown ends.",
+  "category": "area",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "紅色 圓形 預警 危險 攻擊 範圍 倒數 指示器 技能 奧術 red circle spell indicator telegraph warning aoe countdown danger arcane",
+  "color": "#ff303e",
+  "lifecycle": {
+   "start": 0,
+   "end": 0.15
+  },
+  "duration": 2.15,
+  "burst": true,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "一片兩三角形網格以單次程序材質繪製輪廓、填色與流光；沒有粒子、外部貼圖、場景取樣或後製，大面積重疊仍增加像素成本。"
+ },
+ {
+  "n": 58,
+  "id": "spell-indicator-sector",
+  "zh": "紅色扇形預警",
+  "en": "Red Sector Spell Indicator",
+  "descZh": "紅色扇形標出攻擊方向，顏色慢慢填滿提醒攻擊將到，大小和角度能調整。",
+  "descEn": "A red fan marks an attack direction and fills as it approaches. Its size and angle can change.",
+  "category": "area",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "紅色 扇形 預警 危險 攻擊 範圍 角度 倒數 指示器 技能 奧術 red sector cone spell indicator telegraph warning aoe countdown angle arcane",
+  "color": "#ff303e",
+  "lifecycle": {
+   "start": 0,
+   "end": 0.15
+  },
+  "duration": 2.15,
+  "burst": true,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "一片兩三角形網格以單次程序材質裁出扇形及進度；沒有粒子、外部貼圖、場景取樣或後製，大面積重疊仍增加像素成本。"
+ },
+ {
+  "n": 59,
+  "id": "sacred-relic-descent",
+  "zh": "聖遺物・治癒降臨",
+  "en": "Sacred Relic Descent",
+  "descZh": "多層白金法陣旋轉，三角錐砸地揚石，每兩秒推出水紋光波與中段煙浪。",
+  "descEn": "A layered white-gold magic circle turns as a triangular pyramid lands with flying rocks, followed by flowing waves and raised smoke every two seconds.",
+  "category": "area",
+  "schools": [
+   "light"
+  ],
+  "tags": "聖遺物 治癒 白金 三角錐 暫代 召喚 落地 光波 魔法陣 碎石 塵浪 地裂 中段 煙浪 雙層 sacred relic healing holy triangular pyramid tetrahedron placeholder summon descent pulse debris dust cracks mid-height magic smoke ring two-layer",
+  "color": "#f5cc75",
+  "lifecycle": {
+   "start": 1.35,
+   "end": 1.65
+  },
+  "duration": 13,
+  "burst": true,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "上下光浪與煙霧大面積重疊，水紋多層流動，落地還有大量碎石。"
+ },
+ {
+  "n": 60,
+  "id": "impact-frame",
+  "zh": "衝擊幀",
+  "en": "Impact Frame",
+  "descZh": "命中時閃過黑白剪影與星芒，收暗後炸出大片爆光，讓重擊更有力。",
+  "descEn": "Flash comic silhouettes and stars on a hit, then erupt from darkness into a powerful final blast.",
+  "category": "screen",
+  "schools": [],
+  "tags": "畫面 後製 衝擊 幀 黑白 反相 命中 編排 impact frame screen postprocess monochrome inverted sequence hit",
+  "color": null,
+  "lifecycle": null,
+  "duration": null,
+  "burst": null,
+  "kind": null,
+  "previewMode": null,
+  "loadZh": "保留主體需要額外繪製，再取樣背景輪廓，處理全畫面的碎墨、星芒與爆光；物件越多、畫面越大，負載越高。"
+ },
+ {
+  "n": 61,
+  "id": "verdant-restoration",
+  "zh": "森光治癒",
+  "en": "Verdant Restoration",
+  "descZh": "自然系治癒特效，綠色柔光與飄葉環繞目標，呈現持續恢復的狀態。",
+  "descEn": "A nature-themed healing effect with soft green light and drifting leaves around a target, showing ongoing recovery.",
+  "category": "area",
+  "schools": [
+   "nature"
+  ],
+  "tags": "森光治癒 Verdant Restoration support-magic heal 14 圖層",
+  "color": "#83ffbe",
+  "lifecycle": {
+   "start": 0.7,
+   "end": 0.85
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 2,
+  "previewMode": null,
+  "loadZh": "14種動態圖層與柔光，已減少光暈和重複繪製成本，多款重疊仍較吃效能。"
+ },
+ {
+  "n": 62,
+  "id": "aegis-weave",
+  "zh": "織光護盾",
+  "en": "Aegis Weave",
+  "descZh": "魔法護盾特效，透明藍色護罩環繞目標，呈現受到保護的狀態。",
+  "descEn": "A magic shield effect with a clear blue barrier around a target, showing a protected state.",
+  "category": "shield",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "織光護盾 Aegis Weave support-magic shield 14 圖層",
+  "color": "#68badc",
+  "lifecycle": {
+   "start": 0.45,
+   "end": 0.6
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 7,
+  "previewMode": null,
+  "loadZh": "14種動態圖層與柔光，已減少光暈和重複繪製成本，多款重疊仍較吃效能。"
+ },
+ {
+  "n": 63,
+  "id": "sustained-arc",
+  "zh": "連續雷流",
+  "en": "Sustained Arc",
+  "descZh": "持續雷電特效，分岔電流連接施放端與目標，適合表現持續電擊。",
+  "descEn": "A sustained lightning effect with branching currents linking the source to a target, suited to ongoing electric attacks.",
+  "category": "beam",
+  "schools": [
+   "storm"
+  ],
+  "tags": "連續雷流 Sustained Arc support-magic lightning 14 圖層",
+  "color": "#a4b6ff",
+  "lifecycle": {
+   "start": 0.18,
+   "end": 0.28
+  },
+  "duration": 5,
+  "burst": false,
+  "kind": 1,
+  "previewMode": null,
+  "loadZh": "14種動態圖層與柔光，已減少光暈和重複繪製成本，多款重疊仍較吃效能。"
+ },
+ {
+  "n": 64,
+  "id": "starblade-cataclysm",
+  "zh": "星劍焚界",
+  "en": "Starblade Cataclysm",
+  "descZh": "劍化成金色星光，升空聚成四瓣核心，再射出光束燒開熔岩裂谷。",
+  "descEn": "A sword becomes golden stars, gathers into a four-petal core, then fires a beam that burns a lava trench.",
+  "category": "beam",
+  "schools": [
+   "light",
+   "fire"
+  ],
+  "tags": "劍 星粒 十字 四瓣 蓄力 雷射 掃射 熔岩 裂谷 SAO sword stars cross charge laser sweep lava",
+  "color": "#ffd35a",
+  "lifecycle": {
+   "start": 8.4,
+   "end": 3.3
+  },
+  "duration": 14,
+  "burst": true,
+  "kind": 1,
+  "previewMode": null,
+  "loadZh": "大量星光變形、多層能量及沿途裂谷一起演出，透明疊加較多。"
+ }
+]

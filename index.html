@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pixel VFX Codex · 像素特效圖鑑</title>
+<meta name="description" content="64 個遊戲特效的像素風版本，3D／2.5D／2D 即時預覽，每個特效可調參數與打擊感，一鍵複製實作 prompt（Canvas、Three.js、Godot 4、Unity、AI 繪圖）。">
+<meta property="og:title" content="Pixel VFX Codex · 像素特效圖鑑">
+<meta property="og:description" content="64 game VFX remade as pixel art. One definition, three cameras (3D / 2.5D / 2D). Tune any effect, copy a prompt for Godot, Unity, Three.js or Canvas. MIT.">
+<meta property="og:image" content="https://888wing.github.io/pixel-vfx-codex/docs/media/og.png">
+<meta property="og:url" content="https://888wing.github.io/pixel-vfx-codex/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>Pixel VFX Codex</h1>
+    <p>像素特效圖鑑 · <span id="total">64</span> 個特效 · 同一份定義，三種鏡頭</p>
+  </div>
+  <div class="controls">
+    <div class="seg" id="modes" role="radiogroup" aria-label="渲染模式">
+      <button type="button" role="radio" data-mode="3d">3D</button>
+      <button type="button" role="radio" data-mode="25d">2.5D</button>
+      <button type="button" role="radio" data-mode="2d">2D</button>
+    </div>
+    <button type="button" class="link" id="night" aria-pressed="false">夜間</button>
+    <label class="field">Prompt 目標 <select id="target"></select></label>
+    <div class="seg" id="langs" role="radiogroup" aria-label="Prompt 語言">
+      <button type="button" role="radio" data-lang="zh">中</button>
+      <button type="button" role="radio" data-lang="en">EN</button>
+    </div>
+  </div>
+</header>
+
+<nav class="filters" aria-label="篩選">
+  <div class="chips" id="cats"></div>
+  <div class="chips" id="schools"></div>
+  <div class="search"><input id="q" type="search" placeholder="搜尋：火、beam、法陣…" aria-label="搜尋特效"><span id="count" aria-live="polite"></span></div>
+</nav>
+
+<main class="grid" id="grid"></main>
+
+<dialog id="detail" aria-labelledby="d-title">
+  <div class="d-head">
+    <h2 id="d-title"><span class="num" id="d-num"></span> <b id="d-zh"></b> <span class="en" id="d-en"></span></h2>
+    <div class="d-nav">
+      <button type="button" class="link" id="d-prev" aria-label="上一個">←</button>
+      <button type="button" class="link" id="d-next" aria-label="下一個">→</button>
+      <button type="button" class="link" id="d-close">關閉</button>
+    </div>
+  </div>
+  <div class="d-body">
+    <section class="d-left">
+      <div class="d-bar">
+        <div class="seg" id="d-modes" role="radiogroup" aria-label="渲染模式">
+          <button type="button" role="radio" data-mode="3d">3D</button>
+          <button type="button" role="radio" data-mode="25d">2.5D</button>
+          <button type="button" role="radio" data-mode="2d">2D</button>
+        </div>
+        <span class="hint" id="d-hint"></span>
+      </div>
+      <div class="d-stage" id="d-stage"><canvas id="d-canvas" tabindex="0"></canvas></div>
+      <div class="d-play">
+        <button type="button" class="link" id="d-pp">暫停</button>
+        <input type="range" id="d-scrub" min="0" max="1000" value="0" aria-label="時間">
+        <span class="mono" id="d-time">0.00s</span>
+        <label class="field">速度 <select id="d-speed"><option value=".25">0.25×</option><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
+      </div>
+      <div class="tune" id="d-tune" aria-label="調整"></div>
+      <p class="desc" id="d-desc"></p>
+      <div class="palette" id="d-palette"></div>
+      <div class="d-export">
+        <b>匯出 sprite sheet</b>
+        <label><input type="checkbox" id="x-clear" checked> 去背景及道具</label>
+        <label><input type="checkbox" id="x-shake"> 含震屏</label>
+        <label class="field">放大 <select id="x-scale"><option>1</option><option selected>2</option><option>4</option></select>×</label>
+        <button type="button" class="btn" id="x-png">下載 PNG</button>
+        <span class="hint" id="x-info"></span>
+      </div>
+    </section>
+    <section class="d-right">
+      <div class="d-bar">
+        <label class="field">Prompt 目標 <select id="d-target"></select></label>
+        <div class="seg" id="d-langs" role="radiogroup" aria-label="Prompt 語言">
+          <button type="button" role="radio" data-lang="zh">中</button>
+          <button type="button" role="radio" data-lang="en">EN</button>
+        </div>
+        <button type="button" class="btn primary" id="d-copy">複製 Prompt</button>
+      </div>
+      <textarea id="d-prompt" readonly spellcheck="false" aria-label="Prompt 內容"></textarea>
+      <p class="credit" id="d-credit"></p>
+    </section>
+  </div>
+</dialog>
+
+<footer class="foot">
+  <p>特效設計與原始碼：<a href="https://00gamedevs.com/zh-TW/" target="_blank" rel="noopener">00GameDevs</a>（MIT）。像素渲染風格與規則：<a href="https://github.com/amirmushichge/pixel-plays" target="_blank" rel="noopener">pixel-plays</a> by AmirMushich（MIT）。本站的像素版特效與渲染器同樣以 MIT 授權。</p>
+  <p class="hint">純靜態網站，無建置步驟、無外部依賴；直接打開 index.html 亦可運作。原始碼：<a href="https://github.com/888wing/pixel-vfx-codex" target="_blank" rel="noopener">github.com/888wing/pixel-vfx-codex</a></p>
+</footer>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script src="engine/pxfx.js"></script>
+<script src="engine/prompt.js"></script>
+<script src="data/meta.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

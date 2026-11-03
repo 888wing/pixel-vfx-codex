@@ -1,0 +1,14 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>reel</title>
+<style>html,body{margin:0;background:#14131a}canvas{display:block}</style></head>
+<body><canvas id="out"></canvas>
+<script src="../engine/pxfx.js"></script>
+<script src="../fx/thunder-strike.js"></script>
+<script src="../fx/fire-vortex.js"></script>
+<script src="../fx/black-hole.js"></script>
+<script src="../fx/impact-frame.js"></script>
+<script src="../fx/starblade-cataclysm.js"></script>
+<script>window.WALL_IDS = ["fireball","plasma-bolt","ice-shard","arcane-missile","continuous-beam","pulse-beam","charged-beam","arc-ray","healing-field","burning-ground","frost-field","magic-barrier","fire-explosion","energy-burst","shockwave","ice-shatter","wind-vortex","dust-devil","energy-vortex","smoke-puff","flame-surge","frost-wheel","arcane-matrix","radiant-beam","binding-curse","thorn-crown","shadow-glaive","tidal-surge","quicksand-seal","astral-convergence","venom-pool","magma-fissure","prism-guard","astral-gate","soul-siphon","revival-bloom","frost-lance-rain","dimensional-rend","azure-sweep","darkchain-detonation","electric-magic-arrow-strike","golden-chain-rain","sacred-relic-descent","aegis-weave"];</script>
+<script>for (const id of window.WALL_IDS) document.write('<script src="../fx/' + id + '.js"><\/script>');</script>
+<script src="reel.js"></script>
+</body></html>
