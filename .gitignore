@@ -4,6 +4,7 @@ node_modules/
 tools/out/
 # promo working files (frames, audio, renders)
 promo/frames/
+promo/frames-wide/
 promo/audio/
 promo/*.png
 promo/*.wav
