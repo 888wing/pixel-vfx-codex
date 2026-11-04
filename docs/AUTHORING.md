@@ -186,3 +186,50 @@ Open the PNG and compare it with the original effect: every effect page on 00Gam
 The snap tool exits non-zero and prints ERRORS if `draw` throws.
 
 Metadata for every effect (names, description, colour, original timings) is in `data/meta.json`.
+
+## Ultimates pack: poses, stages and the module kit
+
+The 28 effects with `pack: "ultimate"` in `data/meta.json` are original anime-style ultimate moves. Each is
+built from reusable modules in `engine/kit.js` (loaded after `engine/pxfx.js`) and plays in six stages:
+**Pose → Charge → Shape → Motion → Impact → Aftermath**. Tag every `timeline` entry with its stage
+(`k: 'pose' | 'charge' | 'shape' | 'motion' | 'impact' | 'after'`) and list the modules the effect uses in
+`modules: [...]` (keys of `PXFX.KIT`); the prompt builder prints the stage labels and a module section from them.
+Never name an existing anime, game, character or technique: describe the visual language instead.
+
+Caster and stage: `p.figure(x, y, { pose, face, lift, color, alpha, blade: { len }, scale })` draws a faceless
+mannequin (~1.5 tall) and returns `{ hand, handL, elbow, head, chest, hip, foot, footL, tip, f, s }` — anchor the
+effect to those (they are returned even when props are hidden for sprite export). Poses: idle, ready, point, palm,
+raise, bothUp, spread, windup, swing, punch, charge, kick, dash, float, guard, gaze; blend with
+`pose: { a, b, k }` and an eased k. Default layout: caster at x = −2.1 facing +x, `p.dummy(2.35, 0)` as the target.
+
+Core additions in `engine/pxfx.js`:
+- `p.scard(x, y, z, w, h, fn(u, v) → level | −1, ramp, o)` — camera-facing **solid** sprite (black flames,
+  silhouettes, ink). `p.sribbon(left, right, fn(u, v) → level | −1, ramp, o)` — solid strip (dark slash bodies).
+- `p.stain(x, y, R, fn(dx, dy, rho, ang) → 0..1, '#hex', amt)` — stains the ground immediately (char, frost, ink).
+- `p.grade({ dark, desat, tint, tintAmt, bg, light })` — grades everything drawn so far; draw the world, grade
+  it, then draw the light so the move stays bright.
+- `p.cam()` → `{ right, up, fwd }` world axes of the screen (screen-plane rays, speed lines, billboards).
+
+Kit modules (`engine/kit.js`):
+
+| module | calls |
+|---|---|
+| Charge | `p.charge(x, y, z, u, { n, R, ramp, up, len })` — motes streaming into a point |
+| Energy Core | `p.core(x, y, z, { r, ramp, I, t, rays, spin, ring })` |
+| Slash | `p.crescent({ c, dir, side, tilt, R, thick, arc, body, edge, u, streaks })`, `p.slash(a, b, { u, w, ramp })` |
+| Shockwave | `p.shock(x, y, z, u, { R, w, ramp, axis, ground, dust })`, `p.dome(x, y, z, r, { ramp, rim, refract, zmin })` |
+| Impact | `p.speedLines(x, y, z, { n, R0, R1, ramp, seed })`, `p.impactFrame({ ink, paper, accent, invert })` |
+| Particle Swarm | `p.formation(kind, k, n, t, { c, R, H, spin, path })` (scatter, orbit, spiral, sphere, stream), `p.petal(...)` |
+| Growth | `p.spikes(path, u, { n, h, wid, ramp })`, `p.vine(pts, u, { r0, r1, ramp, thorn })` |
+| Energy Creature | `p.serpent(path, { n, w, ramp, dark, t, jaw })` — head + body along a curve |
+| Aura / black fire | `p.aura(x, y, z, { r, h, ramp, t })`, `p.blackFlame(x, y, z, { w, h, t, body, edge })`, `p.flameShape(u, v, t)` |
+| Domain | `p.domain({ amt, c, sky, ground, solids, t })` — dithered radial wipe to another world; skies in `PXFX.SKIES` |
+| Aftermath | `p.aftermath(x, y, R, 'burn' \| 'frost' \| 'crack' \| 'ink', { amt, ramp, glow })` |
+| helpers | `p.rdir(k, salt, up)`, `p.arcPos(a, b, u, h)`, `p.v3.{ norm, cross, along, lerp }` |
+
+During a `hit` / `burst` freeze the effect clock is held at `beat + min(.02, half the gap to the next beat)`, not
+at the beat itself, so a 1–3 frame impact frame should be gated on `t - HIT <= .021`, not `< .02`. Contact flares
+on the far side of the dummy are hidden by it: pull them towards the camera with `p.cam().fwd`.
+
+Read `fx/crescent-fang.js` first: it uses the figure, charge, grade, crescent, shockwave, speed lines and
+aftermath. Keep to one or two full-frame passes (`domain`, `grade`, `impactFrame`, `warp`) per frame.

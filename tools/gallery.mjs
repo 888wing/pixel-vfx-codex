@@ -1,7 +1,7 @@
 // QA pass over every effect: render 24 frames x 3 modes x day/night, report errors and timing,
 // flag effects whose last frame differs a lot from the first (loop pop), and write an 8-column overview
 // PNG (tools/out/gallery-<mode>.png) of each effect at its busiest moment.
-// usage: node tools/gallery.mjs [--mode 25d] [--night]
+// usage: node tools/gallery.mjs [--mode 25d] [--night] [--ids a,b] [--pack ultimate|library]
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
@@ -13,6 +13,7 @@ const args = process.argv.slice(2);
 const opt = (n, d) => { const i = args.indexOf('--' + n); return i < 0 ? d : args[i + 1]; };
 const sheetMode = opt('mode', '25d'), sheetNight = args.includes('--night');
 vm.runInThisContext(fs.readFileSync(path.join(root, 'engine/pxfx.js'), 'utf8'));
+vm.runInThisContext(fs.readFileSync(path.join(root, 'engine/kit.js'), 'utf8'));
 const meta = JSON.parse(fs.readFileSync(path.join(root, 'data/meta.json'), 'utf8'));
 const SIZE = { '3d': [240, 150], '25d': [240, 150], '2d': [160, 100] };
 const errs = [];
@@ -30,7 +31,8 @@ function png(w, h, rgba) {
 
 const rows = [];
 const cells = [];
-for (const m of meta) {
+const only = opt('ids', null), pack = opt('pack', null);
+for (const m of meta.filter(x => (!only || only.split(',').includes(x.id)) && (!pack || (x.pack || 'library') === pack))) {
   const file = path.join(root, 'fx', m.id + '.js');
   if (!fs.existsSync(file)) { rows.push([m.n, m.id, 'MISSING']); cells.push(null); continue; }
   const before = errs.length;

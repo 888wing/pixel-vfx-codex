@@ -172,6 +172,28 @@
   const LX = -SHADOW_X / LL, LY = -SHADOW_Y / LL, LZ = 1 / LL;   // world vector towards the light
   const E = {};
 
+  /* ---------- caster figure poses: hand offsets from each shoulder and foot positions, local [forward, left, up] ---------- */
+  const POSES = {
+    idle: { hr: [.04, -.06, -.48], hl: [.04, .06, -.48], fr: [0, -.12, 0], fl: [0, .12, 0], lean: 0, crouch: 0 },
+    ready: { hr: [.3, -.02, -.25], hl: [.22, .08, -.2], fr: [-.16, -.13, 0], fl: [.18, .12, 0], lean: .1, crouch: .2 },
+    point: { hr: [.5, .06, .02], hl: [.05, .05, -.46], fr: [-.12, -.14, 0], fl: [.16, .12, 0], lean: .05, crouch: .1 },
+    palm: { hr: [.44, .13, -.06], hl: [.44, -.13, -.06], fr: [-.2, -.16, 0], fl: [.22, .14, 0], lean: .15, crouch: .3 },
+    raise: { hr: [.08, -.04, .48], hl: [.05, .06, -.46], fr: [0, -.13, 0], fl: [.05, .13, 0], lean: -.05, crouch: 0 },
+    bothUp: { hr: [.05, .05, .48], hl: [.05, -.05, .48], fr: [0, -.14, 0], fl: [0, .14, 0], lean: -.08, crouch: 0 },
+    spread: { hr: [.05, -.48, .05], hl: [.05, .48, .05], fr: [0, -.15, 0], fl: [0, .15, 0], lean: -.05, crouch: 0 },
+    windup: { hr: [-.3, .05, .25], hl: [-.2, -.12, .2], fr: [-.2, -.15, 0], fl: [.2, .12, 0], lean: -.15, crouch: .25 },
+    swing: { hr: [.45, .25, -.25], hl: [.38, .1, -.25], fr: [-.3, -.15, 0], fl: [.3, .12, 0], lean: .35, crouch: .35 },
+    punch: { hr: [.52, .1, -.02], hl: [.05, .02, -.25], fr: [-.3, -.14, 0], fl: [.28, .12, 0], lean: .3, crouch: .3 },
+    charge: { hr: [-.12, .1, -.36], hl: [-.12, -.12, -.36], fr: [-.18, -.2, 0], fl: [.18, .2, 0], lean: .05, crouch: .45 },
+    kick: { hr: [-.15, -.1, -.3], hl: [.15, .1, -.1], fr: [.55, -.1, .75], fl: [0, .1, 0], lean: -.25, crouch: .1 },
+    dash: { hr: [-.35, -.05, -.3], hl: [-.35, .05, -.3], fr: [-.45, -.12, .05], fl: [.25, .12, 0], lean: .7, crouch: .5 },
+    float: { hr: [.1, -.3, -.25], hl: [.1, .3, -.25], fr: [-.04, -.08, -.04], fl: [.04, .08, 0], lean: 0, crouch: 0 },
+    guard: { hr: [.25, .22, -.05], hl: [.25, -.22, -.05], fr: [-.14, -.14, 0], fl: [.16, .13, 0], lean: .05, crouch: .2 },
+    gaze: { hr: [.15, .12, .18], hl: [.04, .06, -.46], fr: [-.05, -.13, 0], fl: [.08, .12, 0], lean: .04, crouch: 0 },
+  };
+  const FIGURE_RAMP = ['#2b2a3c', '#3c3b53', '#51536c', '#6a6e87', '#868ba2'];
+  const BLADE_RAMP = ['#5d6378', '#8d93a6', '#c3c8d4', '#eef1f6'];
+
   /* ---------- the view: buffers, camera, stage ---------- */
   class View {
     constructor(canvas, W, H) {
@@ -583,6 +605,164 @@
       this.v.hue = hue;
     }
 
+    // faceless caster mannequin (~1.5 tall) with keyframed poses. o.pose: a POSES name, or { a, b, k } to blend
+    // two poses; o.face: facing angle (0 = +x); o.lift: hover height; o.color: body colour; o.scale; o.lean: extra
+    // forward tilt; o.alpha < 1: dithered see-through body (afterimages); o.blade: { len, w, ramp, dir: [f, s, z] local }
+    // held in the right hand (dir defaults to the arm).
+    // Returns world positions { hand, handL, elbow, head, chest, hip, foot, footL, tip, f, s } even when props are
+    // hidden (sprite export), so effects can anchor to the hand or blade tip.
+    figure(x, y, o = E) {
+      const P0 = typeof o.pose === 'object' && o.pose ? o.pose : null;
+      const A = POSES[P0 ? P0.a : o.pose] || POSES.idle, B = P0 ? POSES[P0.b] || A : A, k = P0 ? clamp(P0.k, 0, 1) : 0;
+      const mix = (a, b) => (Array.isArray(a) ? a.map((v, i) => lerp(v, b[i], k)) : lerp(a, b, k));
+      const q = {}; for (const key in A) q[key] = mix(A[key], B[key]);
+      const face = o.face || 0, sc = o.scale || 1, lift = o.lift || 0;
+      const f = [Math.cos(face), Math.sin(face), 0], s = [-Math.sin(face), Math.cos(face), 0];
+      const W3 = (a, b, c) => [x + (f[0] * a + s[0] * b) * sc, y + (f[1] * a + s[1] * b) * sc, (c * sc) + lift];
+      const lean = q.lean + (o.lean || 0), crouch = q.crouch;
+      const hipZ = .76 * (1 - .28 * crouch), sl = Math.sin(lean), cl = Math.cos(lean);
+      const hipL = [0, 0, hipZ], chestL = [sl * .4, 0, hipZ + cl * .4], headL = [sl * .62, 0, hipZ + cl * .62];
+      const shR = [chestL[0], -.17, chestL[2] - .03], shL = [chestL[0], .17, chestL[2] - .03];
+      const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
+      const handRL = add(shR, q.hr), handLL = add(shL, q.hl);
+      // elbow / knee: midpoint pushed out so the two bones keep their length
+      const joint = (a, b, len, bend) => {
+        const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2], d = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
+        const h = Math.sqrt(Math.max(0, len * len / 4 - d * d / 4));
+        return [m[0] + bend[0] * h, m[1] + bend[1] * h, m[2] + bend[2] * h];
+      };
+      const elR = joint(shR, handRL, .52, [-.35, -.55, -.75]), elL = joint(shL, handLL, .52, [-.35, .55, -.75]);
+      const hipR = [hipL[0], -.1, hipZ], hipLL = [hipL[0], .1, hipZ];
+      const knR = joint(hipR, q.fr, .8, [.9, -.1, .3]), knL = joint(hipLL, q.fl, .8, [.9, .1, .3]);
+      const w = pt => W3(pt[0], pt[1], pt[2]);
+      const out = { hand: w(handRL), handL: w(handLL), elbow: w(elR), head: w(headL), chest: w(chestL), hip: w(hipL), foot: w(q.fr), footL: w(q.fl), f, s, tip: null };
+      if (o.blade) {
+        const bl = o.blade, len = bl.len || 1.1;
+        let dl = bl.dir || [handRL[0] - elR[0], handRL[1] - elR[1], handRL[2] - elR[2]];
+        const dn = Math.hypot(dl[0], dl[1], dl[2]) || 1;
+        const dw = [(f[0] * dl[0] + s[0] * dl[1]) / dn, (f[1] * dl[0] + s[1] * dl[1]) / dn, dl[2] / dn];
+        out.tip = [out.hand[0] + dw[0] * len * sc, out.hand[1] + dw[1] * len * sc, out.hand[2] + dw[2] * len * sc];
+        out.bladeDir = dw;
+      }
+      if (this.v.noProps) return out;
+      const body = o.color ? (Array.isArray(o.color) ? o.color : solidRamp(o.color)) : FIGURE_RAMP, hue = this.v.hue;
+      this.v.hue = 0;
+      const r = .075 * sc, al = o.alpha == null ? 1 : o.alpha, ns = { shadow: false, alpha: al }, sh = { alpha: al, shadow: al > .5 };
+      this.capsule(w(hipR), w(knR), r * 1.05, r * .95, body, ns); this.capsule(w(knR), w(q.fr), r * .95, r * .8, body, sh);
+      this.capsule(w(hipLL), w(knL), r * 1.05, r * .95, body, ns); this.capsule(w(knL), w(q.fl), r * .95, r * .8, body, sh);
+      this.capsule(w(hipL), w(chestL), r * 1.7, r * 1.9, body, sh);
+      this.capsule(w(shR), w(elR), r * .9, r * .8, body, ns); this.capsule(w(elR), w(handRL), r * .8, r * .75, body, ns);
+      this.capsule(w(shL), w(elL), r * .9, r * .8, body, ns); this.capsule(w(elL), w(handLL), r * .8, r * .75, body, ns);
+      this.ball(...out.head, .13 * sc, body, { lit: .08, alpha: al, shadow: al > .5 });
+      if (o.blade && out.tip) {
+        const bl = o.blade, ramp = bl.ramp || BLADE_RAMP, bw = (bl.w || .09) * sc, c = this.cam();
+        const d = out.bladeDir, px = [d[1] * c.fwd[2] - d[2] * c.fwd[1], d[2] * c.fwd[0] - d[0] * c.fwd[2], d[0] * c.fwd[1] - d[1] * c.fwd[0]];
+        const pl = Math.hypot(px[0], px[1], px[2]) || 1, hw = [px[0] / pl * bw / 2, px[1] / pl * bw / 2, px[2] / pl * bw / 2];
+        const h = out.hand, t2 = out.tip;
+        this.quad([h[0] - hw[0], h[1] - hw[1], h[2] - hw[2]], [h[0] + hw[0], h[1] + hw[1], h[2] + hw[2]], [t2[0], t2[1], t2[2]], [t2[0], t2[1], t2[2]], ramp, { shade: .8 });
+      }
+      this.v.hue = hue;
+      return out;
+    }
+    // camera axes in world space: right, up (screen) and fwd (towards the viewer). 2D: right = +x, up = +z
+    cam() {
+      const v = this.v;
+      if (v.mode === '2d') return { right: [v.rx, v.ry, 0], up: [0, 0, 1], fwd: [v.hx, v.hy, 0] };
+      return { right: [v.rx, v.ry, 0], up: [v.ux, v.uy, v.uz], fwd: [v.fx, v.fy, v.fz] };
+    }
+    // camera-facing SOLID sprite: fn(u, v) (u, v in -1..1, v up) returns a level 0..1 picking the ramp step,
+    // or a negative value / null for no pixel. Writes depth, gets edges / 2D outline like other solids.
+    // o.dz: depth bias towards the viewer, o.alpha < 1: soft solid, o.shadow: blob shadow under it
+    scard(x, y, z, w, h, fn, ramp, o = E) {
+      const v = this.v;
+      if (!v.P(x, y, z)) return;
+      const R = rampArr(rampId(ramp), v.hue), n = R.length;
+      const cx = v.px, cy = v.py, cd = v.pd + (o.dz || 0), hw = Math.max(w * .5 * v.ps, .5), hh = Math.max(h * .5 * v.ps, .5);
+      const W = v.W, H = v.H, zb = v.zb, pix = v.pix, kind = v.kind, alpha = o.alpha == null ? 1 : o.alpha, K = alpha < 1 ? 4 : 2;
+      const x0 = Math.max(0, Math.floor(cx - hw)), x1 = Math.min(W - 1, Math.ceil(cx + hw));
+      const y0 = Math.max(0, Math.floor(cy - hh)), y1 = Math.min(H - 1, Math.ceil(cy + hh));
+      let drew = false;
+      for (let iy = y0; iy <= y1; iy++) for (let ix = x0; ix <= x1; ix++) {
+        const u = (ix + .5 - cx) / hw, vv = (cy - iy - .5) / hh;
+        if (u < -1 || u > 1 || vv < -1 || vv > 1) continue;
+        if (alpha < 1 && bayerAt(ix, iy) >= alpha) continue;
+        const i = iy * W + ix;
+        if (zb[i] > cd) continue;
+        const l = fn(u, vv);
+        if (l == null || l < 0) continue;
+        const lv = Math.floor(l * n);
+        pix[i] = R[lv < 0 ? 0 : lv >= n ? n - 1 : lv]; zb[i] = cd; kind[i] = K; drew = true;
+      }
+      if (drew && K === 2) v.anySolid = true;
+      if (o.shadow) this.shadow(x, y, Math.max(0, z - h * .5), Math.min(w, h) * .4);
+    }
+    // SOLID strip between two point lists (like ribbon, but opaque): fn(u, v) -> level 0..1 or negative = hole
+    sribbon(left, right, fn, ramp, o = E) {
+      const n = left.length - 1;
+      for (let k = 0; k < n; k++) {
+        const u0 = k / n, u1 = (k + 1) / n;
+        this._stri(left[k], left[k + 1], right[k + 1], [u0, 0], [u1, 0], [u1, 1], fn, ramp, o);
+        this._stri(left[k], right[k + 1], right[k], [u0, 0], [u1, 1], [u0, 1], fn, ramp, o);
+      }
+    }
+    _stri(a, b, c, ta, tb, tc, fn, ramp, o) {
+      const v = this.v;
+      if (!v.P(a[0], a[1], a[2])) return;
+      const ax = v.px, ay = v.py, ad = v.pd;
+      if (!v.P(b[0], b[1], b[2])) return;
+      const bx = v.px, by = v.py, bd = v.pd;
+      if (!v.P(c[0], c[1], c[2])) return;
+      const cx = v.px, cy = v.py, cd = v.pd;
+      const area = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
+      if (Math.abs(area) < 1e-6) return;
+      const R = rampArr(rampId(ramp), v.hue), n = R.length, alpha = o.alpha == null ? 1 : o.alpha, K = alpha < 1 ? 4 : 2;
+      const W = v.W, H = v.H, zb = v.zb, pix = v.pix, kind = v.kind, inv = 1 / area, dz = o.dz || 0;
+      const x0 = Math.max(0, Math.floor(Math.min(ax, bx, cx))), x1 = Math.min(W - 1, Math.ceil(Math.max(ax, bx, cx)));
+      const y0 = Math.max(0, Math.floor(Math.min(ay, by, cy))), y1 = Math.min(H - 1, Math.ceil(Math.max(ay, by, cy)));
+      let drew = false;
+      for (let iy = y0; iy <= y1; iy++) for (let ix = x0; ix <= x1; ix++) {
+        const px = ix + .5, py = iy + .5;
+        const w0 = ((bx - px) * (cy - py) - (by - py) * (cx - px)) * inv;
+        const w1 = ((cx - px) * (ay - py) - (cy - py) * (ax - px)) * inv;
+        const w2 = 1 - w0 - w1;
+        if (w0 < -1e-4 || w1 < -1e-4 || w2 < -1e-4) continue;
+        if (alpha < 1 && bayerAt(ix, iy) >= alpha) continue;
+        const d = w0 * ad + w1 * bd + w2 * cd + dz, i = iy * W + ix;
+        if (d <= zb[i]) continue;
+        const l = fn(w0 * ta[0] + w1 * tb[0] + w2 * tc[0], w0 * ta[1] + w1 * tb[1] + w2 * tc[1]);
+        if (l == null || l < 0) continue;
+        const lv = Math.floor(l * n);
+        pix[i] = R[lv < 0 ? 0 : lv >= n ? n - 1 : lv]; zb[i] = d; kind[i] = K; drew = true;
+      }
+      if (drew && K === 2) v.anySolid = true;
+    }
+    // stain the uncovered ground right away (scorch, frost, ink, char): fn(x, y, rho, angle) -> 0..1 strength,
+    // mixed towards color in three dithered steps. Coordinates are local to (x, y); rho in world units
+    stain(x, y, R, fn, color, amt = 1) {
+      const v = this.v;
+      if (amt <= 0) return;
+      const W = v.W, H = v.H, c = hex(color), fs = v.fs, dith = v.dither;
+      let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+      for (let k = 0; k < 12; k++) {
+        const a = k / 12 * TAU;
+        if (!v.P(x + Math.cos(a) * R * 1.05, y + Math.sin(a) * R * 1.05, 0)) continue;
+        x0 = Math.min(x0, v.px); x1 = Math.max(x1, v.px); y0 = Math.min(y0, v.py); y1 = Math.max(y1, v.py);
+      }
+      if (x0 > x1) return;
+      x0 = Math.max(0, Math.floor(x0)); x1 = Math.min(W - 1, Math.ceil(x1));
+      y0 = Math.max(0, Math.floor(y0)); y1 = Math.min(H - 1, Math.ceil(y1));
+      for (let iy = y0; iy <= y1; iy++) for (let ix = x0; ix <= x1; ix++) {
+        const i = iy * W + ix;
+        if (!v.ghit[i] || v.kind[i] !== 1) continue;
+        const dx = v.gx[i] / fs - x, dy = v.gy[i] / fs - y, rho = Math.hypot(dx, dy);
+        if (rho >= R) continue;
+        const q = fn(dx, dy, rho, Math.atan2(dy, dx)) * amt + (dith ? (bayerAt(ix, iy) - .5) * .3 : 0);
+        const m = q < .14 ? 0 : q < .4 ? .3 : q < .7 ? .58 : .85;
+        if (!m) continue;
+        const p0 = v.pix[i];
+        v.pix[i] = rgb(lerp(p0 & 255, c[0], m), lerp(p0 >> 8 & 255, c[1], m), lerp(p0 >> 16 & 255, c[2], m));
+      }
+    }
     // shadow blob on the ground under a point, offset along the light like pixel-plays
     shadow(x, y, z, r, strength = 1) {
       const v = this.v;
@@ -924,6 +1104,36 @@
       v.flush();
       fn({ pix: v.pix, W: v.W, H: v.H, kind: v.kind, zb: v.zb, bayer: bayerAt, rgb, hex, P: (x, y, z) => (v.P(x, y, z) ? [v.px, v.py, v.pd, v.ps] : null), night: v.night });
     }
+    // colour-grade everything drawn so far (environment darkening, desaturation, tinted domains).
+    // o: { dark 0..1, desat 0..1, tint '#hex', tintAmt 0..1, bg 0..1 (how much of the page background is graded,
+    // default 0), light (also grade resolved emissive pixels, default false) }. Draw the scene, grade it, then draw
+    // the effect's light on top so the move stays bright while the world goes dark / white / red.
+    grade(o = E) {
+      const v = this.v;
+      const dark = o.dark || 0, desat = o.desat || 0, ta = o.tint ? (o.tintAmt == null ? .5 : o.tintAmt) : 0, bgA = o.bg || 0;
+      if (!dark && !desat && !ta) return;
+      v.flush();
+      const tc = o.tint ? hex(o.tint) : [0, 0, 0], pix = v.pix, kind = v.kind, N = v.W * v.H, light = !!o.light;
+      const memo = new Map();
+      const map = c => {
+        let r = c & 255, g = c >> 8 & 255, b = c >> 16 & 255;
+        const y = r * .3 + g * .59 + b * .11;
+        if (desat) { r = lerp(r, y, desat); g = lerp(g, y, desat); b = lerp(b, y, desat); }
+        if (ta) { const yy = (r * .3 + g * .59 + b * .11) / 255; r = lerp(r, tc[0] * yy * 1.2, ta); g = lerp(g, tc[1] * yy * 1.2, ta); b = lerp(b, tc[2] * yy * 1.2, ta); }
+        if (dark) { r *= 1 - dark; g *= 1 - dark; b *= 1 - dark * .85; }
+        return rgb(r, g, b);
+      };
+      for (let i = 0; i < N; i++) {
+        const k = kind[i];
+        if (k === 3 && !light) continue;
+        const c = pix[i];
+        if (!(c >>> 24)) continue;                       // transparent export background stays transparent
+        let m = memo.get(c);
+        if (m === undefined) { m = map(c); memo.set(c, m); }
+        if (k === 0) { if (bgA <= 0) continue; if (bgA < 1) { const iy = (i / v.W) | 0; if (bayerAt(i - iy * v.W, iy) >= bgA) continue; } }
+        pix[i] = m;
+      }
+    }
     // project a world point for custom work: [sx, sy, depth, pixelsPerUnit] or null
     project(x, y, z) { const v = this.v; return v.P(x, y, z) ? [v.px, v.py, v.pd, v.ps] : null; }
 
@@ -1047,5 +1257,5 @@
   // a ramp as the renderer will show it after a hue change (greys stay as they are)
   const shiftRamp = (r, deg) => { const hs = r.map(c => (typeof c === 'string' ? c : toHex(c))); return !deg || chroma(rampId(r)) < .075 ? hs : hs.map(h => shiftHex(h, deg)); };
 
-  G.PXFX = { View, Api, MODES, GROUNDS, define, timing, TUNE_DEFAULTS, BEAT, shiftHex, shiftRamp, get: id => FX.get(id), all: () => [...FX.values()], frameTime, glowRamp, solidRamp, rampId, hex, toHex, hash, noise, fbm, bayerAt, rgb };
+  G.PXFX = { View, Api, MODES, GROUNDS, POSES, define, timing, TUNE_DEFAULTS, BEAT, shiftHex, shiftRamp, get: id => FX.get(id), all: () => [...FX.values()], frameTime, glowRamp, solidRamp, rampId, hex, toHex, hash, noise, fbm, bayerAt, rgb };
 })(typeof window !== 'undefined' ? window : globalThis);

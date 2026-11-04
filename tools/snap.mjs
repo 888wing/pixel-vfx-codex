@@ -20,6 +20,7 @@ const ids = args.length ? args : fs.readdirSync(path.join(root, 'fx')).filter(f 
 fs.mkdirSync(outDir, { recursive: true });
 
 vm.runInThisContext(fs.readFileSync(path.join(root, 'engine', 'pxfx.js'), 'utf8'), { filename: 'engine/pxfx.js' });
+vm.runInThisContext(fs.readFileSync(path.join(root, 'engine', 'kit.js'), 'utf8'), { filename: 'engine/kit.js' });
 const PXFX = globalThis.PXFX;
 const SIZE = { '3d': [240, 150], '25d': [240, 150], '2d': [160, 100] };
 

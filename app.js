@@ -6,7 +6,9 @@
   const { View, MODES } = PXFX;
   const P = window.PXFX_PROMPT;
   const SIZE = P.SIZE;
-  const CATS = { projectile: '飛行彈', beam: '光束', area: '範圍', burst: '爆發', vortex: '旋風', smoke: '煙霧', shield: '護盾', portal: '傳送門', environment: '環境', screen: '畫面' };
+  const CATS = { projectile: '飛行彈', beam: '光束', area: '範圍', burst: '爆發', vortex: '旋風', smoke: '煙霧', shield: '護盾', portal: '傳送門', environment: '環境', screen: '畫面', slash: '斬擊', strike: '近身打擊', domain: '領域', summon: '召喚', aura: '氣場' };
+  const PACKS = { library: '特效庫', ultimate: '必殺技' };
+  const packOf = m => m.pack || 'library';
   const SCHOOLS = { fire: '火', ice: '冰', storm: '雷', arcane: '奧術', light: '光', dark: '暗', shadow: '影', wind: '風', sand: '砂', water: '水', nature: '自然', poison: '毒', astral: '星' };
   const MODE_NAME = { '3d': '3D', '25d': '2.5D', '2d': '2D' };
   const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -23,7 +25,7 @@
     night: store('night') === '1',
     target: P.TARGETS[store('target')] ? store('target') : 'canvas',
     lang: store('lang') === 'en' ? 'en' : 'zh',
-    cat: 'all', school: 'all', q: '',
+    cat: 'all', school: 'all', pack: 'all', q: '',
   };
 
   /* ---------- per-effect tweaks: { params, tune, color } kept in localStorage ---------- */
@@ -110,7 +112,7 @@
       <div class="info">
         <div class="title"><span class="num">${String(m.n).padStart(2, '0')}</span><b>${m.zh}</b></div>
         <div class="en">${m.en}</div>
-        <div class="tags"><span class="dot" style="background:${m.color}"></span>${CATS[m.category] || m.category}${schools ? ' · ' + schools : ''}<span class="loop"></span></div>
+        <div class="tags"><span class="dot" style="background:${m.color}"></span>${packOf(m) === 'ultimate' ? '<span class="pk">必殺技</span>' : ''}${CATS[m.category] || m.category}${schools ? ' · ' + schools : ''}<span class="loop"></span></div>
       </div>
       <div class="actions"><button type="button" class="btn primary copy" disabled>複製 Prompt</button><button type="button" class="btn open">調整 / 詳情</button></div>`;
     card.el = el;
@@ -162,16 +164,21 @@
     return b;
   }
   function buildFilters() {
-    const cats = $('#cats'), schools = $('#schools');
-    cats.replaceChildren(); schools.replaceChildren();
-    const catCount = {}, schCount = {};
+    const cats = $('#cats'), schools = $('#schools'), packs = $('#packs');
+    cats.replaceChildren(); schools.replaceChildren(); packs.replaceChildren();
+    const catCount = {}, schCount = {}, packCount = {};
+    for (const c of cards) packCount[packOf(c.meta)] = (packCount[packOf(c.meta)] || 0) + 1;
+    packs.append(chip('全部', cards.length, state.pack === 'all', () => { state.pack = 'all'; buildFilters(); applyFilters(); }));
+    for (const k of Object.keys(PACKS)) if (packCount[k]) packs.append(chip(PACKS[k], packCount[k], state.pack === k, () => { state.pack = k; state.cat = 'all'; state.school = 'all'; buildFilters(); applyFilters(); }));
     for (const c of cards) {
+      if (state.pack !== 'all' && packOf(c.meta) !== state.pack) continue;
       catCount[c.meta.category] = (catCount[c.meta.category] || 0) + 1;
       for (const s of c.meta.schools || []) schCount[s] = (schCount[s] || 0) + 1;
     }
-    cats.append(chip('全部類型', cards.length, state.cat === 'all', () => { state.cat = 'all'; buildFilters(); applyFilters(); }));
+    const inPack = cards.filter(c => state.pack === 'all' || packOf(c.meta) === state.pack).length;
+    cats.append(chip('全部類型', inPack, state.cat === 'all', () => { state.cat = 'all'; buildFilters(); applyFilters(); }));
     for (const k of Object.keys(CATS)) if (catCount[k]) cats.append(chip(CATS[k], catCount[k], state.cat === k, () => { state.cat = k; buildFilters(); applyFilters(); }));
-    schools.append(chip('全部元素', cards.length, state.school === 'all', () => { state.school = 'all'; buildFilters(); applyFilters(); }));
+    schools.append(chip('全部元素', inPack, state.school === 'all', () => { state.school = 'all'; buildFilters(); applyFilters(); }));
     for (const k of Object.keys(SCHOOLS)) if (schCount[k]) schools.append(chip(SCHOOLS[k], schCount[k], state.school === k, () => { state.school = k; buildFilters(); applyFilters(); }));
   }
   function applyFilters() {
@@ -179,8 +186,8 @@
     let shown = 0;
     for (const c of cards) {
       const m = c.meta;
-      const hay = [m.id, m.zh, m.en, m.descZh, m.descEn, CATS[m.category], ...(m.schools || []).map(s => SCHOOLS[s] + ' ' + s), m.category].join(' ').toLowerCase();
-      const ok = (state.cat === 'all' || m.category === state.cat) && (state.school === 'all' || (m.schools || []).includes(state.school)) && (!q || q.split(/\s+/).every(w => hay.includes(w)));
+      const hay = [m.id, m.zh, m.en, m.descZh, m.descEn, m.tags, CATS[m.category], PACKS[packOf(m)], ...(m.schools || []).map(s => SCHOOLS[s] + ' ' + s), m.category].join(' ').toLowerCase();
+      const ok = (state.pack === 'all' || packOf(m) === state.pack) && (state.cat === 'all' || m.category === state.cat) && (state.school === 'all' || (m.schools || []).includes(state.school)) && (!q || q.split(/\s+/).every(w => hay.includes(w)));
       c.el.hidden = !ok;
       if (ok) shown++;
     }
@@ -223,8 +230,11 @@
     $('#d-num').textContent = String(m.n).padStart(2, '0');
     $('#d-zh').textContent = m.zh;
     $('#d-en').textContent = m.en;
-    $('#d-desc').replaceChildren(m.descZh, Object.assign(document.createElement('span'), { className: 'en', textContent: m.descEn }));
-    $('#d-credit').innerHTML = `原作：<a href="https://00gamedevs.com/zh-TW/effects/${m.id}/" target="_blank" rel="noopener">00GameDevs · ${m.en}</a>（MIT）。像素版由 PXFX 渲染器以 pixel-plays 規則重製。`;
+    const mods = (card.def.modules || []).filter(k => PXFX.KIT && PXFX.KIT[k]).map(k => PXFX.KIT[k].zh.split('：')[0]);
+    $('#d-desc').replaceChildren(m.descZh, Object.assign(document.createElement('span'), { className: 'en', textContent: m.descEn }), ...(mods.length ? [Object.assign(document.createElement('span'), { className: 'mods', textContent: '模組：' + mods.join('・') })] : []));
+    $('#d-credit').innerHTML = packOf(m) === 'ultimate'
+      ? '原創設計（必殺技包）：把動畫必殺技的視覺語言拆成起手、集氣、成形、推進、命中、餘波六段，再用共用模組重新組合；不使用任何作品的角色、名稱或美術。像素版由 PXFX 渲染器以 pixel-plays 規則繪製。'
+      : `原作：<a href="https://00gamedevs.com/zh-TW/effects/${m.id}/" target="_blank" rel="noopener">00GameDevs · ${m.en}</a>（MIT）。像素版由 PXFX 渲染器以 pixel-plays 規則重製。`;
     history.replaceState(null, '', '#' + m.id);
     if (!dlg.open) dlg.showModal();
     buildTune();

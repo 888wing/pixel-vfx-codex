@@ -59,6 +59,8 @@ select { background: var(--paper); border: 1px solid var(--faint); padding: 3px 
 .card .en { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .card .tags { color: var(--muted); font-size: 12px; }
 .card .tags .dot { display: inline-block; width: 7px; height: 7px; margin-right: 5px; vertical-align: 0; }
+.card .tags .pk { border: 1px solid currentColor; padding: 0 4px; margin-right: 6px; font-size: 11px; color: var(--ink); }
+#packs button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
 .card .actions { display: flex; gap: 8px; padding: 10px 12px 12px; margin-top: auto; }
 .card .actions .btn { flex: 1; }
 .card:hover .stage { outline: 1px solid var(--ink); outline-offset: -1px; }
@@ -95,6 +97,7 @@ body.night dialog#detail::backdrop { background: rgba(10, 9, 14, .78); }
 .card .stage .tweaked { position: absolute; top: 8px; right: 10px; color: var(--accent); font-size: 12px; }
 .desc { margin: 0; }
 .desc .en { color: var(--muted); display: block; }
+.desc .mods { display: block; margin-top: 4px; font-size: 12px; color: var(--muted); }
 .palette { display: grid; gap: 4px; }
 .palette .row { display: flex; align-items: center; gap: 8px; }
 .palette .row span { width: 64px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }

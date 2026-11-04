@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const id = process.argv[2] || 'fireball';
 vm.runInThisContext(fs.readFileSync(path.join(root, 'engine/pxfx.js'), 'utf8'));
+vm.runInThisContext(fs.readFileSync(path.join(root, 'engine/kit.js'), 'utf8'));
 vm.runInThisContext(fs.readFileSync(path.join(root, 'fx', id + '.js'), 'utf8'));
 const def = PXFX.get(id), tm = PXFX.timing(def, {}), FPS = 20, n = Math.round(tm.length * FPS);
 const cols = [['3d', 240, 150], ['25d', 240, 150], ['2d', 160, 100]], CW = 240, CH = 150, GAP = 4, W = CW * 3 + GAP * 2;

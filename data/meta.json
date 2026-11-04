@@ -1452,5 +1452,548 @@
   "kind": 1,
   "previewMode": null,
   "loadZh": "大量星光變形、多層能量及沿途裂谷一起演出，透明疊加較多。"
+ },
+ {
+  "n": 65,
+  "id": "petal-blade-storm",
+  "zh": "千刃花嵐",
+  "en": "Thousand Petal Blades",
+  "descZh": "刀插入地面泛起波紋，身後升起一排巨刃再碎成無數粉紅色小刀片，刀片像花瓣般流動，先散射、再螺旋、最後包圍目標壓縮成球並交錯斬開。",
+  "descEn": "A sword sinks into the ground, giant blades rise and shatter into countless pink petal blades that scatter, spiral, then wrap the target in a sphere and crush it with crossing slashes.",
+  "category": "vortex",
+  "schools": [
+   "nature",
+   "light"
+  ],
+  "tags": "刀片 花瓣 粒子群 包圍 千刃 petal blades swarm",
+  "color": "#ff8fc0",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 66,
+  "id": "cinder-edge",
+  "zh": "燼刃焦土",
+  "en": "Cinder Edge",
+  "descZh": "刀上烈火忽然全部收斂到極細的刀鋒，空氣因高溫扭曲；一揮之下巨型火焰弧斬橫掃前方，地面焦黑，灰燼向上飄。",
+  "descEn": "The blazing sword suddenly pulls all its fire into a razor edge and the air shimmers; one swing sends a giant arc of flame across the field, scorching the ground as ash drifts up.",
+  "category": "slash",
+  "schools": [
+   "fire"
+  ],
+  "tags": "火 斬擊 收斂 熱浪 焦土 灰燼 fire slash",
+  "color": "#ff7a2a",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 67,
+  "id": "frost-wing-surge",
+  "zh": "冰翼龍嘯",
+  "en": "Frost Wing Surge",
+  "descZh": "施法者背後展開巨大冰翼與冰尾，寒氣飛散；冰柱沿地面一根接一根刺向目標，冰晶由接觸點爬滿目標再碎裂。",
+  "descEn": "Huge ice wings and a tail unfold behind the caster; ice spikes erupt one after another towards the target, crystals creep over it from the contact point and shatter.",
+  "category": "area",
+  "schools": [
+   "ice"
+  ],
+  "tags": "冰 冰翼 冰刺 冰晶生長 frost wings ice spikes",
+  "color": "#8fd8ff",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 68,
+  "id": "white-silence",
+  "zh": "白寂霜葬",
+  "en": "White Silence",
+  "descZh": "施法者全身變白，畫面色彩逐漸消失；揮刀後半透明寒氣球急速擴張，地面起白霧，所有東西凍成白色晶體，靜止一瞬後碎裂。",
+  "descEn": "The caster turns pure white and colour drains from the scene; one swing sends a translucent frost sphere racing outwards, white fog rolls in, everything freezes into white crystal, holds still, then shatters.",
+  "category": "domain",
+  "schools": [
+   "ice"
+  ],
+  "tags": "冰 白化 去飽和 冰封 寂靜 white freeze domain",
+  "color": "#e8f2ff",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 69,
+  "id": "ink-tide-binding",
+  "zh": "墨潮縛絲",
+  "en": "Ink Tide Binding",
+  "descZh": "施法者緩緩張開雙臂，環境變暗，黑色水面由腳下湧出淹沒戰場，墨點浮起；最後發光白線纏繞目標，瞬間收緊斷開。",
+  "descEn": "The caster slowly spreads both arms, the world darkens and black water floods out from their feet with floating ink; finally glowing white threads wrap the target and snap tight.",
+  "category": "domain",
+  "schools": [
+   "water",
+   "shadow"
+  ],
+  "tags": "黑水 墨 白線 束縛 儀式 領域 ink water threads",
+  "color": "#d8d0ff",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 70,
+  "id": "crescent-fang",
+  "zh": "月牙裂空",
+  "en": "Crescent Fang",
+  "descZh": "施法者舉刀集氣，黑色能量包住全身；揮刀放出巨大黑色彎月斬擊，藍白刀邊發光，高速推進犁開地面，命中爆出豎立衝擊環。",
+  "descEn": "The caster raises the blade as black energy wraps them; one swing releases a giant black crescent with a blue-white edge that ploughs the ground and bursts into an upright shock ring.",
+  "category": "slash",
+  "schools": [
+   "dark"
+  ],
+  "tags": "斬擊 彎月 黑色能量 刀氣 crescent slash",
+  "color": "#4a92e8",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 71,
+  "id": "violet-fusion",
+  "zh": "紅藍合紫",
+  "en": "Violet Fusion",
+  "descZh": "施法者兩側各凝聚一團藍色與紅色能量，兩球旋轉靠近、碰撞，融合成帶白熱核心的紫色巨球，向前推進扭曲空間，地面留下巨大溝槽。",
+  "descEn": "A blue orb and a red orb form at either side of the caster, spiral together and fuse into a huge violet sphere with a white-hot core that pushes forward, warping space and gouging a trench.",
+  "category": "projectile",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "融合 紅 藍 紫 能量球 空間扭曲 fusion orb",
+  "color": "#b45cff",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 72,
+  "id": "endless-starfield",
+  "zh": "無垠星域",
+  "en": "Endless Starfield",
+  "descZh": "施法者結手勢，一下黑屏後整個畫面變成無邊宇宙：星點分層閃爍、星雲流動、巨大光環緩慢旋轉，目標懸浮定身。",
+  "descEn": "The caster makes a sign; after a blackout the whole frame becomes endless space: layered twinkling stars, drifting nebulae and giant slowly turning rings, with the target floating, frozen.",
+  "category": "domain",
+  "schools": [
+   "astral"
+  ],
+  "tags": "領域 宇宙 星空 光環 漂浮 starfield domain",
+  "color": "#6f8cff",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 73,
+  "id": "shrine-of-cuts",
+  "zh": "斬獄神龕",
+  "en": "Shrine of Cuts",
+  "descZh": "施法者身後由黑煙中升起巨大詭異神龕，畫面轉成暗紅黑色；空中、地面與目標身上接連出現隨機斬擊線，碎片四散。",
+  "descEn": "A huge eerie shrine rises out of black smoke behind the caster and the scene turns blood red; random slash lines appear everywhere, in the air, on the ground and on the target, and debris flies.",
+  "category": "domain",
+  "schools": [
+   "dark"
+  ],
+  "tags": "領域 神龕 斬擊 紅 碎片 shrine slashes",
+  "color": "#ff3a4a",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 74,
+  "id": "shadow-marsh",
+  "zh": "影沼百獸",
+  "en": "Shadow Marsh",
+  "descZh": "黑色液體般的影子由腳下擴散覆蓋地面，黑水多處隆起，冒出影子手臂與獸頭攻擊目標，之後重新沉入黑水。",
+  "descEn": "Liquid black shadow spreads from the caster's feet over the ground; it bulges in several places and shadow arms and beast heads burst out to strike, then sink back in.",
+  "category": "summon",
+  "schools": [
+   "shadow"
+  ],
+  "tags": "影子 黑水 召喚 手臂 獸 shadow summon",
+  "color": "#5a7cc8",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 75,
+  "id": "caldera-domain",
+  "zh": "熔獄火山",
+  "en": "Caldera Domain",
+  "descZh": "戰場一下變成火山內部：四周升起高聳岩壁，地面裂開流出熔岩，岩漿噴發，火球由岩壁與空中射向目標。",
+  "descEn": "The battlefield becomes the inside of a volcano: rock walls rise all around, the floor cracks into lava, magma erupts and fireballs fly from the walls and the sky at the target.",
+  "category": "domain",
+  "schools": [
+   "fire"
+  ],
+  "tags": "火山 熔岩 噴發 火球 領域 volcano lava",
+  "color": "#ff5a1c",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 76,
+  "id": "crimson-spark-fist",
+  "zh": "黑紅雷拳",
+  "en": "Crimson Spark Fist",
+  "descZh": "施法者高速衝前出拳，命中一瞬爆出黑色放射衝擊與暗紅閃電，畫面頓幀並翻成黑白反相，強烈短促震屏，速度線向外擴散。",
+  "descEn": "The caster dashes in with a punch; on contact a black radial burst and dark red lightning explode, the frame freezes and flips to a two-tone negative, a short hard shake, speed lines everywhere.",
+  "category": "strike",
+  "schools": [
+   "storm",
+   "dark"
+  ],
+  "tags": "拳 打擊 黑紅 閃電 頓幀 反相 punch impact",
+  "color": "#e8203c",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 77,
+  "id": "abyss-flame-dragon",
+  "zh": "冥炎黑龍",
+  "en": "Abyss Flame Dragon",
+  "descZh": "施法者伸出手臂，黑色火焰纏繞後噴發，化成一條細長巨大的黑炎龍，張口以蛇形軌跡穿越戰場撲向目標，邊緣紫光火星飄散。",
+  "descEn": "The caster thrusts an arm out, black fire coils and erupts into a long giant dragon of black flame that snakes across the field, jaws open, onto the target, shedding violet sparks.",
+  "category": "summon",
+  "schools": [
+   "dark",
+   "fire"
+  ],
+  "tags": "龍 黑炎 召喚 追蹤 dragon black flame",
+  "color": "#9a4cff",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 78,
+  "id": "finger-bolt",
+  "zh": "指尖靈彈",
+  "en": "Finger Bolt",
+  "descZh": "施法者擺出指槍手勢，光點由外向指尖集中成極亮藍球，瞬間射出高速藍色光束，槍口放射閃光，命中爆出球形能量爆炸。",
+  "descEn": "The caster forms a finger gun; motes gather into a blazing blue ball at the fingertip that fires as a fast blue beam with a muzzle flash and bursts into a spherical blast on hit.",
+  "category": "beam",
+  "schools": [
+   "light"
+  ],
+  "tags": "指尖 光束 集氣 爆炸 finger beam",
+  "color": "#5ad0ff",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 79,
+  "id": "spiral-palm-wave",
+  "zh": "螺旋掌波",
+  "en": "Spiral Palm Wave",
+  "descZh": "施法者聚氣，靈氣一圈圈環繞並螺旋上升，光芒壓縮到掌心，雙掌推出一道向前擴散的錐形光波，命中出現圓形壓力波。",
+  "descEn": "The caster gathers energy, aura rings coil and spiral upwards, the light compresses into the palms, and a double palm strike releases a widening cone wave that lands as a circular pressure ring.",
+  "category": "burst",
+  "schools": [
+   "light",
+   "wind"
+  ],
+  "tags": "掌 氣 螺旋 錐形 衝擊 palm wave",
+  "color": "#9ad8ff",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 80,
+  "id": "golden-aura-armor",
+  "zh": "金光聖鎧",
+  "en": "Golden Aura Armor",
+  "descZh": "金光由施法者體內向外滲出，形成明亮的護體氣流，再分段凝聚成能量鎧甲；垂直光線流動、金色光點飄浮，波紋規律擴張，移動時留下金色殘影。",
+  "descEn": "Golden light seeps out of the caster into a bright protective flow, then forms energy armour piece by piece; vertical light streaks, floating gold dust, regular pulse rings, and golden afterimages when moving.",
+  "category": "aura",
+  "schools": [
+   "light"
+  ],
+  "tags": "金光 氣場 鎧甲 覺醒 殘影 aura armour",
+  "color": "#ffcf4a",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 81,
+  "id": "thorn-bloom",
+  "zh": "荊棘綻放",
+  "en": "Thorn Bloom",
+  "descZh": "施法者拋出種子，藤蔓高速從地面衝出交錯纏繞目標，表面長滿尖刺，巨大荊棘花張開鋸齒花瓣合起困住目標，花瓣與葉片飛散。",
+  "descEn": "The caster throws a seed; vines burst from the ground and wrap the target, covered in thorns, and a giant thorn flower opens its serrated petals and snaps shut on it as petals and leaves scatter.",
+  "category": "area",
+  "schools": [
+   "nature"
+  ],
+  "tags": "藤蔓 荊棘 生長 束縛 花 vines thorns",
+  "color": "#e0306a",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 82,
+  "id": "bat-bomb-barrage",
+  "zh": "蝠彈連爆",
+  "en": "Bat Bomb Barrage",
+  "descZh": "施法者放出多個蝙蝠形魔法炸彈，圍繞目標盤旋拖出黑煙，再逐一俯衝引爆，形成連鎖爆炸，最後一次大範圍衝擊。",
+  "descEn": "The caster releases bat-shaped magic bombs that circle the target trailing black smoke, then dive in one by one in a chain of explosions that ends in one big shockwave.",
+  "category": "projectile",
+  "schools": [
+   "dark",
+   "fire"
+  ],
+  "tags": "蝙蝠 炸彈 追蹤 連鎖爆炸 bat bombs",
+  "color": "#ff8a3a",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 83,
+  "id": "gale-shuriken",
+  "zh": "風刃手裏劍",
+  "en": "Gale Shuriken",
+  "descZh": "掌心一團藍白能量高速旋轉，外圍長出四片巨大風刃；投擲後拖出螺旋氣流，命中瞬間膨脹成巨大旋轉風暴，內部密集細小斬擊。",
+  "descEn": "A blue-white ball spins in the palm and grows four giant wind blades; thrown, it trails a spiral of air and on impact swells into a huge spinning storm full of tiny cuts.",
+  "category": "projectile",
+  "schools": [
+   "wind"
+  ],
+  "tags": "風 旋轉 手裏劍 風刃 風暴 wind shuriken",
+  "color": "#9ae8ff",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 84,
+  "id": "spirit-colossus",
+  "zh": "靈骸巨神",
+  "en": "Spirit Colossus",
+  "descZh": "施法者身邊浮現巨大發光骨架，再長出肌肉與鎧甲成為半透明紫色能量巨人，巨人揮動巨刀，斬出巨大光帶。",
+  "descEn": "A giant glowing skeleton rises around the caster, grows muscle and armour into a translucent violet energy giant, and the giant swings a huge blade in a sweeping band of light.",
+  "category": "summon",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "巨人 骨架 化身 巨刀 colossus summon",
+  "color": "#b070ff",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 85,
+  "id": "gravity-core",
+  "zh": "引力天核",
+  "en": "Gravity Core",
+  "descZh": "施法者合掌造出一粒細小黑球拋上半空，地面碎裂，大量碎石由四方飛向黑球，先繞核心旋轉，再壓縮成一顆巨大岩石球。",
+  "descEn": "The caster cups a tiny black orb and throws it up; the ground cracks and rocks fly in from all sides, orbit the core, and pack into a giant sphere of stone.",
+  "category": "vortex",
+  "schools": [
+   "dark",
+   "astral"
+  ],
+  "tags": "重力 黑球 碎石 吸引 岩球 gravity core",
+  "color": "#a08cff",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 86,
+  "id": "repulse-sphere",
+  "zh": "斥力天球",
+  "en": "Repulse Sphere",
+  "descZh": "施法者懸浮空中緩緩張開雙手，下一瞬以自身為中心爆出巨大透明球形衝擊，空間扭曲，碎石向外飛散，塵土環形擴散，鏡頭拉遠。",
+  "descEn": "The caster hovers and slowly opens both hands; then a huge transparent sphere of force bursts from them, warping space, flinging rocks outwards and pushing a ring of dust as the camera pulls back.",
+  "category": "burst",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "斥力 球形 衝擊 塵土 推開 repulse sphere",
+  "color": "#d8e4ff",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 87,
+  "id": "crimson-dragon-dash",
+  "zh": "赤龍突",
+  "en": "Crimson Dragon Dash",
+  "descZh": "施法者全身噴出濃厚紅色蒸氣，氣流聚成巨大龍形輪廓；突然衝刺，龍形跟著撞向目標，以猛烈踢擊爆發，命中一瞬強光收縮再爆開。",
+  "descEn": "Thick red steam pours off the caster and gathers into a giant dragon silhouette; they dash and the dragon charges with them into a crushing kick that compresses into a point of light, then explodes.",
+  "category": "strike",
+  "schools": [
+   "fire"
+  ],
+  "tags": "衝刺 紅蒸氣 龍形 踢擊 dash kick",
+  "color": "#ff3a2a",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 88,
+  "id": "black-flame-curse",
+  "zh": "黑焰咒燒",
+  "en": "Black Flame Curse",
+  "descZh": "施法者凝視目標，目標表面突然冒出不透明黑色火焰，火焰持續向上扭動擴散，邊緣紫紅發亮，黑色火屑飄起，地面形成持續燃燒區。",
+  "descEn": "The caster stares at the target and opaque black flames burst from its surface, writhing upwards and spreading with glowing magenta edges, black embers rising and a burning zone left on the ground.",
+  "category": "area",
+  "schools": [
+   "dark",
+   "fire"
+  ],
+  "tags": "黑焰 持續燃燒 詛咒 凝視 black flame",
+  "color": "#d03a8a",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 89,
+  "id": "eclipse-slash",
+  "zh": "月蝕斬",
+  "en": "Eclipse Slash",
+  "descZh": "揮出漆黑彎月形斬擊，命中時附帶大量紅色閃電，再爆發黑色球形衝擊；原創組合：彎月斬擊＋黑紅打擊。",
+  "descEn": "A pitch-black crescent slash that lands with a storm of red lightning and erupts into a black sphere of force. An original combination of the crescent slash and the black-red impact.",
+  "category": "slash",
+  "schools": [
+   "dark",
+   "storm"
+  ],
+  "tags": "原創 月蝕 彎月 紅雷 黑球 eclipse",
+  "color": "#e8203c",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 90,
+  "id": "crystal-requiem",
+  "zh": "萬晶天葬",
+  "en": "Crystal Requiem",
+  "descZh": "數千塊晶體先環繞目標旋轉，再被中央引力拉入，層層壓縮成一顆巨大晶球後爆裂；原創組合：刀片風暴＋引力核心。",
+  "descEn": "Thousands of crystals circle the target, are pulled in by a central gravity and pack layer by layer into a giant crystal sphere that bursts. An original combination of the blade swarm and the gravity core.",
+  "category": "vortex",
+  "schools": [
+   "ice",
+   "arcane"
+  ],
+  "tags": "原創 晶體 引力 壓縮 晶球 crystal",
+  "color": "#7af0e0",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 91,
+  "id": "echo-dragon",
+  "zh": "殘響龍",
+  "en": "Echo Dragon",
+  "descZh": "龍形氣流高速飛越戰場，命中時整條龍分解成數百道旋轉風刃向四方切開；原創組合：能量龍＋旋轉風刃。",
+  "descEn": "A dragon of rushing wind streaks across the field and on impact the whole dragon breaks apart into hundreds of spinning wind blades that cut outwards. An original combination of the energy dragon and the wind blades.",
+  "category": "summon",
+  "schools": [
+   "wind"
+  ],
+  "tags": "原創 風 龍 風刃 分解 echo dragon",
+  "color": "#7affc8",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
+ },
+ {
+  "n": 92,
+  "id": "void-frost-burial",
+  "zh": "虛域冰葬",
+  "en": "Void Frost Burial",
+  "descZh": "戰場進入黑暗空間，腳下形成黑色鏡面，白色冰晶由目標腳底向上生長包住目標，最後全部碎裂；原創組合：星域領域＋白化冰封。",
+  "descEn": "The field drops into dark space with a black mirror floor; white ice crystals grow up from under the target until it is encased, then everything shatters. An original combination of the starfield domain and the white freeze.",
+  "category": "domain",
+  "schools": [
+   "ice",
+   "dark"
+  ],
+  "tags": "原創 虛空 鏡面 冰晶 碎裂 void frost",
+  "color": "#bfe8ff",
+  "duration": 4,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "ultimate"
  }
 ]
