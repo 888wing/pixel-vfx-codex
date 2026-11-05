@@ -5,6 +5,7 @@ tools/out/
 # promo working files (frames, audio, renders)
 promo/frames/
 promo/frames-wide/
+promo/frames-*/
 promo/audio/
 promo/*.png
 promo/*.wav

@@ -1,5 +1,5 @@
 // Render promo/reel.html frame by frame into promo/frames/f0000.png ... (headless Chrome on file://)
-// usage: [LAYOUT=wide] [ONLY=1,2,3] node promo/render.mjs [from] [to]
+// usage: [PAGE=ult.html] [LAYOUT=wide] [OUT=frames-x] [ONLY=1,2,3] node promo/render.mjs [from] [to]
 import puppeteer from 'puppeteer';
 import fsx from 'node:fs';
 // set CHROME to use a local Chrome; otherwise puppeteer's own browser is used
@@ -13,9 +13,9 @@ const page = await browser.newPage();
 const errors = [];
 page.on('pageerror', e => errors.push(e.message));
 page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
-const wide = process.env.LAYOUT === 'wide', frameDir = wide ? 'frames-wide' : 'frames';
+const wide = process.env.LAYOUT === 'wide', page0 = process.env.PAGE || 'reel.html', frameDir = process.env.OUT || (wide ? 'frames-wide' : 'frames');
 await page.setViewport(wide ? { width: 1920, height: 1080 } : { width: 1080, height: 1920 });
-await page.goto('file://' + path.join(dir, 'reel.html') + (wide ? '?layout=wide' : ''));
+await page.goto('file://' + path.join(dir, page0) + (wide ? '?layout=wide' : ''));
 await page.waitForFunction('window.REEL');
 const fonts = await page.evaluate(() => ({ zh: document.fonts.check('600 40px "PingFang TC"'), mono: document.fonts.check('700 40px "SF Mono"') }));
 const total = await page.evaluate('REEL.FRAMES');
