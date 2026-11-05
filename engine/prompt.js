@@ -194,6 +194,12 @@
     const fmtv = v => (typeof v === 'number' ? n2(v) : String(v));
     for (const [key, d] of Object.entries(def.params || {})) {
       const v = P[key] != null ? P[key] : d.value;
+      if (d.labels) {   // an index into named options (e.g. the formation): list the names
+        const L = zh ? d.labels : d.labelsEn || d.labels, at = i => L[Math.round(i)] || String(i);
+        out.push(zh ? `- ${key}（${d.zh || key}）：${at(v)}（可選 ${L.join('／')}${P[key] != null ? `，預設 ${at(d.value)}` : ''}）`
+          : `- ${key} (${d.en || d.zh || key}): ${at(v)} (one of ${L.join(' / ')}${P[key] != null ? `, default ${at(d.value)}` : ''})`);
+        continue;
+      }
       out.push(zh ? `- ${key}（${d.zh || key}）：${fmtv(v)}（範圍 ${fmtv(d.min)}–${fmtv(d.max)}${P[key] != null ? `，預設 ${fmtv(d.value)}` : ''}）`
         : `- ${key} (${d.en || d.zh || key}): ${fmtv(v)} (range ${fmtv(d.min)}–${fmtv(d.max)}${P[key] != null ? `, default ${fmtv(d.value)}` : ''})`);
     }
@@ -256,7 +262,7 @@
     const mods = (def.modules || []).filter(k => PXFX.KIT && PXFX.KIT[k]);
     if (mods.length) {
       out.push('', zh ? '## 可重用模組（先做成獨立模組，再組合成這一招）' : '## Reusable modules (build each as its own module, then compose this move)');
-      if (zh) out.push('大招分六段：起手 → 集氣 → 成形 → 推進 → 命中 → 餘波（時間軸已標示）。每段用下列模組組成，換掉其中一兩個就能做出新招式：');
+      if (zh) out.push('這一招分六段：起手 → 集氣 → 成形 → 推進 → 命中 → 餘波（時間軸已標示）。每段用下列模組組成，換掉其中一兩個就能做出新招式：');
       else out.push('The move runs in six stages: Pose → Charge → Shape → Motion → Impact → Aftermath (tagged in the timeline). Each stage is built from these modules; swap one or two to get a new move:');
       for (const k of mods) out.push('- ' + PXFX.KIT[k][zh ? 'zh' : 'en']);
     }
@@ -275,13 +281,13 @@
       out.push('- 時間分兩層：特效本身用時間 t 計算畫面（同一 t 畫面永遠相同），頓幀、加減速、震屏、閃光由外層時間映射處理，方便遊戲按命中結果觸發。');
       out.push('- 循環播放無跳格；在 2 個以上的整數放大倍率下檢查：沒有半像素、沒有模糊、沒有混色的漸層帶。');
       out.push('- 附一張逐格 sprite sheet 匯出（按上面 fps，頓幀以重複格表現，震屏不烘入）方便美術檢查。');
-      out.push('', meta && meta.pack === 'ultimate' ? '（原創設計：Pixel VFX Codex 必殺技包，MIT；像素渲染風格參考 pixel-plays，MIT。）' : `（設計參考：00GameDevs「${meta ? meta.en : def.id}」，MIT；像素渲染風格參考 pixel-plays，MIT。）`);
+      out.push('', meta && meta.pack === 'ultimate' ? '（原創設計：Pixel VFX Codex 必殺技包，MIT；像素渲染風格參考 pixel-plays，MIT。）' : meta && meta.pack === 'mass' ? '（原創設計：Pixel VFX Codex 群體魔法包，MIT；像素渲染風格參考 pixel-plays，MIT。）' : meta && meta.pack === 'scale' ? '（原創設計：Pixel VFX Codex 十百千萬包，MIT；像素渲染風格參考 pixel-plays，MIT。）' : `（設計參考：00GameDevs「${meta ? meta.en : def.id}」，MIT；像素渲染風格參考 pixel-plays，MIT。）`);
     } else {
       out.push('- A reusable effect module: every parameter above is an input (defaults = current values), plus speed; start / stop (natural fade-out) / hit (where relevant).');
       out.push('- Two clocks: the effect draws from its own time t (same t, same frame); hit-stop, pacing, shake and flash live in an outer time map so the game can trigger them on real hits.');
       out.push('- Loops without a pop; check at two or more integer zoom levels: no half pixels, no blur, no blended gradient bands.');
       out.push('- Export a frame-by-frame sprite sheet at the fps above (hit-stop as repeated frames, shake not baked in) for art review.');
-      out.push('', meta && meta.pack === 'ultimate' ? '(Original design from the Pixel VFX Codex Ultimates pack, MIT. Pixel render style after pixel-plays, MIT.)' : `(Design reference: 00GameDevs "${meta ? meta.en : def.id}", MIT. Pixel render style after pixel-plays, MIT.)`);
+      out.push('', meta && meta.pack === 'ultimate' ? '(Original design from the Pixel VFX Codex Ultimates pack, MIT. Pixel render style after pixel-plays, MIT.)' : meta && meta.pack === 'mass' ? '(Original design from the Pixel VFX Codex Mass Spells pack, MIT. Pixel render style after pixel-plays, MIT.)' : meta && meta.pack === 'scale' ? '(Original design from the Pixel VFX Codex Scale Ladder pack, MIT. Pixel render style after pixel-plays, MIT.)' : `(Design reference: 00GameDevs "${meta ? meta.en : def.id}", MIT. Pixel render style after pixel-plays, MIT.)`);
     }
     return out.join('\n');
   }

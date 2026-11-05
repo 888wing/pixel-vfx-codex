@@ -1995,5 +1995,431 @@
   "kind": 0,
   "previewMode": null,
   "pack": "ultimate"
+ },
+ {
+  "n": 93,
+  "id": "skyfall",
+  "zh": "天墜星",
+  "en": "Skyfall",
+  "descZh": "天空轉紅，一顆比畫面還大的隕石緩緩落下，地上陰影越來越大；撞擊後衝擊環由中心向外，按距離逐個把敵群拋飛，留下熔岩裂紋的隕坑。",
+  "descEn": "The sky turns red and a meteor larger than the frame drops slowly while its shadow spreads over the horde; the impact ring throws the crowd outwards in order of distance and leaves a crater with glowing lava cracks.",
+  "category": "area",
+  "schools": [
+   "fire",
+   "astral"
+  ],
+  "tags": "群體 隕石 天降 衝擊波 隕坑 meteor mass",
+  "color": "#ff7a2e",
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "mass"
+ },
+ {
+  "n": 94,
+  "id": "judgment-lances",
+  "zh": "審判光柱",
+  "en": "Judgment Lances",
+  "descZh": "施法者舉手，每個敵人頭頂逐一亮起鎖定符號；停頓一拍，數十道光柱同時落下，敵人化成白光消散。",
+  "descEn": "The caster raises a hand and a lock-on sigil lights up over every enemy one by one; after a one-beat pause dozens of light pillars fall at once and the enemies dissolve into white light.",
+  "category": "beam",
+  "schools": [
+   "light"
+  ],
+  "tags": "群體 鎖定 光柱 審判 lock-on pillars mass",
+  "color": "#ffe08a",
+  "duration": 4.6,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "mass"
+ },
+ {
+  "n": 95,
+  "id": "sword-rain",
+  "zh": "萬劍天降",
+  "en": "Sword Rain",
+  "descZh": "天上展開一大片光劍陣，光劍逐把落下插入敵群，最後一把巨劍落在中心爆開，把剩餘敵人震飛。",
+  "descEn": "A wide formation of light swords opens in the sky; the swords drop one by one into the horde, then a giant sword lands in the centre and blasts the rest away.",
+  "category": "projectile",
+  "schools": [
+   "light",
+   "arcane"
+  ],
+  "tags": "群體 劍雨 劍陣 巨劍 swords mass",
+  "color": "#9fd8ff",
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "mass"
+ },
+ {
+  "n": 96,
+  "id": "glacier-march",
+  "zh": "冰河行軍",
+  "en": "Glacier March",
+  "descZh": "冰刺由施法者扇形向前蔓延，敵群逐個被凍成冰雕；全場靜止一拍，施法者彈指，所有冰雕同時碎裂。",
+  "descEn": "Ice spikes spread forward from the caster in a fan and freeze the horde into statues one by one; the field holds still for a beat, the caster snaps their fingers and every statue shatters at once.",
+  "category": "area",
+  "schools": [
+   "ice"
+  ],
+  "tags": "群體 冰封 冰雕 碎裂 扇形 freeze shatter mass",
+  "color": "#a8e0ff",
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "mass"
+ },
+ {
+  "n": 97,
+  "id": "firestorm-tide",
+  "zh": "焚城炎潮",
+  "en": "Firestorm Tide",
+  "descZh": "一道比人高數倍的火牆由施法者面前推出，橫掃整個戰場；被吞沒的敵人先變成火人，再燒成焦炭，最後崩成一堆灰燼。",
+  "descEn": "A wall of fire many times taller than a person rolls out from the caster across the whole field; every enemy it swallows becomes a burning figure, then charcoal, then a pile of ash.",
+  "category": "area",
+  "schools": [
+   "fire"
+  ],
+  "tags": "群體 火牆 焚燒 灰燼 橫掃 firewall mass",
+  "color": "#ff5a1f",
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "mass"
+ },
+ {
+  "n": 98,
+  "id": "earth-dragon",
+  "zh": "地龍翻身",
+  "en": "Earth Dragon",
+  "descZh": "地面隆起裂開，一條巨大的岩石龍破土而出，沿 S 形路線穿過敵群，把敵人拋上半空，最後鑽回地底，留下一道裂谷。",
+  "descEn": "The ground heaves and splits as a huge rock dragon bursts out, weaves through the horde on an S-shaped path throwing enemies into the air, then dives back underground leaving a rift.",
+  "category": "summon",
+  "schools": [
+   "sand",
+   "nature"
+  ],
+  "tags": "群體 岩石 巨龍 破土 裂谷 rock dragon mass",
+  "color": "#c9a46a",
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "mass"
+ },
+ {
+  "n": 99,
+  "id": "chain-storm",
+  "zh": "連鎖雷暴",
+  "en": "Chain Storm",
+  "descZh": "一道雷擊中第一個敵人，再彈向下一個，每跳都更快，畫面顯示跳數；跳完整群後所有被電中的敵人同時爆開。",
+  "descEn": "A bolt strikes the first enemy and leaps to the next, faster with every hop while a counter shows the chain; once it has run through the whole horde every enemy it touched bursts at the same moment.",
+  "category": "beam",
+  "schools": [
+   "storm"
+  ],
+  "tags": "群體 連鎖 閃電 彈跳 chain lightning mass",
+  "color": "#8fd0ff",
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "mass"
+ },
+ {
+  "n": 100,
+  "id": "gravity-maelstrom",
+  "zh": "重力漩渦",
+  "en": "Gravity Maelstrom",
+  "descZh": "戰場中心張開一個重力漩渦，敵群被捲起吸向中心，壓成一團；停頓之後漩渦崩塌爆開，敵人四散落地。",
+  "descEn": "A gravity vortex opens in the middle of the field and sweeps the horde up into its centre, crushing them into one mass; after a pause it collapses and bursts, scattering the bodies across the ground.",
+  "category": "vortex",
+  "schools": [
+   "dark",
+   "astral"
+  ],
+  "tags": "群體 重力 漩渦 吸入 爆散 gravity vortex mass",
+  "color": "#b07cff",
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "mass"
+ },
+ {
+  "n": 101,
+  "id": "titan-step",
+  "zh": "巨神之足",
+  "en": "Titan Step",
+  "descZh": "天空裂開，一隻比畫面還大的石巨人腳緩緩踩下，陰影罩住整群敵人；落地瞬間地面衝擊環把四周敵人全部震飛，腳下敵人被踩扁。",
+  "descEn": "The sky splits and a stone giant’s foot larger than the frame slowly stamps down, its shadow covering the whole horde; the landing ring throws every enemy around it into the air and flattens those underneath.",
+  "category": "summon",
+  "schools": [
+   "arcane",
+   "sand"
+  ],
+  "tags": "群體 巨人 踩踏 衝擊環 天裂 giant stomp mass",
+  "color": "#d8c8a0",
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "mass"
+ },
+ {
+  "n": 102,
+  "id": "phantom-cavalry",
+  "zh": "亡魂鐵騎",
+  "en": "Phantom Cavalry",
+  "descZh": "施法者身後打開一道幽光之門，一列半透明的幽靈騎兵衝過戰場，撞飛整條線上的敵人，穿過後化成綠色煙霧消散。",
+  "descEn": "A ghostly gate opens behind the caster and a line of translucent phantom riders charges across the field, throwing aside every enemy in their path, then dissolves into green mist.",
+  "category": "summon",
+  "schools": [
+   "shadow"
+  ],
+  "tags": "群體 幽靈 騎兵 衝鋒 phantom cavalry mass",
+  "color": "#7ff0c8",
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "mass"
+ },
+ {
+  "n": 103,
+  "id": "piercing-lance",
+  "zh": "穿陣光矛",
+  "en": "Piercing Lance",
+  "descZh": "施法者擲出一支光矛，貫穿排成一列的十個敵兵，矛頭每穿過一人就閃一下；可穿透的人數有上限，超出上限的敵兵倖存。",
+  "descEn": "The caster hurls a spear of light that skewers a single-file column of ten, flashing at every body it passes; it can only pierce so many, so anyone beyond the limit survives.",
+  "category": "projectile",
+  "schools": [
+   "light"
+  ],
+  "tags": "十百千萬 十人 光矛 貫穿 直線 pierce lance line tier10",
+  "color": "#ffe6a0",
+  "duration": 4.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "scale"
+ },
+ {
+  "n": 104,
+  "id": "blade-nova",
+  "zh": "迴旋刃環",
+  "en": "Blade Nova",
+  "descZh": "十個敵兵圍住施法者；施法者原地旋身，一圈風刃由腳下向外擴散，切過包圍圈，把敵兵向外拋飛；半徑以外的敵兵不受影響。",
+  "descEn": "Ten enemies surround the caster, who spins on the spot as a ring of wind blades expands from their feet, cutting through the circle and throwing the enemies outwards; anyone beyond the radius is untouched.",
+  "category": "slash",
+  "schools": [
+   "wind"
+  ],
+  "tags": "十百千萬 十人 風刃 環形 包圍 nova ring tier10",
+  "color": "#9ff0e0",
+  "duration": 4.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "scale"
+ },
+ {
+  "n": 105,
+  "id": "seeker-volley",
+  "zh": "追魂彈幕",
+  "en": "Seeker Volley",
+  "descZh": "施法者身邊浮現一圈紫色魔彈，每一發鎖定一個敵兵，沿不同的弧線追蹤命中；魔彈數量有限，比敵兵少時有人倖存。",
+  "descEn": "A ring of violet bolts appears around the caster; each locks onto one enemy and homes in on its own curved path. The bolts are limited, so when there are more enemies than bolts some survive.",
+  "category": "projectile",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "十百千萬 十人 追蹤 魔彈 多目標 homing missiles tier10",
+  "color": "#c9a0ff",
+  "duration": 4.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "scale"
+ },
+ {
+  "n": 106,
+  "id": "plague-fog",
+  "zh": "瘴霧吞營",
+  "en": "Plague Fog",
+  "descZh": "施法者把一顆毒種擲入敵陣中央，濃綠瘴霧由落點翻滾擴散，慢慢吞沒整個百人方陣；被霧吞沒的敵兵跪倒，化成枯骨；霧的半徑以外的敵兵倖存。",
+  "descEn": "The caster lobs a poison seed into the middle of the company; thick green fog rolls out from it and slowly swallows the hundred-strong block, and everyone it engulfs sinks to their knees and withers to bones. Anyone beyond the fog’s radius survives.",
+  "category": "area",
+  "schools": [
+   "poison"
+  ],
+  "tags": "十百千萬 百人 毒霧 圓形 擴散 poison fog circle tier100",
+  "color": "#a8e05a",
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "scale"
+ },
+ {
+  "n": 107,
+  "id": "sunlens-scorch",
+  "zh": "聚日焦線",
+  "en": "Sunlens Scorch",
+  "descZh": "天上出現一面巨大的光之透鏡，把陽光聚成一個白熱光點；光點沿敵陣的弧線劃過，燒出一道焦痕，路徑附近的敵兵全部起火。",
+  "descEn": "A huge lens of light appears in the sky and focuses the sun into one white-hot point; the point traces the arc of the enemy line, burning a scorched trail and setting every enemy near its path alight.",
+  "category": "beam",
+  "schools": [
+   "light",
+   "fire"
+  ],
+  "tags": "十百千萬 百人 透鏡 聚光 路徑 焦痕 lens path tier100",
+  "color": "#ffd25a",
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "scale"
+ },
+ {
+  "n": 108,
+  "id": "thunder-bounce",
+  "zh": "滾雷跳彈",
+  "en": "Thunder Bounce",
+  "descZh": "施法者拋出一顆雷球，雷球在幾支分隊之間連續彈跳，每次落地都炸開一圈閃電，把整隊敵兵電倒；雷球每跳一次都更大，最後一跳爆得最大；彈跳次數用完時，剩下的分隊倖存。",
+  "descEn": "The caster throws a ball of lightning that bounces from squad to squad, bursting into a ring of lightning at every landing that drops the whole squad; it grows with every bounce and the last burst is the biggest. When the bounces run out, the remaining squads survive.",
+  "category": "projectile",
+  "schools": [
+   "storm"
+  ],
+  "tags": "十百千萬 百人 雷球 彈跳 分隊 bounce lightning tier100",
+  "color": "#9fe8ff",
+  "duration": 5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "scale"
+ },
+ {
+  "n": 109,
+  "id": "petrify-eye",
+  "zh": "天眼石化",
+  "en": "Petrifying Eye",
+  "descZh": "雲層裂開，一隻巨眼在千人大軍上空睜開；目光照到的地方像一圈擴散的光，敵兵逐個化成石像；巨眼一眨，所有石像同時崩成碎石。",
+  "descEn": "The clouds part and a giant eye opens above an army of a thousand; its gaze spreads like a widening pool of light and turns the soldiers to stone one by one; when the eye blinks every statue crumbles into rubble at once.",
+  "category": "area",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "十百千萬 千人 巨眼 石化 凝視 petrify gaze tier1000",
+  "color": "#f0d060",
+  "duration": 5.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "scale"
+ },
+ {
+  "n": 110,
+  "id": "sigil-barrage",
+  "zh": "符陣轟炸",
+  "en": "Sigil Barrage",
+  "descZh": "天上一排排展開數十個法陣，由前排開始逐排向下發射光彈，爆炸像地毯一樣一排排推過整個千人大軍；爆炸之間的空隙是唯一的生路。",
+  "descEn": "Rows of dozens of sigils open in the sky and fire bolts downwards row by row from the front, so the explosions roll across the army of a thousand like a carpet; the gaps between the blasts are the only way out.",
+  "category": "area",
+  "schools": [
+   "arcane",
+   "fire"
+  ],
+  "tags": "十百千萬 千人 法陣 轟炸 地毯式 barrage carpet tier1000",
+  "color": "#ff9a4a",
+  "duration": 5.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "scale"
+ },
+ {
+  "n": 111,
+  "id": "blood-contagion",
+  "zh": "血咒蔓延",
+  "en": "Blood Contagion",
+  "descZh": "施法者把血咒打在最前面的一個敵兵身上，咒印像傳染病一樣跳到身旁的人，紅線在大軍中蔓延成網；最後所有中咒的敵兵同時化成紅光爆散；站得太散、咒印跳不過去的敵兵倖存。",
+  "descEn": "The caster marks the front soldier with a blood curse that spreads like a contagion to anyone standing close, weaving a red web through the army; then every cursed soldier bursts into crimson light at once. Soldiers standing too far apart for the curse to jump survive.",
+  "category": "area",
+  "schools": [
+   "dark"
+  ],
+  "tags": "十百千萬 千人 血咒 傳染 蔓延 contagion curse tier1000",
+  "color": "#ff3a5a",
+  "duration": 5.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "scale"
+ },
+ {
+  "n": 112,
+  "id": "second-sun",
+  "zh": "第二太陽",
+  "en": "Second Sun",
+  "descZh": "萬人大軍上空點起一顆小星，慢慢膨脹成第二個太陽，地面被照得越來越亮；太陽一吸一放，天空被照成白色，熱浪由正下方擴散，大軍一圈圈化成白光蒸發，只留一片焦土。",
+  "descEn": "A small star ignites above an army of ten thousand and slowly swells into a second sun that lights the ground brighter and brighter; it draws in a breath and lets go, the sky bleaches white, and a heat wave spreads from directly below, vaporising the army ring by ring and leaving scorched earth.",
+  "category": "burst",
+  "schools": [
+   "light",
+   "fire"
+  ],
+  "tags": "十百千萬 萬人 太陽 熱浪 蒸發 sun nova tier10000",
+  "color": "#fff0a0",
+  "duration": 6,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "scale"
+ },
+ {
+  "n": 113,
+  "id": "starfall-storm",
+  "zh": "星落如雨",
+  "en": "Starfall Storm",
+  "descZh": "星空罩住戰場，成千上萬顆流星斜斜劃落，像暴雨一樣打在萬人大軍上，每一顆都炸開一個小坑；流星越落越密，直到整片戰場佈滿星坑。",
+  "descEn": "A starry sky draws over the battlefield and thousands of shooting stars streak down at a slant, pelting the army of ten thousand like a downpour; each one blasts a small crater, and they fall thicker and thicker until the whole field is pitted.",
+  "category": "projectile",
+  "schools": [
+   "astral"
+  ],
+  "tags": "十百千萬 萬人 流星 星雨 飽和轟炸 meteor shower tier10000",
+  "color": "#b8c8ff",
+  "duration": 6,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "scale"
+ },
+ {
+  "n": 114,
+  "id": "world-tsunami",
+  "zh": "滅世海嘯",
+  "en": "World Tsunami",
+  "descZh": "地平線升起一道比畫面還高的巨浪，由大軍後方壓過整個戰場；浪頭捲起成千上萬的敵兵翻滾向前，最後在施法者面前停下退去，只留下濕透的戰場；浪推進的距離有限，距離以外的敵兵倖存。",
+  "descEn": "A wave taller than the frame rises on the horizon and crashes across the field from behind the army, rolling thousands of soldiers forward in its curl; it stops short of the caster and draws back, leaving a soaked battlefield. The wave only travels so far, and anyone beyond its reach survives.",
+  "category": "area",
+  "schools": [
+   "water"
+  ],
+  "tags": "十百千萬 萬人 海嘯 巨浪 橫掃 tsunami wave tier10000",
+  "color": "#5ac8ff",
+  "duration": 6,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "scale"
  }
 ]

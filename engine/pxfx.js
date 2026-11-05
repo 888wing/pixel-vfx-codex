@@ -222,6 +222,7 @@
       this.GL = new Float32Array(N); this.GLR = new Uint16Array(N);
       this.shadow = new Uint8Array(N); this.tmp = new Uint32Array(N);
       this.basePix = new Uint32Array(N); this.baseZ = new Float32Array(N); this.baseKind = new Uint8Array(N);
+      this.zEdge = new Float32Array(N); this.kEdge = new Uint8Array(N);   // solids already outlined by an earlier flush this frame
       this.bakeKey = '';
     }
     get M() { return MODES[this.mode]; }
@@ -335,7 +336,7 @@
       this.camera(def);
       this.bake(def);
       this.pix.set(this.basePix); this.zb.set(this.baseZ); this.kind.set(this.baseKind);
-      this.anySolid = false;
+      this.anySolid = false; this.edged = false;
       const p = this.api;
       p.t = t; p.mode = this.mode; p.night = this.night; p.props = !this.noProps; p.def = def;
       try { def.draw(p, t); }
@@ -381,17 +382,21 @@
         this.anySolid = false;
         const k2 = this.kind2;
         k2.set(kind);
+        // after an earlier flush this frame (post, grade, domain...), only solids drawn since then get edges:
+        // a solid pixel is old when it was solid at that flush and its depth has not changed
+        const old = this.edged, zE = this.zEdge, kE = this.kEdge;
+        const fresh = j => k2[j] === 2 && (!old || kE[j] !== 2 || zb[j] !== zE[j]);
         if (this.tune.outline == null ? this.M.outline : this.tune.outline) {
           const ink = this.night ? rgb(8, 7, 14) : rgb(36, 32, 48);
           for (let iy = 1; iy < H - 1; iy++) for (let ix = 1; ix < W - 1; ix++) {
             const i = iy * W + ix;
             if (k2[i] === 2) continue;
-            if (k2[i - 1] === 2 || k2[i + 1] === 2 || k2[i - W] === 2 || k2[i + W] === 2) { pix[i] = ink; kind[i] = 2; zb[i] = Math.max(zb[i - 1], zb[i + 1], zb[i - W], zb[i + W]); }
+            if (fresh(i - 1) || fresh(i + 1) || fresh(i - W) || fresh(i + W)) { pix[i] = ink; kind[i] = 2; zb[i] = Math.max(zb[i - 1], zb[i + 1], zb[i - W], zb[i + W]); }
           }
         } else if (this.M.edges) {
           for (let iy = 1; iy < H - 1; iy++) for (let ix = 1; ix < W - 1; ix++) {
             const i = iy * W + ix;
-            if (k2[i] !== 2) continue;
+            if (!fresh(i)) continue;
             const c = pix[i];
             if (k2[i - 1] !== 2 || k2[i + 1] !== 2 || k2[i - W] !== 2 || k2[i + W] !== 2) {
               pix[i] = rgb((c & 255) * .7, (c >> 8 & 255) * .68, (c >> 16 & 255) * .8);
@@ -400,6 +405,7 @@
             }
           }
         }
+        this.zEdge.set(zb); this.kEdge.set(kind); this.edged = true;
       }
       const L = this.L, LM = this.LM, LR = this.LR, LD = this.LD;
       for (let i = 0; i < N; i++) {
@@ -1257,5 +1263,5 @@
   // a ramp as the renderer will show it after a hue change (greys stay as they are)
   const shiftRamp = (r, deg) => { const hs = r.map(c => (typeof c === 'string' ? c : toHex(c))); return !deg || chroma(rampId(r)) < .075 ? hs : hs.map(h => shiftHex(h, deg)); };
 
-  G.PXFX = { View, Api, MODES, GROUNDS, POSES, define, timing, TUNE_DEFAULTS, BEAT, shiftHex, shiftRamp, get: id => FX.get(id), all: () => [...FX.values()], frameTime, glowRamp, solidRamp, rampId, hex, toHex, hash, noise, fbm, bayerAt, rgb };
+  G.PXFX = { View, Api, MODES, GROUNDS, POSES, define, timing, TUNE_DEFAULTS, BEAT, shiftHex, shiftRamp, get: id => FX.get(id), all: () => [...FX.values()], frameTime, glowRamp, solidRamp, rampId, rampArr, hex, toHex, hash, noise, fbm, bayerAt, rgb, SHADOW_X, SHADOW_Y };
 })(typeof window !== 'undefined' ? window : globalThis);

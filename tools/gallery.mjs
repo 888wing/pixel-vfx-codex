@@ -82,6 +82,7 @@ for (const m of meta.filter(x => (!only || only.split(',').includes(x.id)) && (!
     let worstX = 0;
     for (const c of combos) {
       v.params = c.p; v.tune = { density: c.d };
+      v.render(def, 0);   // warm-up: a param change rebuilds cached layouts once (a 10000-soldier formation takes ~10-20 ms)
       for (let k = 0; k < 6; k++) { const t0 = performance.now(); v.render(def, (k + .5) / 6 * def.loop); worstX = Math.max(worstX, performance.now() - t0); }
     }
     if (errs.length > e0) notes.push('PARAM ERRORS: ' + errs.slice(e0, e0 + 2).join(' | '));

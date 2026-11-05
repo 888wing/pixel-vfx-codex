@@ -233,3 +233,77 @@ on the far side of the dummy are hidden by it: pull them towards the camera with
 
 Read `fx/crescent-fang.js` first: it uses the figure, charge, grade, crescent, shockwave, speed lines and
 aftermath. Keep to one or two full-frame passes (`domain`, `grade`, `impactFrame`, `warp`) per frame.
+
+## Mass Spells pack: the crowd module
+
+The 10 effects with `pack: "mass"` are huge spells against a horde of small soldiers. They use the same stages and
+kit as the Ultimates, plus the crowd module in `engine/kit.js`:
+
+```js
+const units = p.crowd({
+  n: Math.round(p.param('crowd')), seed: 4, area: { x: 1.2, y: 0, rx: 2.5, ry: 2.2 }, t,
+  at: [IX, IY, 0],                                              // origin of the push / pull
+  hit: u => HIT + Math.hypot(u.x - IX, u.y - IY) / 7 + u.r1 * .04,   // the wave: distance / speed
+  react: 'knock',                                               // or reactOf: u => name, or a custom fn
+  power: u => 1.9 - .32 * Math.hypot(u.x - IX, u.y - IY),       // falloff is up to the effect
+  fear: u => p.ph(t, 1.3, 2.1),                                 // lean back and tremble before the hit
+  respawn: [3.85, 4.95],                                        // bodies fade, a fresh horde walks back in
+});
+```
+
+- `p.crowdLayout(o)` returns the cached units `{ i, x, y, r1, r2, r3, face }` (an even but irregular spread inside
+  the area); `p.crowd(o)` draws them and returns live states `{ u, hitT, alive, fresh, x, y, z, chest, head, hidden }`
+  to anchor bolts, sigils or swords to; `p.crowdChain(units, x, y)` orders units by nearest neighbour (chains).
+- Reactions: `knock` (thrown with a tumble, slides, lies down), `launch`, `fall`, `crush`, `freeze` (+ `shatter(u)`
+  time), `burn` (burning → charcoal → ash), `zap`, `pull` (spiral into `at`), `vapor`. A custom
+  `react(s, a, u, p, o)` edits the pawn state (`x, y, z, tilt, tdir, sq, wide, mat, alpha, hide, glow, fire, motes,
+  shards, ash, walk, jit`); `p.pawn(s, { scale })` draws a pawn from any state.
+- The first knob of every mass spell is `crowd` (horde size 10–60). Loop on a standing horde: hit everyone before
+  `respawn[0]` and fade every stain and sky change out before the loop ends.
+- Scale reads from contrast: soldiers are ~0.6 tall (40% of the caster), the spell's main shape is several times
+  that and may leave the frame. Telegraph slowly (shadow, sky, sigils, `fear`), then let the hit sweep through the
+  horde by distance. `fx/skyfall.js` is the reference.
+
+## Scale Ladder pack: formations, LOD and honest areas
+
+The 12 effects with `pack: "scale"` are attack spells in four tiers of scale (10, 100, 1,000 and 10,000 enemies),
+three area shapes per tier, made for a spell-design game: the player has to wipe out the formation a level asks for.
+They extend the crowd module:
+
+```js
+const st = p.crowd({
+  n: Math.round(p.param('crowd')), seed: 11,
+  formation: PXFX.TROOPS[p.param('formation') | 0].id,          // block | line | column | wedge | ring | crescent | squads | scatter
+  area: { x: .8, y: 0, rx: 3.8, ry: 3.8 }, faceTo: [-5.2, 0], t,  // rx = half depth (towards the caster), ry = half width
+  scale: 'auto',                                                // soldier size from the formation spacing
+  hit: u => { const d = Math.hypot(u.x - CX, u.y - CY); return d <= RAD ? HIT + d / 5 : null; },   // honest area
+  react: (s, a) => { s.mat = 'white'; if (a > .35) s.alpha = 1 - p.ph(a, .35, .6); if (a > .6) s.hide = true; },
+  respawn: [4.6, 5.9], clear: [4.3, 4.6], enter: 'fade',
+});
+// ... effects ...
+if (p.param('tally')) p.tally(st, { t, alpha: 1 - p.ph(t, 4.3, 4.5) });   // the kill counter goes last
+```
+
+- **Honest areas.** `hit(u)` returns a time only for units inside the spell's real area (the drawn ring, lane,
+  blast circles, fog edge or wave reach use the same numbers), else `null`; those units survive and keep standing.
+  At the default parameters and default formation every spell wipes out everybody; other formations or a smaller
+  area knob leave survivors, which is the point.
+- **Params** (same order everywhere): `crowd` (tier range: 5–20, 50–200, 500–2000, 2000–12000), `formation`
+  (an index with `labels` / `labelsEn` from `PXFX.TROOPS`; the site and the prompts show the names), two knobs for the
+  area (radius, width, pierce count, bolt count, bounces, rows, jump distance, star count, reach...), `tally` (0/1).
+- **Formations.** `p.crowdLayout({ formation })` lays the units out inside the area; `units.spacing` is the soldier
+  spacing and `scale: 'auto'` sizes the soldiers to it (`maxScale` caps it). A ring or a crescent surrounds the
+  area centre / points its horns at the caster; `hole` keeps a clear radius around the centre (a ring around the
+  caster).
+- **Level of detail.** With `lod: 'auto'` the crowd draws full 3D pawns while a pawn is at least 7.5 px tall and
+  switches to `p.pawnSprite` below: a 1–3 px wide stroke from the feet to the helmet with per-unit helmet shades,
+  spear tips and a ground shadow pixel, written as soft solids (no outline). Ten thousand of them cost ~3 ms. At
+  thousands of units avoid per-unit glows and motes (`vapor`, `burn`): change materials (`PXFX.PAWN_MATS`: ice,
+  char, white, stone, bone, rot, wet) and draw shared big effects instead.
+- **Helpers:** `p.crowdGrid(units, cell).near(x, y, r)` for neighbour queries (contagion, bounce targets; never call
+  `p.crowdChain` on thousands), `freeze` with `freezeMat: 'stone'` (petrify, shatters into stone), `reach` (throw
+  scale of knock / launch, defaults to the auto scale), `enter: 'fade'` (big armies fade in on the spot instead of
+  walking in from the island edge), `pal` by name from `PXFX.PAWN_PALS` (red, steel, bone, jade, gold).
+- **Kill counter.** `p.tally(states, { t, alpha, right })` draws a skull and "killed/total" in 3×5 pixel digits with a
+  dark outline in a screen corner; it turns gold with a short pop on a full wipe. Draw it last and fade it out before
+  the respawn. `fx/second-sun.js` is the reference.

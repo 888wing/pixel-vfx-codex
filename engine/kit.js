@@ -1,5 +1,5 @@
 'use strict';
-/* PXFX kit: reusable building blocks for the Ultimates pack. Each block is a method on the drawing API (`p`), so an
+/* PXFX kit: reusable building blocks for the Ultimates, Mass Spells and Scale Ladder packs. Each block is a method on the drawing API (`p`), so an
  * effect composes them: Pose (p.figure) -> Charge -> Shape -> Motion -> Impact -> Aftermath.
  * Load after engine/pxfx.js. PXFX.KIT documents every module for the copyable prompts. */
 (function (G) {
@@ -303,7 +303,8 @@
 
   /* ---------- Domain: replace the page and the ground with another world (dithered radial wipe) ----------
    * o: amt 0..1 (wipe progress), c [x, y, z] wipe origin, sky preset name or { top, bottom, nebula, stars, star },
-   * ground: ramp to remap the ground into (dark -> bright) or null to keep, solids: darken solids 0..1, t (twinkle) */
+   * ground: ramp to remap the ground into (dark -> bright) or null to keep, solids: darken solids 0..1, t (twinkle),
+   * fade: true = an even dithered fade instead of the radial wipe (use it for the way out: no floating disc) */
   const SKIES = {
     void: { top: '#07060f', bottom: '#151029', nebula: '#2e2357', stars: .012, star: '#d8d4ff' },
     cosmos: { top: '#04040f', bottom: '#120d33', nebula: '#43307e', neb2: '#1f5fa8', stars: .03, star: '#ffffff' },
@@ -334,6 +335,22 @@
     skyCache.set(key, buf);
     return buf;
   }
+  // threshold map for a non-radial domain fade: large soft cloud patches with a dithered edge (a plain Bayer threshold
+  // turns the whole frame into a checkerboard halfway through)
+  const fadeCache = new Map();
+  function fadeMap(self, W, H, bayer) {
+    const key = W + 'x' + H;
+    let m = fadeCache.get(key);
+    if (m) return m;
+    m = new Float32Array(W * H);
+    const s = 240 / W;
+    for (let iy = 0; iy < H; iy++) for (let ix = 0; ix < W; ix++) {
+      const n = self.fbm(ix * s * .035 + 5.3, iy * s * .05 - 2.1, 3);
+      m[iy * W + ix] = clamp((n - .25) / .5, 0, 1) * .82 + bayer(ix, iy) * .18;
+    }
+    fadeCache.set(key, m);
+    return m;
+  }
   K.domain = function (o = E) {
     const amt = o.amt == null ? 1 : o.amt;
     if (amt <= 0) return;
@@ -342,10 +359,10 @@
     this.post(({ pix, W, H, kind, rgb, P, bayer }) => {
       const cp = P(c[0], c[1], c[2]) || [W / 2, H / 2], maxD = Math.hypot(W, H) * .62;
       const sky = sk ? skyFrame(self, W, H, sk, t, bayer, rgb) : null;
-      const gcol = gr ? gr.map(g => rgb(g[0], g[1], g[2])) : null, full = amt >= 1;
+      const gcol = gr ? gr.map(g => rgb(g[0], g[1], g[2])) : null, full = amt >= 1, fm = o.fade && !full ? fadeMap(self, W, H, bayer) : null;
       for (let iy = 0; iy < H; iy++) for (let ix = 0; ix < W; ix++) {
         const i = iy * W + ix;
-        if (!full && Math.hypot(ix - cp[0], iy - cp[1]) / maxD > amt * 1.3 - bayer(ix, iy) * .3) continue;
+        if (!full && (fm ? fm[i] >= amt : Math.hypot(ix - cp[0], iy - cp[1]) / maxD > amt * 1.3 - bayer(ix, iy) * .3)) continue;
         const k = kind[i], cur = pix[i];
         if (k === 0) {
           if (!sky || !(cur >>> 24) && o.keepTransparent !== false) continue;
@@ -380,6 +397,574 @@
     }
   };
 
+  /* ---------- Crowd: a horde of small enemy pawns that a mass spell hits as a wave ----------
+   * p.crowdLayout(o) -> units [{ i, x, y, r1, r2, r3, face }] (cached; units.spacing = soldier spacing). o.n count,
+   *   o.seed, o.area { x, y, rx, ry, shape: 'ellipse' | 'rect' }, o.faceTo [x, y] (default [-4, 0]: towards the caster
+   *   on the left), o.formation: 'scatter' (default) | 'block' | 'line' | 'column' | 'wedge' | 'ring' | 'crescent' |
+   *   'squads' (PXFX.TROOPS lists them with zh/en names; rx = half depth towards the caster, ry = half width; a ring
+   *   or a crescent's horns surround the centre / point at the caster), o.hole: keep a clear radius around the centre
+   * p.crowd(o) draws the horde and returns live states [{ u, hitT, alive, x, y, z, chest, head, hidden }].
+   *   t: effect time. hit(u): the time unit u is hit (null = never); a wave is t0 + distance / speed (+ u.r1 * jitter)
+   *   react: 'knock' | 'launch' | 'fall' | 'crush' | 'freeze' | 'burn' | 'zap' | 'pull' | 'vapor', or fn(s, a, u, p, o)
+   *     editing the pawn state s (a = time since the hit; fields below). reactOf(u) -> name picks one per unit
+   *   at [x, y, z] (or at(u) per unit): origin of the push / pull; power(u) or a number, ~0.3..2 (falloff with distance is up to you)
+   *   shatter(u): 'freeze' only, the time the ice statue breaks (null = stays). ramp: emissive ramp for glows
+   *   fear 0..1: units lean away from `at` and tremble before the hit. advance { to: [x, y], v }: march until hit
+   *   respawn [t0, t1]: corpses fade and fresh units walk in from o.from (default [1, 0]) back to their spots, so the
+   *     loop starts and ends on a standing crowd (clear [t0, t1] overrides the corpse fade window)
+   *   scale (1 = about 0.6 tall, 40% of the caster; 'auto' fits the formation spacing, capped by maxScale / minScale),
+   *   lod: 'auto' (full 3D pawns while a pawn is >= 7.5 px tall, pixel sprites below: hundreds to tens of thousands),
+   *   'full' | 'sprite'; reach: throw distance scale for knock / launch (auto scale: = scale), spears (default true),
+   *   pal { body, helm, spear } or a name from PXFX.PAWN_PALS ('red' | 'steel' | 'bone' | 'jade' | 'gold'),
+   *   enter: 'walk' (default, from o.from [dx, dy] or o.from(u), o.enterD units away) | 'fade' (fade in on the spot: armies at the island edge)
+   * p.crowdGrid(units, cell) -> { near(x, y, r) } spatial hash for neighbour queries (contagion, bounce targets)
+   * p.tally(states, { t, alpha, right }) draws the kill counter HUD (skull + killed/total); call it last in draw()
+   * pawn state s: x, y, z, tilt (radians, falls along tdir [dx, dy]), sq (squash height), wide, mat ('ice' | 'char' |
+   *   'white' | 'stone' | 'bone' | 'rot' | 'wet', or a ramp array of your own, or null; freeze takes o.freezeMat), shardMat, alpha, hide, walk (stride phase or null), jit, glow (0..1, with s.glowRamp), fire,
+   *   motes ({ a, ramp } rising sparks), shards (time since shatter), ash (0..1 pile), spear (bool) */
+  const PAWN = {
+    body: ['#2a1f2a', '#3b2c38', '#52404c', '#6c5662'],
+    helm: ['#5a1e22', '#7e2a2c', '#a8403a', '#cc6a52'],
+    spear: ['#3d3640', '#6e6672', '#d8d2dc'],
+  };
+  const MAT = {
+    ice: ['#4f7fb4', '#7fb2e0', '#b8dcf6', '#eaf6ff'],
+    char: ['#0f0d10', '#1a171b', '#262227', '#332e33'],
+    white: ['#c8c8d8', '#e8e8f2', '#ffffff'],
+    stone: ['#4a4650', '#6a6570', '#8e8996', '#b0abb6'],
+    bone: ['#8a8070', '#b4aa94', '#d8d0bc', '#f2ecdc'],
+    rot: ['#2e3a1e', '#46582a', '#64783a', '#8ca050'],
+    wet: ['#1a2436', '#25344c', '#344a66', '#4a6684'],
+  };
+  X.PAWN_MATS = MAT;
+  const ASH = ['#2a2628', '#3d383b', '#57514f', '#76706a'];
+  // troop formations for p.crowdLayout({ formation }); rx = half depth (towards the caster), ry = half width
+  const TROOPS = [
+    { id: 'block', zh: '方陣', en: 'block' }, { id: 'line', zh: '橫列', en: 'line' }, { id: 'column', zh: '縱隊', en: 'column' },
+    { id: 'wedge', zh: '楔形', en: 'wedge' }, { id: 'ring', zh: '圓陣', en: 'ring' }, { id: 'crescent', zh: '鶴翼', en: 'crescent' },
+    { id: 'squads', zh: '分隊', en: 'squads' }, { id: 'scatter', zh: '散兵', en: 'scatter' },
+  ];
+  X.TROOPS = TROOPS;
+  // positions in a local frame: q = depth (+ = away from the caster), w = across; returns { pts: [[q, w]], s: spacing }
+  function troopShape(form, n, D, Wd, seed) {
+    const pts = [], H = (i, k) => X.hash(i * 1.37 + k * 7.1 + seed * 3.3, k * 2.9 + seed + .7);
+    const rows = (counts, sd, sw, q0) => {   // centred rows of given counts, row k at depth q0 + k * sd
+      let i = 0;
+      counts.forEach((c, k) => { for (let j = 0; j < c && i < n; j++, i++) pts.push([q0 + k * sd, (j - (c - 1) / 2) * sw]); });
+    };
+    const split = (total, per) => { const out = []; for (let left = total; left > 0; left -= per) out.push(Math.min(per, left)); return out; };
+    if (form === 'block') {
+      const cols = Math.max(1, Math.round(Math.sqrt(n * Wd / D))), nr = Math.ceil(n / cols), sw = 2 * Wd / cols, sd = 2 * D / nr;
+      rows(split(n, cols), sd, sw, -(nr - 1) / 2 * sd);
+      return { pts, s: Math.min(sw, sd) };
+    }
+    if (form === 'line') {
+      const nr = Math.max(1, Math.round(Math.sqrt(n / 5))), per = Math.ceil(n / nr), sw = 2.3 * Wd / per, sd = Math.min(sw * 1.3, 2 * D / nr);
+      rows(split(n, per), sd, sw, -(nr - 1) / 2 * sd);
+      return { pts, s: Math.min(sw, sd) };
+    }
+    if (form === 'column') {
+      const files = Math.max(1, Math.round(Math.sqrt(n / 5))), per = Math.ceil(n / files), sd = 2.4 * D / per, sw = Math.min(sd * 1.3, 2 * Wd / files);
+      split(n, per).forEach((c, f) => { for (let j = 0; j < c; j++) pts.push([(j - (per - 1) / 2) * sd, (f - (files - 1) / 2) * sw]); });
+      return { pts, s: Math.min(sw, sd) };
+    }
+    if (form === 'wedge') {   // apex towards the caster, row k holds k + 1 soldiers
+      let R = 1; while (R * (R + 1) / 2 < n) R++;
+      const sd = 2 * D / R, sw = Math.min(sd * 1.2, 2.2 * Wd / R);
+      rows(Array.from({ length: R }, (_, k) => k + 1), sd, sw, -D + sd / 2);
+      return { pts, s: Math.min(sw, sd) };
+    }
+    if (form === 'ring' || form === 'crescent') {
+      const cres = form === 'crescent';
+      // ring: an ellipse D x Wd around the centre. crescent: an arc whose horns point at the caster
+      const Rc = cres ? Math.max(D, Wd) * 1.35 : 0, span = cres ? Math.min(1.25, Math.asin(Math.min(1, Wd / Rc)) + .25) : Math.PI;
+      const perim = cres ? 2 * span * Rc : TAU * Math.sqrt((D * D + Wd * Wd) / 2);
+      const nr = Math.max(1, Math.round(Math.sqrt(n) / 3)), s = Math.max(perim / Math.ceil(n / nr), 1e-3);
+      const th = Math.min(nr * s, .7 * (cres ? Rc * .5 : Math.min(D, Wd))), sr = nr > 1 ? th / (nr - 1) : 0;
+      let i = 0;
+      for (let k = 0; k < nr; k++) {
+        const off = (k - (nr - 1) / 2) * sr, c = k < nr - 1 ? Math.round(n / nr) : n - i;
+        for (let j = 0; j < c; j++, i++) {
+          const a = cres ? -span + (j + .5) / c * 2 * span : (j + .5 * (k & 1)) / c * TAU;
+          if (cres) pts.push([D * .5 - Rc + (Rc + off) * Math.cos(a), (Rc + off) * Math.sin(a)]);
+          else pts.push([(D + off) * Math.cos(a), (Wd + off) * Math.sin(a)]);
+        }
+      }
+      return { pts, s: Math.min(s, nr > 1 ? sr : s) };
+    }
+    if (form === 'squads') {
+      const k = Math.max(2, Math.min(9, Math.round(n / 22))), gc = Math.ceil(Math.sqrt(k * Wd / D)), gr = Math.ceil(k / gc);
+      const cw = 2 * Wd / gc, cd = 2 * D / gr, per = Math.ceil(n / k), sc = Math.ceil(Math.sqrt(per)), ss = Math.min(cw, cd) * .62 / sc;
+      let i = 0;
+      for (let g = 0; g < k; g++) {
+        const r = Math.floor(g / gc), inRow = r < gr - 1 ? gc : k - r * gc, c = g % gc;
+        const q0 = (r - (gr - 1) / 2) * cd + (H(g, 1) - .5) * cd * .25, w0 = (c - (inRow - 1) / 2) * cw + (H(g, 2) - .5) * cw * .25;
+        const m = Math.min(per, n - i), cols = Math.ceil(Math.sqrt(m)), nr = Math.ceil(m / cols);
+        for (let j = 0; j < m; j++, i++) pts.push([q0 + (Math.floor(j / cols) - (nr - 1) / 2) * ss, w0 + (j % cols - (Math.min(cols, m - Math.floor(j / cols) * cols) - 1) / 2) * ss]);
+      }
+      return { pts, s: ss };
+    }
+    // scatter: a jittered grid inside the ellipse, thinned to n (large counts; small ones use dart throwing)
+    let s = Math.sqrt(Math.PI * D * Wd / n) * .97;
+    for (let tries = 0; tries < 30; tries++, s *= .96) {
+      pts.length = 0;
+      const nq = Math.ceil(D / s) + 1, nw = Math.ceil(Wd / s) + 1;
+      for (let a = -nq; a <= nq; a++) for (let b = -nw; b <= nw; b++) {
+        const q = (a + (H(a * 131 + b, 3) - .5) * .8) * s, w = (b + (H(a * 131 + b, 4) - .5) * .8) * s;
+        if ((q * q) / (D * D) + (w * w) / (Wd * Wd) <= 1) pts.push([q, w, H(a * 131 + b, 5)]);
+      }
+      if (pts.length >= n) break;
+    }
+    if (pts.length > n) { const keep = pts.slice().sort((p1, p2) => p1[2] - p2[2]); pts.length = 0; for (let i = 0; i < n; i++) pts.push(keep[i]); }
+    return { pts, s };
+  }
+  const layoutCache = new Map();
+  K.crowdLayout = function (o = E) {
+    const n = Math.max(1, Math.round(o.n || 30)), seed = o.seed || 0, A = o.area || E;
+    const cx = A.x == null ? 1.4 : A.x, cy = A.y || 0, rx = A.rx || 2.2, ry = A.ry || rx, rect = A.shape === 'rect';
+    const ft = o.faceTo || [-4, 0], form = o.formation || 'scatter', hole = o.hole || 0;
+    const key = [n, seed, cx, cy, rx, ry, rect ? 1 : 0, ft[0], ft[1], form, hole].join('|');
+    let units = layoutCache.get(key);
+    if (units) return units;
+    let pts = [], spacing;
+    if (form === 'scatter' && n <= 400 && !hole) {
+      // dart throwing with a shrinking minimum spacing: an even but organic spread
+      const size = rect ? 4 * rx * ry : Math.PI * rx * ry;
+      let dmin = Math.sqrt(size / n) * .8, k = 0, fails = 0;
+      while (pts.length < n && k < n * 400) {
+        const a = X.hash(k * 1.731 + seed * 9.1 + .3, 3.17 + seed), b = X.hash(k * 2.377 + 1.1, 7.71 + seed * 3.3); k++;
+        let x, y;
+        if (rect) { x = cx + (a * 2 - 1) * rx; y = cy + (b * 2 - 1) * ry; }
+        else { const ang = a * TAU, rr = Math.sqrt(b); x = cx + Math.cos(ang) * rr * rx; y = cy + Math.sin(ang) * rr * ry; }
+        let ok = true;
+        for (const q of pts) if ((q.x - x) * (q.x - x) + (q.y - y) * (q.y - y) < dmin * dmin) { ok = false; break; }
+        if (!ok) { if (++fails > 40) { dmin *= .9; fails = 0; } continue; }
+        fails = 0;
+        pts.push({ x, y });
+      }
+      spacing = dmin * 1.1;
+    } else {
+      // local frame: depth axis points away from faceTo, across axis is its normal
+      // (faceTo at the centre, e.g. a ring around the caster: fall back to depth = +x)
+      const fl = Math.hypot(ft[0] - cx, ft[1] - cy), ex = fl > 1e-6 ? -(ft[0] - cx) / fl : 1, ey = fl > 1e-6 ? -(ft[1] - cy) / fl : 0;
+      const neat = form !== 'scatter', jig = neat ? (n > 300 ? .35 : .1) : 0;   // more jitter on big grids breaks the moire
+      let nn = n;
+      for (let tries = 0; tries < 6; tries++) {
+        const sh = troopShape(form, nn, rx, ry, seed);
+        spacing = sh.s;
+        pts = [];
+        sh.pts.forEach((q, i) => {
+          const qq = q[0] + (X.hash(i * 2.71 + seed, 6.1) - .5) * jig * sh.s, ww = q[1] + (X.hash(i * 3.17 + seed, 6.7) - .5) * jig * sh.s;
+          const x = cx + ex * qq - ey * ww, y = cy + ey * qq + ex * ww;
+          if (hole && Math.hypot(x - cx, y - cy) < hole) return;
+          pts.push({ x, y });
+        });
+        if (pts.length >= n || !hole) break;
+        nn = Math.min(nn * 4, Math.ceil(nn * n / Math.max(1, pts.length)) + 1);   // grow to make up for the hole, never explode
+      }
+      if (pts.length > n) { const step = pts.length / n; pts = Array.from({ length: n }, (_, i) => pts[Math.floor(i * step)]); }
+    }
+    const fj = form === 'scatter' ? .5 : .16;
+    units = pts.map((q, i) => ({
+      i, x: q.x, y: q.y, r1: X.hash(i * 3.1 + seed, 1.7), r2: X.hash(i * 5.3 + seed, 2.9), r3: X.hash(i * 7.7 + seed, 4.3), vr: X.hash(i * 1.913, 5.17),
+      face: Math.atan2(ft[1] - q.y, ft[0] - q.x) + (X.hash(i * 2.2 + seed, 8.8) - .5) * fj,
+    }));
+    units.spacing = spacing;
+    if (layoutCache.size > 64) layoutCache.delete(layoutCache.keys().next().value);
+    layoutCache.set(key, units);
+    return units;
+  };
+  // greedy nearest-neighbour order through the units starting near (x, y): chain lightning, lock-on sequences
+  K.crowdChain = function (units, x, y) {
+    const left = units.slice(), order = [];
+    let px = x, py = y;
+    while (left.length) {
+      let bi = 0, bd = Infinity;
+      for (let j = 0; j < left.length; j++) { const d = (left[j].x - px) ** 2 + (left[j].y - py) ** 2; if (d < bd) { bd = d; bi = j; } }
+      const u = left.splice(bi, 1)[0];
+      order.push(u); px = u.x; py = u.y;
+    }
+    return order;
+  };
+
+  // shorten a throw of length D along s.tdir so the body lands on the island (stage radius x .88)
+  function landing(s, D, p) {
+    const d = p.def || E, R = ((d.stage && d.stage.r) || ((d.view && d.view.r) || 3) * .92) * .88;
+    const x = s.x, y = s.y, dx = s.tdir[0], dy = s.tdir[1], b = x * dx + y * dy, c = x * x + y * y - R * R;
+    if (c >= 0) return Math.min(D, .3);                    // already at the edge: barely move
+    const reach = -b + Math.sqrt(b * b - c);              // distance to the stage edge along tdir
+    return D <= reach ? D : reach * (.85 + .15 * Math.min(1, reach / D));
+  }
+  // reactions: edit the pawn state s, a = seconds since the hit, s.pw = power, s.tdir = away from o.at
+  const REACT = {
+    knock(s, a, u, p) {
+      const pw = s.pw, rs = s.rs || 1, T = .45 + .25 * pw, D = landing(s, (1 + .9 * u.r2) * pw * rs * 1.2 * 1.12, p) / 1.12, Hh = (.4 + .6 * u.r3) * pw * rs, k = clamp(a / T, 0, 1);
+      const d = D * p.easeOut(k) + (a > T ? D * .12 * p.easeOutCubic((a - T) / .35) : 0);
+      s.x += s.tdir[0] * d; s.y += s.tdir[1] * d; s.z = 4 * Hh * k * (1 - k);
+      s.tilt = (Math.PI / 2 + (pw > .6 ? TAU : 0)) * p.easeOut(k); s.walk = null; s.spear = false;
+    },
+    launch(s, a, u, p) {
+      const pw = s.pw, rs = s.rs || 1, T = .75 + .3 * u.r2, Hh = (1 + .9 * u.r3) * pw * rs, k = clamp(a / T, 0, 1), d = landing(s, .35 * pw * rs, p) * p.easeOut(k);
+      s.x += s.tdir[0] * d; s.y += s.tdir[1] * d; s.z = 4 * Hh * k * (1 - k);
+      s.tilt = (Math.PI / 2 + TAU * (u.r1 > .5 ? 2 : 1)) * k; s.walk = null; s.spear = false;
+    },
+    fall(s, a, u, p) {
+      s.tilt = Math.PI / 2 * p.easeIn(a / (.35 + .15 * u.r2)); s.walk = null;
+      if (a > .2) s.spear = false;
+    },
+    crush(s, a, u, p) {
+      const k = p.easeOutExpo(a / .06);
+      s.sq = 1 - .8 * k; s.wide = 1 + .55 * k; s.walk = null; s.spear = false;
+    },
+    freeze(s, a, u, p, o) {
+      s.walk = null; s.jit = 0;
+      if (a > .04 + .1 * u.r1) s.mat = o.freezeMat || 'ice';   // freezeMat 'stone': petrify
+      const ts = o.shatter ? o.shatter(u) : null;
+      if (ts != null && o.t >= ts) { s.hide = true; s.shards = o.t - ts; s.shardMat = o.freezeMat; s.spear = false; }
+    },
+    burn(s, a, u, p) {
+      s.walk = a < .7 ? s.walk : null;
+      if (a > .2) s.mat = 'char';
+      s.fire = 1 - p.ph(a, .8, 1.5);
+      s.jit = a < .7 ? .03 : 0;
+      if (a > .7) { const k = p.easeIn((a - .7) / .35); s.sq = 1 - .7 * k; s.wide = 1 + .3 * k; s.spear = false; }
+      if (a > 1.05) { s.hide = true; s.ash = 1; }
+      s.motes = { a, ramp: s.glowRamp, n: 5 };
+    },
+    zap(s, a, u, p) {
+      s.walk = null;
+      if (a < .55) { s.mat = Math.floor(a * 22 + u.r1 * 2) % 2 ? 'white' : 'char'; s.jit = .035; s.glow = .9 * (1 - a / .55); }
+      else { s.mat = 'char'; s.tilt = Math.PI / 2 * p.easeIn((a - .55) / .3); s.spear = false; }
+    },
+    pull(s, a, u, p, o) {
+      const at = typeof o.at === 'function' ? o.at(u) : o.at || [0, 0, 1], T = o.pullT || 1, k = p.easeInCubic(a / T), sw = (o.swirl == null ? 2.4 : o.swirl) * k;
+      const dx = s.x - at[0], dy = s.y - at[1], c = Math.cos(sw), sn = Math.sin(sw);
+      s.x = at[0] + (dx * c - dy * sn) * (1 - k); s.y = at[1] + (dx * sn + dy * c) * (1 - k);
+      s.z = (at[2] || 0) * Math.pow(k, .7); s.tilt = k * (2 + u.r2 * 3); s.walk = null; s.spear = false;
+      if (k >= 1) s.hide = true;
+    },
+    vapor(s, a, u, p) {
+      s.walk = null; s.mat = 'white'; s.spear = false;
+      s.glow = 1 - p.ph(a, .1, .6); s.alpha = 1 - p.ph(a, .12, .6);
+      s.motes = { a, ramp: s.glowRamp, n: 6 };
+      if (a > .6) s.hide = true;
+    },
+  };
+  K.crowdReactions = Object.keys(REACT);
+  X.REACT = REACT;   // custom reactions can call a built-in one: PXFX.REACT.knock(s, a, u, p, o)
+
+  // draw one pawn from a state (also usable on its own: packed bodies, statues, a lone survivor)
+  K.pawn = function (s, o = E) {
+    if (s.hide && s.shards == null && !s.ash) return null;
+    const sc = o.scale || 1, td = s.tdir || [1, 0], tilt = s.tilt || 0, sq = s.sq == null ? 1 : s.sq, wd = s.wide || 1;
+    const alpha = s.alpha == null ? 1 : s.alpha, pal = o.pal || PAWN;
+    let x = s.x, y = s.y;
+    if (s.jit) { const f = Math.floor(this.t * 30); x += (X.hash(f, s.i * 3.3) - .5) * 2 * s.jit; y += (X.hash(f + 7, s.i * 1.9) - .5) * 2 * s.jit; }
+    const groundZ = s.z || 0, ct = Math.cos(tilt), st = Math.sin(tilt);
+    const cz = groundZ + (.08 + .22 * Math.abs(ct) * sq) * sc;
+    const res = { chest: [x, y, cz + .1 * sc], head: [x, y, cz + .25 * sc] };
+    // ice shards flying from where the statue stood
+    if (s.shards != null) {
+      const n = Math.max(3, Math.round(5 * this.density)), g = 4.9;
+      for (let k = 0; k < n; k++) {
+        const d = this.rdir(s.i * 13 + k, 77, .7), v = (1 + .9 * this.r(s.i * 13 + k, 78)) * (o.shardV || 1);
+        const z0 = groundZ + .3 * sc * this.r(k, 79) + .1, vz = d[2] * v;
+        const land = (vz + Math.sqrt(vz * vz + 4 * g * Math.max(.01, z0 - .04))) / (2 * g), tt = Math.min(s.shards, land);
+        const px = x + d[0] * v * tt, py = y + d[1] * v * tt, pz = Math.max(.04, z0 + vz * tt - g * tt * tt);
+        const spin = tt * 9 + k, dir = s.shards < land ? [Math.cos(spin), Math.sin(spin), Math.sin(spin * .7)] : [Math.cos(k * 2.1), Math.sin(k * 2.1), .15];
+        this.shard(px, py, pz, (.1 + .06 * this.r(k, 80)) * sc, .05 * sc, dir, MAT[s.shardMat] || MAT.ice, { alpha, shadow: false });
+      }
+      return res;
+    }
+    if (s.ash) {
+      const A = s.ash * alpha;
+      if (A > .05) this.scard(x, y, .045 * sc, .34 * sc, .12 * sc, (uu, vv) => (vv < .75 - 1.7 * uu * uu ? .25 + .4 * (vv + 1) : -1), ASH, { alpha: Math.min(1, A * 1.2) });
+      if (s.motes) this._motes(x, y, groundZ + .15 * sc, s, sc);
+      return res;
+    }
+    // local frame: forward F, side S, up U, all rotated by the tilt about the horizontal axis normal to tdir
+    const f = s.face == null ? Math.PI : s.face, F0 = [Math.cos(f), Math.sin(f), 0], S0 = [-Math.sin(f), Math.cos(f), 0];
+    const ax = [-td[1], td[0], 0];
+    const rot = vv => { const cr = cross(ax, vv), dd = ax[0] * vv[0] + ax[1] * vv[1]; return [vv[0] * ct + cr[0] * st + ax[0] * dd * (1 - ct), vv[1] * ct + cr[1] * st + ax[1] * dd * (1 - ct), vv[2] * ct + cr[2] * st]; };
+    const F = rot(F0), S = rot(S0), U = rot([0, 0, 1]);
+    const P = (fw, sd, up) => [x + (F[0] * fw + S[0] * sd) * sc * wd + U[0] * up * sc * sq, y + (F[1] * fw + S[1] * sd) * sc * wd + U[1] * up * sc * sq, cz + (F[2] * fw + S[2] * sd) * sc * wd + U[2] * up * sc * sq];
+    const mat = s.flash ? MAT.white : s.mat ? (typeof s.mat === 'string' ? MAT[s.mat] : s.mat) : null, body = mat || pal.body, helm = mat || pal.helm;
+    const bo = { shadow: false, alpha };
+    const seg = (a, b, r, ramp) => {
+      const len = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]), n = Math.max(1, Math.ceil(len / (r * .9)));
+      for (let k = 0; k <= n; k++) { const q = k / n; this.ball(a[0] + (b[0] - a[0]) * q, a[1] + (b[1] - a[1]) * q, a[2] + (b[2] - a[2]) * q, r, ramp, bo); }
+    };
+    const stride = s.walk != null ? Math.sin(s.walk) * .07 : 0;
+    // stubby legs, a round torso, red shoulder pads and helmet: a chunky soldier that still reads at ~10 px tall
+    seg(P(0, .07, -.12), P(stride, .075, -.27), .055 * sc, body);
+    seg(P(0, -.07, -.12), P(-stride, -.075, -.27), .055 * sc, body);
+    seg(P(0, 0, -.07), P(.01, 0, .06), .125 * sc, body);
+    const sh1 = P(0, .13, .07), sh2 = P(0, -.13, .07), hd = P(.02, 0, .22);
+    this.ball(sh1[0], sh1[1], sh1[2], .065 * sc, helm, bo);
+    this.ball(sh2[0], sh2[1], sh2[2], .065 * sc, helm, bo);
+    this.ball(hd[0], hd[1], hd[2], .09 * sc, helm, bo);
+    res.chest = P(0, 0, 0); res.head = hd;
+    if (s.spear !== false && o.spears !== false && Math.abs(tilt) < .5 && sq > .6 && alpha > .5) {
+      const hb = P(.07, -.18, -.2), ht = P(.07, -.18, .45), mx = (hb[0] + ht[0]) / 2, my = (hb[1] + ht[1]) / 2, mz = (hb[2] + ht[2]) / 2;
+      this.scard(mx, my, mz, .03 * sc, .65 * sc * U[2], (uu, vv) => (vv > .84 ? .99 : .4), pal.spear);
+    }
+    if (alpha > .35) this.shadow(x, y, groundZ, .17 * sc * wd, groundZ > .05 ? .6 : 1);
+    if (s.glow > 0 && s.glowRamp) this.glow(res.chest[0], res.chest[1], res.chest[2], .32 * sc, s.glowRamp, s.glow);
+    if (s.fire > 0 && s.glowRamp) {
+      const cf = this.cam().fwd, c = [res.chest[0] + cf[0] * .14 * sc, res.chest[1] + cf[1] * .14 * sc, res.chest[2] + cf[2] * .14 * sc], fl = .7 + .3 * Math.sin(this.t * 31 + s.i);
+      this.glow(c[0], c[1], c[2], .3 * sc, s.glowRamp, .8 * s.fire * fl);
+      for (let k = 0; k < 2; k++) {
+        const ox = (k - .5) * .1 * sc, hgt = (.3 + .2 * this.noise(this.t * 6 + k * 3, s.i)) * sc;
+        this.line([c[0] + ox, c[1], c[2] - .05 * sc], [c[0] + ox * 1.6, c[1], c[2] + hgt], .1 * sc, s.glowRamp, s.fire * fl, { w1: .01, i1: .2 });
+      }
+    }
+    if (s.motes) this._motes(x, y, cz, s, sc);
+    return res;
+  };
+  // rising sparks / embers / motes above a pawn
+  K._motes = function (x, y, z, s, sc) {
+    const m = s.motes;
+    if (!m.ramp) return;
+    for (let k = 0; k < (m.n || 5); k++) {
+      const age = m.a - this.r(s.i * 7 + k, 91) * .4;
+      if (age < 0 || age > 1) continue;
+      const a = this.r(s.i * 7 + k, 92) * TAU, rr = .12 * sc * (1 + age);
+      this.dot(x + Math.cos(a) * rr, y + Math.sin(a) * rr, z + age * .9 * sc, m.ramp, 1 - age);
+    }
+  };
+
+  // pawn palettes: the default red-helmed spearmen plus a few armies
+  const PALS = {
+    red: PAWN,
+    steel: { body: ['#262a36', '#363c4c', '#4c5468', '#667088'], helm: ['#5c6474', '#8a93a4', '#bcc4d0', '#e8ecf2'], spear: PAWN.spear },
+    bone: { body: ['#2c2626', '#403836', '#5a504c', '#766a64'], helm: ['#8a8070', '#b4aa94', '#d8d0bc', '#f2ecdc'], spear: PAWN.spear },
+    jade: { body: ['#1c2a24', '#283a32', '#385044', '#4c6a5a'], helm: ['#2c5a3a', '#3e7c4c', '#5aa462', '#8cc878'], spear: PAWN.spear },
+    gold: { body: ['#2a2230', '#3c3044', '#54445c', '#6e5a76'], helm: ['#7a5418', '#a87624', '#d8a83c', '#f6d878'], spear: PAWN.spear },
+  };
+  X.PAWN_PALS = PALS;
+  const rampCache = new WeakMap();   // palette array -> { hue, arr }: per-unit lookups must not build strings
+  const ramp32 = (r, hue) => {
+    let e = rampCache.get(r);
+    if (!e || e.hue !== hue) { e = { hue, arr: X.rampArr(X.rampId(r), hue) }; rampCache.set(r, e); }
+    return e.arr;
+  };
+  // far LOD: a pawn as a few pixels (a 1-2 px wide stroke from the feet to the helmet), for hordes of hundreds to
+  // tens of thousands. Same state fields as K.pawn; writes soft solids (no outline) with depth and a ground shadow.
+  // Seen from above a dense army is a sea of helmets, so each unit varies its helmet shade and a few show a spear
+  // glint: the carpet reads as a crowd instead of a flat slab
+  let SV = null, SA = 1;
+  function sput(ix, iy, d, c) {
+    const v = SV;
+    if (ix < 0 || iy < 0 || ix >= v.W || iy >= v.H) return;
+    if (SA < 1 && X.bayerAt(ix, iy) >= SA) return;
+    const i = iy * v.W + ix;
+    if (d <= v.zb[i]) return;
+    v.pix[i] = c; v.zb[i] = d; v.kind[i] = 4;
+  }
+  function sshade(ix, iy) {
+    const v = SV;
+    if (ix >= 0 && iy >= 0 && ix < v.W && iy < v.H) { const i = iy * v.W + ix; if (v.shadow[i] < 1) v.shadow[i] = 1; }
+  }
+  K.pawnSprite = function (s, o = E) {
+    if (s.hide && s.shards == null && !s.ash) return null;
+    const v = this.v, sc = o.scale || 1, pal = o.pal || PAWN;
+    let x = s.x, y = s.y;
+    if (s.jit) { const h = X.hash(Math.floor(this.t * 30), s.i * 3.3), h2 = h * 7.13 % 1; x += (h - .5) * 2 * s.jit; y += (h2 - .5) * 2 * s.jit; }
+    const gz = s.z || 0, tilt = s.tilt || 0, ct = Math.cos(tilt), st = Math.sin(tilt), td = s.tdir || [1, 0];
+    const sq = s.sq == null ? 1 : s.sq, wd = s.wide || 1, alpha = s.alpha == null ? 1 : s.alpha, Hh = .62 * sc * sq;
+    const ux = td[0] * st, uy = td[1] * st, uz = ct;
+    const res = { chest: [x + ux * Hh * .45, y + uy * Hh * .45, gz + .02 + uz * Hh * .45], head: [x + ux * Hh * .85, y + uy * Hh * .85, gz + .02 + uz * Hh * .85] };
+    const hue = v.hue, hpx = .62 * sc * v.S * v.fs;
+    SV = v; SA = alpha;
+    if (s.shards != null) {
+      const ice = ramp32(MAT[s.shardMat] || MAT.ice, hue), g = 4.9;
+      for (let k = 0; k < 3; k++) {
+        const d = this.rdir(s.i * 13 + k, 77, .7), sp = (.6 + .6 * this.r(s.i * 13 + k, 78)) * (o.shardV || 1) * Math.max(.4, sc * 2);
+        const z0 = gz + Hh * .5, vz = d[2] * sp, land = (vz + Math.sqrt(vz * vz + 4 * g * Math.max(.01, z0))) / (2 * g), tt = Math.min(s.shards, land);
+        if (s.shards > land + .5) continue;
+        if (!v.P(x + d[0] * sp * tt, y + d[1] * sp * tt, Math.max(0, z0 + vz * tt - g * tt * tt))) continue;
+        sput(Math.floor(v.px), Math.floor(v.py), v.pd + .03, ice[k === 0 ? 3 : 2]);
+      }
+      return res;
+    }
+    if (s.ash) {
+      if (alpha * s.ash < .05 || !v.P(x, y, 0)) return res;
+      const ash = ramp32(ASH, hue), ix = Math.floor(v.px), iy = Math.floor(v.py), w = Math.max(1, Math.round(hpx * .45));
+      for (let k = 0; k < w; k++) sput(ix + k - (w >> 1), iy, v.pd + .02, ash[1 + ((k + s.i) & 1)]);
+      if (s.motes && (s.i & 1)) this._motes(x, y, gz + Hh * .3, { i: s.i, motes: { a: s.motes.a, ramp: s.motes.ramp, n: 1 } }, sc);
+      return res;
+    }
+    if (!v.P(x, y, gz)) return res;
+    const bx = v.px, by = v.py, bd = v.pd;
+    if (!v.P(x + ux * Hh, y + uy * Hh, gz + uz * Hh)) return res;
+    const tx = v.px, ty = v.py, tdp = v.pd;
+    const mat = s.flash ? MAT.white : s.mat ? (typeof s.mat === 'string' ? MAT[s.mat] : s.mat) : null, body = ramp32(mat || pal.body, hue), helm = ramp32(mat || pal.helm, hue);
+    const w = Math.max(1, Math.min(3, Math.round(hpx * .3 * wd))), dx = tx - bx, dy = ty - by;
+    const n = Math.max(1, Math.round(Math.max(Math.abs(dx), Math.abs(dy)))), vert = Math.abs(dy) >= Math.abs(dx);
+    const bob = s.walk != null && Math.sin(s.walk) > .3 ? 1 : 0, legs = hpx >= 6 && Math.abs(tilt) < .5 && w >= 2;
+    const hl = body.length - 1, hh = helm.length - 1, o0 = (w - 1) >> 1, nh = hpx >= 6 ? 2 : 1;
+    // per-unit helmet shade: most catch the light, some sit in shadow, a few show the dark back of the head
+    // (specks under 3 px: fewer helmets and a darker body so the carpet stays dark with red dots)
+    const vr = s.vr != null ? s.vr : X.hash(s.i * 1.913, 5.17), speck = hpx < 3;
+    const hc = mat ? hh : vr < (speck ? .4 : .55) ? hh - 1 : vr < (speck ? .62 : .85) ? Math.max(1, hh - 2) : -1;
+    for (let k = 0; k < n; k++) {
+      const f = (k + .5) / n, ix = Math.floor(bx + dx * f), iy = Math.floor(by + dy * f) - (k ? bob : 0), d = bd + (tdp - bd) * f + .03, top = k >= n - nh;
+      for (let j = 0; j < w; j++) {
+        if (legs && k === 0 && ((w === 2 && s.walk != null && j === (Math.sin(s.walk) > 0 ? 0 : 1)) || (w === 3 && j === 1))) continue;
+        let c;
+        if (top && hc >= 0) c = helm[w > 1 && j === 0 && k === n - 1 ? Math.min(hh, hc + 1) : j === w - 1 && w > 1 ? Math.max(0, hc - 1) : hc];
+        else c = body[w === 1 ? (top ? (speck ? 1 : hl) : speck ? 1 : hl - 1) : j === 0 ? hl : j === w - 1 ? 1 : hl - 1];
+        if (vert) sput(ix + j - o0, iy, d, c); else sput(ix, iy + j - o0, d, c);
+      }
+    }
+    // spear: a one pixel shaft beside the upright body; on specks only a rare tip glint
+    if (o.spears !== false && s.spear !== false && Math.abs(tilt) < .4 && sq > .6 && alpha > .5) {
+      const spr = ramp32(pal.spear || PAWN.spear, hue);
+      if (hpx >= 5.5) { const sx = Math.floor(bx) + w - o0, len = Math.round(hpx * 1.1); for (let k = 1; k <= len; k++) sput(sx, Math.floor(by) - k - bob, bd + .035, k >= len - 1 ? spr[2] : spr[1]); }
+      else if (vr > (speck ? .996 : .93)) sput(Math.floor(tx) + 1, Math.floor(ty) - 1 - bob, tdp + .035, spr[2]);
+    }
+    // ground shadow: a pixel or two beside the feet (under the body when airborne)
+    if (alpha > .35) {
+      if (gz > .04) { if (v.P(x + X.SHADOW_X * gz, y + X.SHADOW_Y * gz, 0)) for (let j = 0; j < w; j++) sshade(Math.floor(v.px) + j - o0, Math.floor(v.py)); }
+      else { const ix = Math.floor(bx), iy = Math.floor(by); for (let j = 0; j <= w; j++) sshade(ix + j - o0 + 1, iy); if (w > 1) sshade(ix + 1, iy + 1); }
+    }
+    if (s.glow > 0 && s.glowRamp) this.glow(res.chest[0], res.chest[1], res.chest[2], .32 * sc, s.glowRamp, s.glow);
+    if (s.fire > 0 && s.glowRamp) {
+      const fl = .7 + .3 * Math.sin(this.t * 31 + s.i);
+      this.glow(res.chest[0], res.chest[1], res.chest[2] + .1 * sc, .3 * sc, s.glowRamp, .8 * s.fire * fl);
+      this.dot(res.head[0], res.head[1], res.head[2] + (.15 + .1 * this.noise(this.t * 6, s.i)) * sc, s.glowRamp, s.fire * fl);
+    }
+    if (s.motes) this._motes(x, y, gz + Hh * .5, { i: s.i, motes: { a: s.motes.a, ramp: s.motes.ramp, n: Math.min(2, s.motes.n || 2) } }, sc);
+    return res;
+  };
+
+  // spatial hash over a layout for neighbour queries (contagion, bounce targets, local chains); cached per layout
+  K.crowdGrid = function (units, cell) {
+    cell = cell || Math.max(.05, (units.spacing || .3) * 2);
+    if (units._grid && units._grid.cell === cell) return units._grid;
+    const map = new Map(), key = (a, b) => a * 73856093 ^ b * 19349663;
+    for (const u of units) { const k = key(Math.floor(u.x / cell), Math.floor(u.y / cell)); let a = map.get(k); if (!a) map.set(k, a = []); a.push(u); }
+    const g = {
+      cell,
+      near(x, y, r) {
+        const out = [], a0 = Math.floor((x - r) / cell), a1 = Math.floor((x + r) / cell), b0 = Math.floor((y - r) / cell), b1 = Math.floor((y + r) / cell);
+        for (let a = a0; a <= a1; a++) for (let b = b0; b <= b1; b++) {
+          const l = map.get(key(a, b));
+          if (l) for (const u of l) if ((u.x - x) ** 2 + (u.y - y) ** 2 <= r * r) out.push(u);
+        }
+        return out;
+      },
+    };
+    Object.defineProperty(units, '_grid', { value: g, writable: true, configurable: true });
+    return g;
+  };
+
+  // kill counter HUD: a skull and "killed/total" in 3x5 pixel digits with a dark outline, pinned to a screen corner.
+  // Draw it LAST in draw(). o: t, alpha (0..1, fade it out before the loop ends), x, y (pixels from the top-left),
+  // right: true pins it to the top-right. Turns gold with a short pop when every unit is down.
+  const GLYPH = {
+    0: '111101101101111', 1: '010110010010111', 2: '111001111100111', 3: '111001111001111', 4: '101101111001001',
+    5: '111100111001111', 6: '111100111101111', 7: '111001001010010', 8: '111101111101111', 9: '111101111001111',
+    '/': '001001010100100', ' ': '000000000000000',
+  };
+  const SKULL = ['01110', '11111', '10101', '11111', '01010'];
+  K.tally = function (states, o = E) {
+    const v = this.v, t = o.t == null ? this.t : o.t, alpha = o.alpha == null ? 1 : o.alpha;
+    if (!this.props || alpha <= 0 || !states || !states.length) return 0;
+    let dead = 0, last = -Infinity, all = true;
+    for (const s of states) {
+      if (s.hitT != null && t >= s.hitT) { dead++; if (s.hitT > last) last = s.hitT; } else all = false;
+    }
+    const total = states.length, done = all && dead === total;
+    const pop = done ? 1 - this.ph(t - last, .05, .3) : 0, big = pop > 0 ? 2 : 1;
+    const cells = [];   // [col, row, colour index]
+    SKULL.forEach((r, ry) => [...r].forEach((c, rx) => { if (c === '1') cells.push([rx, ry, 0]); }));
+    const str = String(dead), tot = '/' + total;
+    let cx = 7;
+    for (const [part, ci] of [[str, 1], [tot, 2]]) for (const ch of part) {
+      const g = GLYPH[ch] || GLYPH[' '];
+      for (let k = 0; k < 15; k++) if (g[k] === '1') cells.push([cx + k % 3, Math.floor(k / 3), ci]);
+      cx += 4;
+    }
+    const night = v.night, cols = done
+      ? [X.rgb(232, 72, 60), X.rgb(255, 214, 92), X.rgb(255, 238, 170)]
+      : [X.rgb(240, 236, 244), X.rgb(255, 255, 255), night ? X.rgb(170, 164, 184) : X.rgb(196, 190, 206)];
+    const ink = X.rgb(26, 22, 34), W = v.W, H = v.H, wide = cx * big;
+    const X0 = o.right ? W - (o.x == null ? 3 : o.x) - wide : (o.x == null ? 3 : o.x), Y0 = o.y == null ? 3 : o.y;
+    const mask = new Map();
+    for (const [c, r, ci] of cells) for (let a = 0; a < big; a++) for (let b = 0; b < big; b++) mask.set((Y0 + r * big + b) * W + X0 + c * big + a, ci);
+    const put = (i, c) => {
+      const ix = i % W, iy = (i / W) | 0;
+      if (ix < 0 || iy < 0 || ix >= W || iy >= H || (alpha < 1 && X.bayerAt(ix, iy) >= alpha)) return;
+      v.pix[i] = c; v.zb[i] = 1e9; v.kind[i] = 4;
+    };
+    for (const i of mask.keys()) for (const d of [-1, 1, -W, W, -W - 1, -W + 1, W - 1, W + 1]) if (!mask.has(i + d)) put(i + d, ink);
+    for (const [i, ci] of mask) put(i, cols[ci]);
+    return dead;
+  };
+
+  K.crowd = function (o = E) {
+    const units = this.crowdLayout(o), t = o.t == null ? this.t : o.t;
+    // scale 'auto' fits the pawns to the formation spacing (o.maxScale caps it); lod 'auto' swaps to pixel sprites
+    // once a pawn would be under ~7.5 px tall (hundreds and more), 'full' / 'sprite' force one
+    const sc = o.scale === 'auto' ? clamp((units.spacing || .4) / .4 * (o.fill || 1), o.minScale || .08, o.maxScale || 1.5) : o.scale || 1;
+    const vw = (this.def && this.def.view) || E, S0 = 240 / (2 * (vw.r || 3) * 1.12) * (vw.zoom || 1) * this.v.fs;   // mode-independent px per unit
+    const lod = o.lod && o.lod !== 'auto' ? o.lod : .62 * sc * S0 < 7.5 ? 'sprite' : 'full';
+    const pal = typeof o.pal === 'string' ? PALS[o.pal] || PAWN : o.pal, draw = lod === 'sprite' ? this.pawnSprite : this.pawn;
+    const po = { scale: sc, pal, spears: o.spears }, ro = Object.assign({ t }, o);
+    // reach: throw distances / heights of knock and launch scale with small pawns (auto scale) unless o.reach is set
+    const rs0 = o.reach != null ? o.reach : o.scale === 'auto' ? clamp(sc, .25, 1) : 1;
+    const rf0 = typeof o.react === 'function' ? o.react : REACT[o.react || 'knock'];
+    const atF = typeof o.at === 'function' ? o.at : null, at = atF ? null : o.at || [0, 0, 0], fromF = typeof o.from === 'function' ? o.from : null;
+    let from = fromF ? [1, 0] : o.from || [1, 0], fl = Math.hypot(from[0], from[1]) || 1;
+    const rs = o.respawn, cl = o.clear || rs, fear = o.fear || 0, adv = o.advance;
+    const out = [];
+    for (const u of units) {
+      const th = o.hit ? o.hit(u) : null;
+      const s = { i: u.i, vr: u.vr, x: u.x, y: u.y, z: 0, tilt: 0, tdir: [1, 0], sq: 1, wide: 1, face: u.face, alpha: 1, walk: null, spear: true, glowRamp: o.ramp };
+      let alive = th == null || t < th, fresh = false;
+      // a fresh unit walking back in to its spot (only for units that were hit)
+      if (rs && th != null && th < rs[0]) {
+        const len = (rs[1] - rs[0]) * .55, st = rs[0] + u.r1 * (rs[1] - rs[0] - len);
+        if (t >= st && fromF) { const f = fromF(u); from = f; fl = Math.hypot(f[0], f[1]) || 1; }
+        if (t >= st) {
+          const k = this.easeOut((t - st) / len), D = o.enter === 'fade' ? 0 : (o.enterD || 1.6) * (1 + .375 * u.r2);
+          s.x = u.x + from[0] / fl * D * (1 - k); s.y = u.y + from[1] / fl * D * (1 - k);
+          s.face = Math.atan2(-from[1], -from[0]) * (1 - k) + u.face * k;
+          s.alpha = this.ph(k, 0, o.enter === 'fade' ? 1 : .4); s.walk = k < 1 && o.enter !== 'fade' ? t * 11 + u.r1 * TAU : null;
+          alive = true; fresh = true;
+        }
+      }
+      if (!fresh) {
+        const tt = th == null ? t : Math.min(t, th);
+        if (adv) {
+          const dx = adv.to[0] - u.x, dy = adv.to[1] - u.y, dl = Math.hypot(dx, dy) || 1, d = Math.min(dl, adv.v * tt);
+          s.x += dx / dl * d; s.y += dy / dl * d; s.face = Math.atan2(dy, dx); s.walk = tt * 9 + u.r1 * TAU;
+        }
+        const au = atF ? atF(u) : at, ddx = s.x - au[0], ddy = s.y - au[1], dd = Math.hypot(ddx, ddy) || 1;
+        s.tdir = [ddx / dd, ddy / dd];
+        if (alive) {
+          const fr = typeof fear === 'function' ? fear(u) : fear;
+          if (fr > 0) { s.tilt = .3 * fr * (.6 + .4 * u.r2); s.jit = .02 * fr; s.walk = adv ? s.walk : t * 14 * fr + u.r1 * TAU; }
+        } else {
+          const a = t - th;
+          s.pw = typeof o.power === 'function' ? o.power(u) : o.power == null ? 1 : o.power; s.rs = rs0;
+          s.flash = a < .07;
+          (o.reactOf ? REACT[o.reactOf(u)] || rf0 : rf0)(s, a, u, this, ro);
+          // corpses fade (and sink a little) during the clear window
+          if (cl) {
+            const len = (cl[1] - cl[0]) * .5, st = cl[0] + u.r2 * (cl[1] - cl[0] - len), k = this.ph(t, st, st + len);
+            if (k > 0) { s.alpha = (s.alpha == null ? 1 : s.alpha) * (1 - k); if (k >= 1) { s.hide = true; s.shards = null; s.ash = 0; } }
+          }
+        }
+      }
+      const r = s.hide && s.shards == null && !s.ash ? null : draw.call(this, s, po);
+      out.push({ u, hitT: th, alive, fresh, x: s.x, y: s.y, z: s.z, chest: r ? r.chest : [s.x, s.y, s.z + .3 * sc], head: r ? r.head : [s.x, s.y, s.z + .5 * sc], hidden: !r });
+    }
+    out.scale = sc; out.lod = lod;
+    return out;
+  };
+
   // module documentation for the copyable prompts (def.modules lists the keys an effect uses)
   X.KIT = {
     figure: { zh: '起手姿勢（Pose）：無臉人偶施法者，關鍵姿勢之間用緩動插值，手部與刀尖位置作為特效錨點。', en: 'Pose: a faceless caster mannequin; key poses blended with easing; hand and blade-tip positions anchor the effect.' },
@@ -395,6 +980,9 @@
     debris: { zh: '碎片（Debris）：預先生成的低多邊形碎石，用動畫曲線飛向目標或被推開，不做真實物理。', en: 'Debris: pre-made low-poly rocks moved along animation curves towards a target or pushed outwards; no real physics.' },
     impact: { zh: '命中（Impact）：頓幀＋短促強震屏＋放射速度線，必要時插入 1–3 格黑白反相的衝擊格。', en: 'Impact: hit-stop, a short hard camera shake and radial speed lines; optionally 1–3 frames of a two-tone negative impact frame.' },
     aftermath: { zh: '餘波（Aftermath）：地面留下焦痕、冰霜、裂紋或墨跡，慢慢淡出，令招式有重量。', en: 'Aftermath: scorch, frost, cracks or ink left on the ground, fading slowly so the move has weight.' },
+    crowd: { zh: '群眾（Crowd）：一群細小敵兵（人數見「敵兵數量」參數；近景時高約施法者的 40%，暗色身體、紅色頭盔與肩甲、長矛）以均勻但不規則的點陣排成一群；每個單位的命中時間 = 起始時間 + 與爆心／波前的距離 ÷ 波速，傷害像波浪一樣掃過人群；每個單位按招式播放反應（拋飛翻滾後躺下、升空、原地倒下、壓扁、凍成冰雕後碎裂、燒成焦炭再崩成灰、觸電抽搐倒下、被吸走、化成白光蒸發），命中瞬間全身閃白 2 格；屍體淡出後新一批敵兵由場邊走回原位，令動畫可以無縫循環。', en: 'Crowd: a horde of small enemy soldiers (count from the enemy-count knob; about 40% of the caster’s height up close; dark bodies, red helmets and shoulder pads, spears) spread evenly but irregularly in a group. Each unit is hit at start time + its distance from the blast centre or wave front / wave speed, so the damage sweeps through the horde as a wave. Each unit plays the move’s reaction (thrown with a tumble then lying down, launched, toppling, flattened, frozen into a statue then shattered, burnt to charcoal then crumbling to ash, convulsing from a shock then falling, pulled away, or vaporised into white light) and flashes white for 2 frames on the hit. The bodies fade and a fresh horde walks back in from the edge, so the animation loops seamlessly.' },
+    troops: { zh: '陣型（Formation）：敵兵按陣型排列（方陣、橫列、縱隊、楔形、圓陣、鶴翼、分隊、散兵），陣型在固定範圍內排開，兵距決定士兵大小；人數由十到一萬時自動換細節級別：近景是有頭盔、肩甲、長矛的 3D 小兵，數百人以上改為 1–3 像素寬的像素小兵（頭盔深淺隨機、偶有矛尖反光），一萬人時成為一片頭盔海。', en: 'Formation: enemies stand in a formation (block, line, column, wedge, ring, crescent, squads, scatter) laid out inside a fixed area, and the spacing sets the soldier size; from ten to ten thousand the level of detail switches automatically: 3D soldiers with helmet, shoulder pads and spear up close, 1–3 px wide pixel soldiers from a few hundred on (random helmet shades, the odd spear-tip glint), and a sea of helmets at ten thousand.' },
+    tally: { zh: '擊殺計數（Kill Counter）：畫面角落的 3×5 像素字 HUD，一個骷髏加「已擊殺／總數」，帶深色外框；命中時即時累加，全滅時變金色並放大一下；有漏網之魚時停在實際數字，一眼看出招式有沒有覆蓋整個陣型。', en: 'Kill counter: a HUD in the corner in 3×5 pixel digits, a skull plus "killed/total" with a dark outline; it counts up live as units are hit, turns gold with a short pop on a full wipe, and stops at the real number when some survive, so you can see at a glance whether the spell covered the whole formation.' },
     grade: { zh: '環境調色（Grade）：出招前把環境壓暗、去飽和或染色（不影響發光部分）。', en: 'Grade: darken, desaturate or tint the environment before the move (emissive parts unaffected).' },
   };
   X.STAGES = {

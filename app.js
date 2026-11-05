@@ -7,7 +7,7 @@
   const P = window.PXFX_PROMPT;
   const SIZE = P.SIZE;
   const CATS = { projectile: '飛行彈', beam: '光束', area: '範圍', burst: '爆發', vortex: '旋風', smoke: '煙霧', shield: '護盾', portal: '傳送門', environment: '環境', screen: '畫面', slash: '斬擊', strike: '近身打擊', domain: '領域', summon: '召喚', aura: '氣場' };
-  const PACKS = { library: '特效庫', ultimate: '必殺技' };
+  const PACKS = { library: '特效庫', ultimate: '必殺技', mass: '群體魔法', scale: '十百千萬' };
   const packOf = m => m.pack || 'library';
   const SCHOOLS = { fire: '火', ice: '冰', storm: '雷', arcane: '奧術', light: '光', dark: '暗', shadow: '影', wind: '風', sand: '砂', water: '水', nature: '自然', poison: '毒', astral: '星' };
   const MODE_NAME = { '3d': '3D', '25d': '2.5D', '2d': '2D' };
@@ -112,7 +112,7 @@
       <div class="info">
         <div class="title"><span class="num">${String(m.n).padStart(2, '0')}</span><b>${m.zh}</b></div>
         <div class="en">${m.en}</div>
-        <div class="tags"><span class="dot" style="background:${m.color}"></span>${packOf(m) === 'ultimate' ? '<span class="pk">必殺技</span>' : ''}${CATS[m.category] || m.category}${schools ? ' · ' + schools : ''}<span class="loop"></span></div>
+        <div class="tags"><span class="dot" style="background:${m.color}"></span>${packOf(m) !== 'library' ? `<span class="pk">${PACKS[packOf(m)]}</span>` : ''}${CATS[m.category] || m.category}${schools ? ' · ' + schools : ''}<span class="loop"></span></div>
       </div>
       <div class="actions"><button type="button" class="btn primary copy" disabled>複製 Prompt</button><button type="button" class="btn open">調整 / 詳情</button></div>`;
     card.el = el;
@@ -234,6 +234,10 @@
     $('#d-desc').replaceChildren(m.descZh, Object.assign(document.createElement('span'), { className: 'en', textContent: m.descEn }), ...(mods.length ? [Object.assign(document.createElement('span'), { className: 'mods', textContent: '模組：' + mods.join('・') })] : []));
     $('#d-credit').innerHTML = packOf(m) === 'ultimate'
       ? '原創設計（必殺技包）：把動畫必殺技的視覺語言拆成起手、集氣、成形、推進、命中、餘波六段，再用共用模組重新組合；不使用任何作品的角色、名稱或美術。像素版由 PXFX 渲染器以 pixel-plays 規則繪製。'
+      : packOf(m) === 'scale'
+      ? '原創設計（十百千萬包）：攻擊魔法按規模分四級，十人、百人、千人、萬人，每級三種範圍形狀；命中範圍與畫面一致，範圍外的敵兵會倖存，角落的擊殺計數即時顯示有沒有全滅；陣型可切換，方便試驗「哪種範圍克制哪種陣型」。不使用任何作品的角色、名稱或美術。像素版由 PXFX 渲染器以 pixel-plays 規則繪製。'
+      : packOf(m) === 'mass'
+      ? '原創設計（群體魔法包）：一個巨大的法術對一整群細小敵兵；每個敵兵按與爆心或波前的距離延遲中招，傷害像波浪一樣掃過人群，再按招式播放各自的反應。不使用任何作品的角色、名稱或美術。像素版由 PXFX 渲染器以 pixel-plays 規則繪製。'
       : `原作：<a href="https://00gamedevs.com/zh-TW/effects/${m.id}/" target="_blank" rel="noopener">00GameDevs · ${m.en}</a>（MIT）。像素版由 PXFX 渲染器以 pixel-plays 規則重製。`;
     history.replaceState(null, '', '#' + m.id);
     if (!dlg.open) dlg.showModal();
@@ -294,7 +298,8 @@
       for (const [key, d] of params) {
         const val = tw.params[key] != null ? tw.params[key] : d.value;
         const step = d.step || (d.max - d.min) / 100, dec = step >= 1 ? 0 : step >= .1 ? 1 : 2;
-        g.append(slider(d.zh || key, val, d.min, d.max, step, num(dec), v => { tw.params[key] = v; changed(false); }, tw.params[key] == null));
+        const fmt = d.labels ? v => d.labels[Math.round(v)] || String(v) : num(dec);   // index params (e.g. formation) show their names
+        g.append(slider(d.zh || key, val, d.min, d.max, step, fmt, v => { tw.params[key] = v; changed(false); }, tw.params[key] == null));
       }
     }
     const g1 = group('通用');
