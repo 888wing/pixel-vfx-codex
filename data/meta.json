@@ -2421,5 +2421,237 @@
   "kind": 0,
   "previewMode": null,
   "pack": "scale"
+ },
+ {
+  "n": 115,
+  "id": "million-host",
+  "zh": "百萬大軍",
+  "en": "Million Host",
+  "descZh": "鏡頭由一名士兵的特寫一路拉遠：十人、百人、千人、萬人、十萬人，最後百萬大軍鋪滿整片大陸。一道光環在大陸外圍降下，向內收緊，光環掃過的士兵化成光點；光環停下的半徑以內的士兵倖存。",
+  "descEn": "The camera starts on one soldier and pulls back past ten, a hundred, a thousand, ten thousand and a hundred thousand until a million-strong army covers a whole continent. A ring of light comes down around the coast and closes in, turning every soldier it passes into sparks; anyone inside the radius where the ring stops survives.",
+  "category": "area",
+  "schools": [
+   "light"
+  ],
+  "tags": "反轉 百萬 拉遠 光環 收緊 zoom out million ring twist",
+  "color": "#fff4c0",
+  "duration": 7,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "twist"
+ },
+ {
+  "n": 116,
+  "id": "overkill",
+  "zh": "殺雞用牛刀",
+  "en": "Overkill",
+  "descZh": "施法者使出最強的必殺技：天空變色、法陣層層展開、一道星球般粗的光柱蓄力良久；鏡頭最後才找到目標——只有一隻小史萊姆。光柱轟落，地面裂成兩半，計數器顯示 1/1。光柱半徑以外的史萊姆倖存。",
+  "descEn": "The caster pulls out their strongest ultimate: the sky changes colour, sigil after sigil unfolds and a pillar of light as wide as a planet charges for ages; only then does the camera find the target, a single small slime. The pillar comes down, the ground splits in two and the counter reads 1/1. Slimes outside the pillar’s radius survive.",
+  "category": "strike",
+  "schools": [
+   "light",
+   "arcane"
+  ],
+  "tags": "反轉 反差 必殺 單體 史萊姆 overkill slime one target twist",
+  "color": "#ffd27a",
+  "duration": 7,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "twist"
+ },
+ {
+  "n": 117,
+  "id": "downscale",
+  "zh": "解析度崩壞",
+  "en": "Downscale",
+  "descZh": "施法者一彈指，畫面的解析度隨節拍一級級減半；千人方陣被合併成越來越大的色塊，最後整支軍隊只剩一個像素，被施法者彈走。站得太疏、所在色塊以地面為主的士兵不會被合併，得以倖存。",
+  "descEn": "The caster snaps and the picture’s resolution halves on every beat; the thousand-strong block merges into bigger and bigger colour blocks until the whole army is a single pixel, which the caster flicks away. Soldiers spread so thin that their block is mostly ground are never merged and survive.",
+  "category": "screen",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "反轉 像素 解析度 降解析度 合併 pixelate downscale resolution twist",
+  "color": "#7fe0ff",
+  "duration": 6,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "twist"
+ },
+ {
+  "n": 118,
+  "id": "return-to-sender",
+  "zh": "箭雨回送",
+  "en": "Return to Sender",
+  "descZh": "萬名弓兵同時放箭，箭雨遮黑天空，全部射向施法者；施法者舉起一隻手，所有箭在半空停住、掉頭，沿原來的弧線落回各自的射手。施法者只扭轉一部分箭時，其餘的箭撞碎在護盾上，那些射手倖存。",
+  "descEn": "Ten thousand archers loose at once, the volley darkens the sky and every arrow flies at the caster, who raises one hand: the arrows stop in mid-air, turn round and fall back along their own arcs onto the archers who shot them. If the caster turns only part of the volley, the rest shatter on a shield and their archers survive.",
+  "category": "projectile",
+  "schools": [
+   "wind",
+   "arcane"
+  ],
+  "tags": "反轉 箭雨 反彈 萬人 弓兵 reflect arrows volley twist",
+  "color": "#c8f0ff",
+  "duration": 6.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "twist"
+ },
+ {
+  "n": 119,
+  "id": "map-fold",
+  "zh": "摺地",
+  "en": "Map Fold",
+  "descZh": "施法者按住地面一拉，戰場像一張紙沿摺痕對摺：載著千人大軍的一半地圖翻起，拍向另一半，把軍隊夾扁；地圖攤開後留下對稱的壓痕。剛好站在摺痕上的士兵倖存。",
+  "descEn": "The caster grabs the ground and pulls, and the battlefield folds like a sheet of paper along a crease: the half carrying the thousand-strong army swings up and slaps down on the other half, flattening everyone; when the map opens again it bears a mirrored imprint. Soldiers standing right on the crease survive.",
+  "category": "environment",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "反轉 摺紙 地圖 對摺 夾扁 fold paper map crease twist",
+  "color": "#e8d8b0",
+  "duration": 6,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "twist"
+ },
+ {
+  "n": 120,
+  "id": "domino-pebble",
+  "zh": "骨牌一彈",
+  "en": "Domino Pebble",
+  "descZh": "施法者彈出一粒小石子，打倒最近的一名士兵；他倒向身旁的戰友，萬人方陣像骨牌一樣一排排倒下，越倒越快。和下一個人相隔太遠的士兵不會被壓到，連鎖在那裡中斷。",
+  "descEn": "The caster flicks a single pebble that knocks over the nearest soldier; he falls into the man beside him and the ten-thousand-strong block goes down like dominoes, row after row, faster and faster. Anyone standing too far from the next man is never touched, and the chain breaks there.",
+  "category": "projectile",
+  "schools": [
+   "sand"
+  ],
+  "tags": "反轉 骨牌 連鎖 小石 萬人 domino chain pebble twist",
+  "color": "#d8c8a8",
+  "duration": 6,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "twist"
+ },
+ {
+  "n": 121,
+  "id": "shadow-mutiny",
+  "zh": "影子叛變",
+  "en": "Shadow Mutiny",
+  "descZh": "施法者讓太陽驟然變亮、壓低，千名士兵的影子在地上拉長，然後一個個站起來，化成帶紫色發光邊的黑色剪影，轉身刺向自己的主人。站在施法者召來的雲影之下、沒有影子的士兵倖存。",
+  "descEn": "The caster makes the sun flare and sink, the shadows of a thousand soldiers stretch across the ground, then stand up one by one as black silhouettes with violet glowing rims and turn their blades on their owners. Soldiers in the shade of the cloud the caster calls in have no shadow and survive.",
+  "category": "summon",
+  "schools": [
+   "shadow",
+   "light"
+  ],
+  "tags": "反轉 影子 剪影 叛變 光照 shadow silhouette mutiny twist",
+  "color": "#9a7cff",
+  "duration": 6,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "twist"
+ },
+ {
+  "n": 122,
+  "id": "eraser",
+  "zh": "一筆抹消",
+  "en": "Eraser",
+  "descZh": "一個巨大的像素橡皮擦從天而降，沿施法者畫出的路徑來回擦過戰場；被擦過的地方變成灰白棋盤格，像繪圖軟件的透明背景，士兵連同地面一起消失。橡皮擦沒有擦到的士兵倖存。",
+  "descEn": "A giant pixel eraser drops from the sky and scrubs back and forth across the battlefield along the path the caster draws; everything it passes turns into the grey-and-white checkerboard of a paint program’s transparent background, soldiers and ground alike. Soldiers the eraser misses survive.",
+  "category": "screen",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "反轉 橡皮擦 透明 棋盤格 路徑 eraser checkerboard path twist",
+  "color": "#f0f0f0",
+  "duration": 6,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "twist"
+ },
+ {
+  "n": 123,
+  "id": "falling-score",
+  "zh": "計數崩落",
+  "en": "Falling Score",
+  "descZh": "角落的擊殺計數開始顫動，數字一個個脫離畫面，變成巨大的金色像素方塊砸向萬人大軍；每砸死一批，計數增加，下一批數字更多更大，最後「10000」五個數字一起落地。剛好站在數字空心處（例如 0 的中間）的士兵倖存。",
+  "descEn": "The kill counter in the corner starts to shake and its digits break off the screen as giant golden pixel blocks that slam into an army of ten thousand; every wave of kills raises the count, so the next digits are bigger and more numerous, until 10000 lands all at once. Anyone standing in a digit’s hollow, like the middle of a 0, survives.",
+  "category": "strike",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "反轉 計數器 數字 方塊 砸落 萬人 counter digits falling score twist",
+  "color": "#ffd65c",
+  "duration": 6.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "twist"
+ },
+ {
+  "n": 124,
+  "id": "palette-swap",
+  "zh": "換色倒戈",
+  "en": "Palette Swap",
+  "descZh": "一道色波以抖動網點的圖案掃過千人紅軍，被網點選中的士兵換成施法者的藍色，立刻轉身攻擊身旁仍是紅色的戰友。網點越密，倒戈的人越多；身旁沒有藍兵的紅兵倖存。",
+  "descEn": "A colour wave sweeps over the thousand red soldiers in a dithered dot pattern; every soldier the pattern picks switches to the caster’s blue and turns on the red comrades beside him. The denser the dither, the more turn; red soldiers with no blue neighbour survive.",
+  "category": "area",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "反轉 換色 調色盤 抖動 倒戈 palette swap dither convert twist",
+  "color": "#5aa8ff",
+  "duration": 6,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "twist"
+ },
+ {
+  "n": 125,
+  "id": "sky-fall",
+  "zh": "天地倒轉",
+  "en": "Sky Fall",
+  "descZh": "施法者把天地倒轉：畫面翻轉，萬人大軍失去重力，向「上」掉進雲海；只有施法者釘下的發光錨樁附近的士兵被拉住。畫面翻回後，錨樁範圍以外的士兵全部消失。",
+  "descEn": "The caster turns the world upside down: the picture flips, the army of ten thousand loses its footing and falls up into the clouds, and only the soldiers near the glowing anchor stakes the caster drove into the ground hold on. When the picture flips back, everyone beyond the stakes’ reach is gone.",
+  "category": "environment",
+  "schools": [
+   "astral",
+   "wind"
+  ],
+  "tags": "反轉 重力 倒轉 錨樁 萬人 gravity flip upside down anchor twist",
+  "color": "#a8c8ff",
+  "duration": 6,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "twist"
+ },
+ {
+  "n": 126,
+  "id": "jigsaw",
+  "zh": "拼圖崩落",
+  "en": "Jigsaw",
+  "descZh": "戰場浮現拼圖的接縫，千人大軍腳下的拼圖塊一塊塊翻起、掉進下方的虛空，連人帶地一起墜落；最後只剩施法者腳下的那一塊。沒有被選中掉落的拼圖塊上的士兵倖存。",
+  "descEn": "Jigsaw seams appear across the battlefield and the pieces under the thousand-strong army flip up one by one and drop into the void below, ground and soldiers together, until only the piece under the caster is left. Soldiers on pieces that are not chosen to fall survive.",
+  "category": "environment",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "反轉 拼圖 地面 墜落 虛空 jigsaw puzzle pieces void twist",
+  "color": "#c8a878",
+  "duration": 6,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "twist"
  }
 ]

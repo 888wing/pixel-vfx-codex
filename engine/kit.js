@@ -418,9 +418,10 @@
    *   pal { body, helm, spear } or a name from PXFX.PAWN_PALS ('red' | 'steel' | 'bone' | 'jade' | 'gold'),
    *   enter: 'walk' (default, from o.from [dx, dy] or o.from(u), o.enterD units away) | 'fade' (fade in on the spot: armies at the island edge)
    * p.crowdGrid(units, cell) -> { near(x, y, r) } spatial hash for neighbour queries (contagion, bounce targets)
-   * p.tally(states, { t, alpha, right }) draws the kill counter HUD (skull + killed/total); call it last in draw()
+   * p.tally(states, { t, alpha, right }) draws the kill counter HUD (skull + killed/total); call it last in draw();
+   *   armies too big for per-unit states pass their own counts: p.tally(null, { total, dead, last })
    * pawn state s: x, y, z, tilt (radians, falls along tdir [dx, dy]), sq (squash height), wide, mat ('ice' | 'char' |
-   *   'white' | 'stone' | 'bone' | 'rot' | 'wet', or a ramp array of your own, or null; freeze takes o.freezeMat), shardMat, alpha, hide, walk (stride phase or null), jit, glow (0..1, with s.glowRamp), fire,
+   *   'white' | 'stone' | 'bone' | 'rot' | 'wet', or a ramp array of your own, or null; freeze takes o.freezeMat), shardMat, alpha, hide, noShadow (sprites: no ground shadow, e.g. units flung far off the ground), walk (stride phase or null), jit, glow (0..1, with s.glowRamp), fire,
    *   motes ({ a, ramp } rising sparks), shards (time since shatter), ash (0..1 pile), spear (bool) */
   const PAWN = {
     body: ['#2a1f2a', '#3b2c38', '#52404c', '#6c5662'],
@@ -824,7 +825,7 @@
       else if (vr > (speck ? .996 : .93)) sput(Math.floor(tx) + 1, Math.floor(ty) - 1 - bob, tdp + .035, spr[2]);
     }
     // ground shadow: a pixel or two beside the feet (under the body when airborne)
-    if (alpha > .35) {
+    if (alpha > .35 && !s.noShadow) {
       if (gz > .04) { if (v.P(x + X.SHADOW_X * gz, y + X.SHADOW_Y * gz, 0)) for (let j = 0; j < w; j++) sshade(Math.floor(v.px) + j - o0, Math.floor(v.py)); }
       else { const ix = Math.floor(bx), iy = Math.floor(by); for (let j = 0; j <= w; j++) sshade(ix + j - o0 + 1, iy); if (w > 1) sshade(ix + 1, iy + 1); }
     }
@@ -869,13 +870,15 @@
   };
   const SKULL = ['01110', '11111', '10101', '11111', '01010'];
   K.tally = function (states, o = E) {
-    const v = this.v, t = o.t == null ? this.t : o.t, alpha = o.alpha == null ? 1 : o.alpha;
-    if (!this.props || alpha <= 0 || !states || !states.length) return 0;
+    const v = this.v, t = o.t == null ? this.t : o.t, alpha = o.alpha == null ? 1 : o.alpha, given = o.total != null;
+    if (!this.props || alpha <= 0 || (!given && (!states || !states.length))) return 0;
+    // o.total / o.dead / o.last: counts computed by the effect itself (armies too big for per-unit states)
     let dead = 0, last = -Infinity, all = true;
-    for (const s of states) {
+    if (given) { dead = o.dead || 0; last = o.last == null ? t : o.last; all = dead >= o.total; }
+    else for (const s of states) {
       if (s.hitT != null && t >= s.hitT) { dead++; if (s.hitT > last) last = s.hitT; } else all = false;
     }
-    const total = states.length, done = all && dead === total;
+    const total = given ? o.total : states.length, done = all && dead === total;
     const pop = done ? 1 - this.ph(t - last, .05, .3) : 0, big = pop > 0 ? 2 : 1;
     const cells = [];   // [col, row, colour index]
     SKULL.forEach((r, ry) => [...r].forEach((c, rx) => { if (c === '1') cells.push([rx, ry, 0]); }));

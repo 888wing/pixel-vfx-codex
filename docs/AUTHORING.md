@@ -133,7 +133,11 @@ Screen operations (they resolve everything drawn so far first):
 
 - `p.warp(x, y, z, R, fn(dx, dy, rho) => [ox, oy] | null)` — displace pixels (lensing, heat haze, space rips).
 - `p.flash(color, amount)` — ordered-dither flash of the whole frame.
-- `p.post(fn({ pix, W, H, kind, zb, bayer, rgb, hex, P, night }))` — custom full-frame pass (pix is Uint32 ABGR).
+- `p.post(fn({ pix, W, H, kind, zb, bayer, rgb, hex, P, Q, night, mode }))` — custom full-frame pass (pix is Uint32
+  ABGR). `Q(sx, sy, h = 0)` → `[x, y, depth]` is the inverse of `P`: the world point at height `h` under a screen
+  pixel (screen-space spells that must know what lies under each pixel: erasers, pixelation zones, masks).
+- `p.worldScale(k)` — scales everything drawn after it in this frame by `k` about the origin (zoom-outs, growing
+  worlds). The baked stage ground does not scale: use `stage: { ground: 'none' }` and draw your own.
 - `p.project(x, y, z)` → `[sx, sy, depth, pixelsPerUnit]`.
 
 Helpers: `p.r(k, salt)`, `p.noise(x, y)`, `p.fbm(x, y, oct)`, `p.clamp`, `p.lerp`, `p.smooth(a, b, x)`, `p.ease`,
@@ -307,3 +311,25 @@ if (p.param('tally')) p.tally(st, { t, alpha: 1 - p.ph(t, 4.3, 4.5) });   // the
 - **Kill counter.** `p.tally(states, { t, alpha, right })` draws a skull and "killed/total" in 3×5 pixel digits with a
   dark outline in a screen corner; it turns gold with a short pop on a full wipe. Draw it last and fade it out before
   the respawn. `fx/second-sun.js` is the reference.
+
+## Twist pack: screen spells, moving ground and armies too big to list
+
+The Twist pack (`pack: "twist"`, n 115–126) keeps the Scale Ladder rules (honest hit rules, `p.tally`, formations,
+default = full wipe) but each spell hides a twist: it attacks the picture itself (resolution, an eraser, gravity),
+rewrites the map (folds, jigsaw pieces), turns the enemy's own things on them (shadows, colours, arrows) or plays
+with scale (one slime, one pebble, a million soldiers). Engine pieces added for it:
+
+- **`p.post` passes `Q(sx, sy, h = 0)`**, the inverse of `P`: the world point under a screen pixel. Screen-space
+  spells keep their *rule* in world space and only paint in the post pass what the rule already decided (an eraser
+  paints the transparency checker on pixels whose ground point lies in the erased area).
+- **`p.worldScale(k)`** scales everything drawn after it in this frame about the origin: zoom-outs and zoom-ins.
+  The baked stage ground does not scale, so such effects use `stage: { ground: 'none' }` and draw their own ground.
+- **`p.tally(null, { total, dead, last, t, alpha })`** takes counts computed by the effect when the army is too big
+  for per-unit states.
+- **A horde shader for a million soldiers** (`fx/million-host.js`): soldiers live in regiments (20 × 20 slots,
+  position = regiment centre + slot + hashed jitter), so any soldier can be found from a world point in O(1). While a
+  soldier is at least 4.5 px tall the effect draws real pawns for the ones in view; below that one pass over the
+  pixels finds, for every ground pixel, the nearest soldier, and if that soldier's feet land in the pixel it draws a
+  1 px body and helmet upwards (rows top to bottom, so nearer soldiers cover farther ones). The ground and this foot
+  map are cached per camera, the continent texture once per army, and the counter is a binary search in the sorted
+  distances of all soldiers from the ring centre — honest without a million states.

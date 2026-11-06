@@ -1104,12 +1104,17 @@
       const c = hex(color), col = rgb(c[0], c[1], c[2]), W = v.W, H = v.H;
       for (let iy = 0; iy < H; iy++) for (let ix = 0; ix < W; ix++) if (bayerAt(ix, iy) < amount) v.pix[iy * W + ix] = col;
     }
-    // custom full-frame pass: fn({ pix, W, H, kind, zb, bayer, rgb, P }) after resolving the frame
+    // custom full-frame pass: fn({ pix, W, H, kind, zb, bayer, rgb, hex, P, Q, night, mode }) after resolving the frame
     post(fn) {
       const v = this.v;
       v.flush();
-      fn({ pix: v.pix, W: v.W, H: v.H, kind: v.kind, zb: v.zb, bayer: bayerAt, rgb, hex, P: (x, y, z) => (v.P(x, y, z) ? [v.px, v.py, v.pd, v.ps] : null), night: v.night });
+      fn({ pix: v.pix, W: v.W, H: v.H, kind: v.kind, zb: v.zb, bayer: bayerAt, rgb, hex, P: (x, y, z) => (v.P(x, y, z) ? [v.px, v.py, v.pd, v.ps] : null),
+        // inverse: the world point at height h under screen pixel (sx, sy), in the same (scaled) units P takes
+        Q: (sx, sy, h = 0) => (v.Q(sx, sy, h * v.fs) ? [v.qx / v.fs, v.qy / v.fs, v.qd] : null), night: v.night, mode: v.mode });
     }
+    // scale everything drawn after this call (in this frame) by k about the origin, on top of the size knob:
+    // camera zoom-outs and growing worlds. The baked ground does not scale (use stage ground 'none' and draw your own).
+    worldScale(k) { const v = this.v; v.fs = (v.tune.size || 1) * k; }
     // colour-grade everything drawn so far (environment darkening, desaturation, tinted domains).
     // o: { dark 0..1, desat 0..1, tint '#hex', tintAmt 0..1, bg 0..1 (how much of the page background is graded,
     // default 0), light (also grade resolved emissive pixels, default false) }. Draw the scene, grade it, then draw

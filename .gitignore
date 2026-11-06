@@ -12,3 +12,4 @@ promo/*.wav
 promo/*.mp4
 # reference renders of the original effects, used while converting; not distributed
 ref/
+promo/cues-*.json

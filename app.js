@@ -7,7 +7,7 @@
   const P = window.PXFX_PROMPT;
   const SIZE = P.SIZE;
   const CATS = { projectile: '飛行彈', beam: '光束', area: '範圍', burst: '爆發', vortex: '旋風', smoke: '煙霧', shield: '護盾', portal: '傳送門', environment: '環境', screen: '畫面', slash: '斬擊', strike: '近身打擊', domain: '領域', summon: '召喚', aura: '氣場' };
-  const PACKS = { library: '特效庫', ultimate: '必殺技', mass: '群體魔法', scale: '十百千萬' };
+  const PACKS = { library: '特效庫', ultimate: '必殺技', mass: '群體魔法', scale: '十百千萬', twist: '反轉' };
   const packOf = m => m.pack || 'library';
   const SCHOOLS = { fire: '火', ice: '冰', storm: '雷', arcane: '奧術', light: '光', dark: '暗', shadow: '影', wind: '風', sand: '砂', water: '水', nature: '自然', poison: '毒', astral: '星' };
   const MODE_NAME = { '3d': '3D', '25d': '2.5D', '2d': '2D' };
@@ -234,6 +234,8 @@
     $('#d-desc').replaceChildren(m.descZh, Object.assign(document.createElement('span'), { className: 'en', textContent: m.descEn }), ...(mods.length ? [Object.assign(document.createElement('span'), { className: 'mods', textContent: '模組：' + mods.join('・') })] : []));
     $('#d-credit').innerHTML = packOf(m) === 'ultimate'
       ? '原創設計（必殺技包）：把動畫必殺技的視覺語言拆成起手、集氣、成形、推進、命中、餘波六段，再用共用模組重新組合；不使用任何作品的角色、名稱或美術。像素版由 PXFX 渲染器以 pixel-plays 規則繪製。'
+      : packOf(m) === 'twist'
+      ? '原創設計（反轉包）：每招藏一個觀眾猜不到的反轉——攻擊畫面本身、以小搏大、改寫地圖、或令敵人自己的東西反過來；判定仍與畫面一致，範圍外的敵兵會倖存，角落的擊殺計數即時顯示有沒有全滅，每招都是一條可用於法術模擬遊戲的新判定規則。不使用任何作品的角色、名稱或美術。像素版由 PXFX 渲染器以 pixel-plays 規則繪製。'
       : packOf(m) === 'scale'
       ? '原創設計（十百千萬包）：攻擊魔法按規模分四級，十人、百人、千人、萬人，每級三種範圍形狀；命中範圍與畫面一致，範圍外的敵兵會倖存，角落的擊殺計數即時顯示有沒有全滅；陣型可切換，方便試驗「哪種範圍克制哪種陣型」。不使用任何作品的角色、名稱或美術。像素版由 PXFX 渲染器以 pixel-plays 規則繪製。'
       : packOf(m) === 'mass'

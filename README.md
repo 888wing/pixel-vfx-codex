@@ -1,6 +1,6 @@
 # Pixel VFX Codex
 
-**114 pixel-art VFX: 64 game effects, 28 original anime-style ultimate moves, 10 mass spells that wipe out a whole horde and 12 attack spells scaled from 10 to 10,000 enemies. One definition, three cameras: 3D, 2.5D and 2D. Tune any effect, then copy a prompt that rebuilds it in your own engine.**
+**126 pixel-art VFX: 64 game effects, 28 original anime-style ultimate moves, 10 mass spells that wipe out a whole horde, 12 attack spells scaled from 10 to 10,000 enemies and 12 spells with a twist. One definition, three cameras: 3D, 2.5D and 2D. Tune any effect, then copy a prompt that rebuilds it in your own engine.**
 
 **[▶ Live demo](https://888wing.github.io/pixel-vfx-codex/)** · [Promo video](https://github.com/888wing/pixel-vfx-codex/releases/tag/v1.0.0) · [Write your own effect](docs/AUTHORING.md) · [中文說明](#中文說明)
 
@@ -57,11 +57,31 @@ shape counters which formation. The crowd module switches its level of detail by
 soldiers from a few hundred on, a sea of helmets at ten thousand. See the
 [authoring guide](docs/AUTHORING.md#scale-ladder-pack-formations-lod-and-honest-areas).
 
+### Twist pack (12 original spells with a twist)
+
+Each spell hides a twist the viewer does not see coming, and each twist is a new hit rule for a spell-design game:
+
+- **The picture is the weapon:** the resolution halves until the army is one pixel (`levels`, `threshold`), a giant
+  eraser rubs the battlefield out to a transparency checkerboard (`brush`, `passes`), the whole picture flips and
+  the army falls up into the clouds unless it stands near an anchor (`anchors`, `anchorRadius`).
+- **Contrast:** the strongest ultimate in the codex aimed at one slime (`pillar`, `charge`), one pebble that topples
+  ten thousand soldiers like dominoes (`reach`, `speed`), and a pull-back from one soldier to a **million** on a
+  continent, closed in by a ring of light (`ringEnd`, `offset`).
+- **The world is rewritten:** the map folds in half like paper (`crease`, `angle`), the battlefield turns out to be
+  a jigsaw whose pieces fall into the void (`pieces`, `drop`), and the kill counter's own digits fall on the army,
+  bigger with every kill (`drops`, `cellSize`).
+- **The enemy's own things:** their shadows stand up and stab them (`cloud`, `sun`), a dithered colour wave turns
+  half of them to the caster's side (`dither`, `wave`), and ten thousand arrows are sent back to their archers
+  (`turned`, `arc`).
+
+Rules stay honest and the kill counter stays in the corner; the million-strong army is drawn by a per-pixel horde
+shader and counted exactly from sorted distances. See the [authoring guide](docs/AUTHORING.md#twist-pack-screen-spells-moving-ground-and-armies-too-big-to-list).
+
 ![All 64 effects](docs/media/gallery.png)
 
 ## What you can do
 
-- **Browse** the 114 effects by pack (library / ultimates / mass spells / scale ladder), type (projectile, beam, slash, domain, summon, aura…) or element, live in all three cameras, on a light or dark page.
+- **Browse** the 126 effects by pack (library / ultimates / mass spells / scale ladder / twist), type (projectile, beam, slash, domain, summon, aura…) or element, live in all three cameras, on a light or dark page.
 - **Tune** every effect. Each one has 3–4 knobs of its own, such as missile count, fork count, flame height, arc angle or sector angle. Shared knobs cover main colour, size, brightness, particle density, hit-stop, screen shake, flash, pacing contrast, dither, outline and pixel density. Settings are remembered per effect.
 - **Feel the hits.** A timing layer speeds up into each impact, freezes on it (hit-stop), shakes the camera, flashes and then slows out. A toggle switches it off so you can compare.
 - **Copy a prompt** for Canvas 2D (plain JS), Three.js, Godot 4 or Unity URP, or an image-model prompt for a sprite sheet, in English or Traditional Chinese. Each prompt includes the camera spec, the palette in hex, the timeline, a layer-by-layer breakdown, the pacing and impact numbers, every knob with its current value, how to build it in that engine, and acceptance checks.
@@ -76,7 +96,7 @@ It is a static site with no build step and no runtime dependencies. Open `index.
 - `engine/pxfx.js` is a small software rasteriser. Its primitives cover solids (balls, crystals, rocks, boxes) and light (glows, beams, rings, lightning, ground decals, camera-facing cards, sphere shells, ribbons). Light is collected in a per-pixel buffer and resolved through colour ramps with ordered dithering. There are also screen operations: warp, flash and post.
 - Every effect is `fx/<id>.js`: `PXFX.define({ id, loop, view, stage, palette, timeline, layers, beats, params, draw(p, t) })`. `draw` is a pure function of time, so any frame can be scrubbed to and exported.
 - `PXFX.timing(def, tune)` turns an effect's `beats` (hit / burst / cast / pulse) into a display-time map with hit-stop, eased pacing, whole-pixel screen shake and a light flash.
-- `engine/kit.js` holds the Ultimates modules (caster poses, charge, core, crescent, swarm formations, serpent, growth, shockwave, aura, domain, aftermath) and the crowd module of the Mass Spells and Scale Ladder packs (formations, level of detail, kill counter).
+- `engine/kit.js` holds the Ultimates modules (caster poses, charge, core, crescent, swarm formations, serpent, growth, shockwave, aura, domain, aftermath) and the crowd module of the Mass Spells, Scale Ladder and Twist packs (formations, level of detail, kill counter).
 - `engine/prompt.js` writes the prompts from each definition. `app.js` runs the catalogue on one shared renderer with a per-frame time budget.
 
 See [docs/AUTHORING.md](docs/AUTHORING.md) for the full API and the style and motion rules.
@@ -94,7 +114,7 @@ npm install && node tools/site-check.mjs     # browser checks (puppeteer; set CH
 
 ## Credits and license
 
-- Ultimates, Mass Spells and Scale Ladder packs: original designs, MIT, part of this repository.
+- Ultimates, Mass Spells, Scale Ladder and Twist packs: original designs, MIT, part of this repository.
 - Effect designs of the 64-effect library: [00GameDevs](https://00gamedevs.com/) VFX library, MIT, © 00GameDevs (@00vchannel). Names, descriptions, colours and timings in `data/` come from its catalogue. The 00GameDevs website UI and branding are not used.
 - Rendering rules and techniques: [pixel-plays](https://github.com/amirmushichge/pixel-plays) by Amir Mushich, MIT. Its music is not used.
 - Promo music and sound effects were generated with PixelBananas and are not part of this repository.
@@ -114,7 +134,9 @@ npm install && node tools/site-check.mjs     # browser checks (puppeteer; set CH
 
 **十百千萬包（12 個原創攻擊魔法）**：按規模分四級，每級三種範圍形狀，為「玩家自行設計法術、全滅關卡指定陣型」的法術模擬遊戲而做。十人：貫穿縱隊的光矛（可穿透人數）、以施法者為圓心的風刃環（半徑）、一發鎖定一人的追蹤魔彈（魔彈數量）。百人：圓形擴散的毒霧（半徑）、透鏡聚光燒出的路徑（焦線寬度）、在分隊之間彈跳的雷球（彈跳次數、爆炸半徑）。千人：石化大軍的天眼（凝視半徑）、逐排轟炸的法陣（排數、爆炸半徑）、在士兵之間傳染的血咒（傳染距離）。萬人：熱浪蒸發大軍的第二太陽（熱浪半徑）、流星暴雨（流星數量、星坑半徑）、滅世海嘯（推進距離）。所有命中範圍都與畫面一致：範圍外的敵兵會倖存，角落的像素擊殺計數顯示「已擊殺／總數」，全滅時變金色。每招都可以調敵兵數量、陣型（方陣、橫列、縱隊、楔形、圓陣、鶴翼、分隊、散兵）和範圍大小，用來試驗哪種範圍克制哪種陣型。群眾模組會自動換細節級別：近景是 3D 小兵，數百人以上是像素小兵，一萬人時是一片頭盔海。
 
-- **瀏覽**：按特效包（特效庫／必殺技／群體魔法／十百千萬）、類型或元素篩選，三種鏡頭即時預覽，有日間和夜間底色。
+**反轉包（12 個原創法術）**：每招藏一個觀眾猜不到的反轉，同時是法術模擬遊戲的一條新判定規則。畫面本身就是武器：解析度一級級減半直到整支軍隊只剩一個像素（降解析度級數、吞併門檻）、巨大橡皮擦把戰場擦成透明棋盤格（橡皮擦寬度、來回筆數）、整個畫面翻轉令大軍向上跌進雲海，只有錨樁附近的士兵留下（錨樁數量、錨樁範圍）。反差：全庫最強的必殺技只為打一隻史萊姆（光柱半徑、蓄力層數）、一粒小石子令一萬人像骨牌一樣倒下（倒地觸及、連鎖速度）、鏡頭由一名士兵拉遠到鋪滿大陸的一百萬大軍，再由光環收緊全滅（光環停止半徑、中心偏移）。改寫世界：地圖像紙一樣對摺（摺痕位置、摺痕角度）、戰場原來是一幅拼圖，一塊塊掉進虛空（拼圖塊數、掉落比例）、擊殺計數的數字本身砸向大軍，越殺越大（落下波數、首波格子大小）。敵人自己的東西：影子站起來刺向主人（雲影半徑、太陽高度）、抖動網點的色波令一半士兵倒戈（網點密度、色波範圍）、一萬支箭被送回各自的射手（扭轉比例、箭雨弧度）。判定與畫面一致，角落有擊殺計數；百萬大軍用逐像素的「人海著色器」繪畫，並以排序後的距離精確計數。
+
+- **瀏覽**：按特效包（特效庫／必殺技／群體魔法／十百千萬／反轉）、類型或元素篩選，三種鏡頭即時預覽，有日間和夜間底色。
 - **調整**：每個特效有 3–4 個專屬參數。通用參數包括主色、尺寸、亮度、粒子密度、頓幀、震屏、閃光、節奏對比、抖色、描邊和像素密度。設定按特效分別記住。
 - **打擊感**：節奏層會在命中前加速、命中時頓幀、鏡頭震動、瞬間閃光，命中後先快後慢；可以一鍵關閉作 A/B 對比。
 - **一鍵複製 prompt**：目標可選 Canvas 2D、Three.js、Godot 4、Unity URP，或 AI 繪圖 sprite sheet，中英皆可。內容包括鏡頭規格、調色盤 hex、時間軸、圖層拆解、節奏與打擊感數值、全部參數現值、實作方法和驗收要求。
