@@ -333,3 +333,52 @@ with scale (one slime, one pebble, a million soldiers). Engine pieces added for 
   1 px body and helmet upwards (rows top to bottom, so nearer soldiers cover farther ones). The ground and this foot
   map are cached per camera, the continent texture once per army, and the counter is a binary search in the sorted
   distances of all soldiers from the ring centre — honest without a million states.
+
+## Armory pack: paths first, then the shape
+
+The Armory pack (`pack: "armory"`, n 127–138) has six **enchants** (the effect lives on a weapon: category
+`enchant`) and six **summons** (how a weapon appears). It keeps the Scale Ladder rules (honest hit rules, `p.tally`,
+formations, default = full wipe) and adds a way of working taken from hand-drawn pixel animation:
+
+1. **Stable paths.** Energy follows paths that never change between frames (often two, staggered in time). Build
+   them from fixed numbers, never from the flicker seed.
+2. **Occlusion.** The weapon writes depth, so the stretch of a path behind it is hidden and reappears at its edge.
+3. **Fixed direction, changing shape.** The stroke along the path changes its zigzag, kinks, forks and gaps every
+   other frame (`p.hold(t)` = a seed that changes 15 times a second); fast stretches are drawn longer.
+4. **Hard tiers.** White core, main colour, dark edge: crisp pixel blocks, no soft bloom.
+5. **Breakup, not fade.** The core retreats first, a main-colour afterimage stays, then the stroke breaks into
+   segments and single pixels.
+
+Engine pieces (`engine/kit.js`, section `Armory:`, and `engine/pxfx.js`):
+
+- `p.weapon(kind, base, dir, o)` draws a weapon from its pommel/butt along `dir`: `sword`, `greatsword` (with a
+  fuller), `katana`, `dagger`, `needle`, `scabbard`, `spear`, `axe`, `hammer`. The flat faces the camera unless
+  `o.nrm` is given (`o.spin` turns it about the axis). `o.blade: false` draws only grip and guard, `o.alpha` < 1 a
+  ghost, `o.pattern(u, v, half)` overrides blade levels (engravings). It returns the geometry: `axis(u)`, `hw(u)`,
+  `at(u, v, off)` (a point on the blade), `behind(pt)`, `side`, `nrm`, `tip`, `u0` (where the blade starts).
+- `p.path(points | fn, n)` → `{ pts, len, at(s), tan(s), slice }` with `s` along the arc length;
+  `p.helix({ w, u0, u1, r, turns, phase })` is a coil around a weapon (angle π/2 is in front of the blade, −π/2 behind).
+- `p.zap(path, s0, s1, ramp, o)` draws a jagged stroke along `path` from `s0` to the head `s1` in hard tiers of a
+  4-colour ramp `[dark edge, main, bright, core]` (pass the array, not a palette name). `o.seed` (use `p.hold(t)`),
+  `jag` (px), `step` (px per zig), `gaps`, `forks`, `tail` (the old end drops a tier), `back(pt)` (dims the stretch
+  behind the weapon by one tier, which is what reads in flat 2D), `dim`, `fade` (0..1 breakup), `thick` (0/1/2).
+- `def.lensAt(t, p)` → `{ k, c, to }`: a per-frame zoom of the whole world, baked ground included — world point `c` is
+  moved to `to` and everything is scaled by `k` about it. Enchants open on a weapon close-up (k ≈ 6–8, the world
+  graded dark behind the blade), pull back to the battlefield for the payoff and push back in before the loop ends.
+- `def.loopWindow: [a, b]` (enchants): a stretch of effect time in the close-up that loops seamlessly. The site's
+  "只播附魔循環" toggle plays and exports only this window, the game-ready enchant loop; the prompt mentions it.
+- `p.guide(path, 'red' | 'green' | 'blue' | 'gold' | '#hex', { marks })` registers a path for the **guide overlay**
+  (`p.guiding` is true while it is on). The site's 引導線 toggle (and `--tune guide=1|2` in the snap tool) draws the
+  paths as 1 px lines, dotted where something sits in front, with white square markers at `marks`; mode 2 hides all
+  emissive light so only the weapon, the world and the paths remain. The sprite-sheet export and the "關鍵 6 格"
+  key-frame strip follow the toggle.
+
+- Smaller additions made for this pack: `p.figure(x, y, { draw: false })` returns the pose anchors (hand, tip,
+  head...) without drawing, so a rule can use the final hand position; `p.hold(t, fps, period)` repeats its seeds
+  every `period` seconds in whole buckets (pass the loop or the loopWindow length when a stroke is lit across the
+  seam); ground decals (`p.decal` at z = 0) no longer paint the page outside the island (`o.offIsland: true` to
+  paint everywhere; stages with `ground: 'none'` and transparent exports are not clipped).
+
+`fx/twin-coil.js` is the reference: two helices around a sword (red and green in the guide view), a close-up lens,
+a stroke chunked into breakup stages behind each head, and a spiral payoff whose arms are drawn as thin lines
+before they fire, so the shape reads before anything dies.

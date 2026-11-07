@@ -193,6 +193,7 @@
   };
   const FIGURE_RAMP = ['#2b2a3c', '#3c3b53', '#51536c', '#6a6e87', '#868ba2'];
   const BLADE_RAMP = ['#5d6378', '#8d93a6', '#c3c8d4', '#eef1f6'];
+  const GUIDE_COLORS = { red: '#e8463a', green: '#62c447', blue: '#3f9cff', gold: '#ffc83a', violet: '#b06cff', white: '#ffffff' };
 
   /* ---------- the view: buffers, camera, stage ---------- */
   class View {
@@ -223,7 +224,7 @@
       this.shadow = new Uint8Array(N); this.tmp = new Uint32Array(N);
       this.basePix = new Uint32Array(N); this.baseZ = new Float32Array(N); this.baseKind = new Uint8Array(N);
       this.zEdge = new Float32Array(N); this.kEdge = new Uint8Array(N);   // solids already outlined by an earlier flush this frame
-      this.bakeKey = '';
+      this.bakeKey = ''; this.guides = []; this.guide = null; this.lens = null; this.lensNow = null;
     }
     get M() { return MODES[this.mode]; }
     get dither() { return this.tune.dither == null ? MODES[this.mode].dither : this.tune.dither; }
@@ -256,13 +257,20 @@
       S *= zoom;
       this.S = S; this.OX = W / 2 + (this.shakeX | 0); this.OY = H / 2 + (top + bot) / 2 * S + (this.shakeY | 0);
       this.fs = this.tune.size || 1;                      // effect scale about the origin (props scale with it)
+      // per-frame lens (def.lensAt): world point c is moved to world point to and everything is scaled by k about it,
+      // ground included (close-ups that pull back to the battlefield). Stored in scaled (fs) units.
+      const ln = this.lensNow, fs0 = this.fs;
+      this.lens = ln && (ln.k !== 1 || ln.c !== ln.to) ? { k: ln.k, cx: ln.c[0] * fs0, cy: ln.c[1] * fs0, cz: ln.c[2] * fs0,
+        tx: (ln.to || ln.c)[0] * fs0, ty: (ln.to || ln.c)[1] * fs0, tz: (ln.to || ln.c)[2] * fs0 } : null;
       this.persp = m === '3d';
       if (this.persp) { this.f = (H / 2) / Math.tan(.3); this.D = this.f / S; }
     }
     // project a world point: sets px, py (pixels), pd (depth, larger is nearer), ps (pixels per world unit)
     P(x, y, z) {
-      const fs = this.fs;
+      let fs = this.fs;
       if (fs !== 1) { x *= fs; y *= fs; z *= fs; }
+      const ln = this.lens;
+      if (ln) { x = ln.tx + (x - ln.cx) * ln.k; y = ln.ty + (y - ln.cy) * ln.k; z = ln.tz + (z - ln.cz) * ln.k; fs *= ln.k; }
       const Z = z - this.Tz, a = x * this.rx + y * this.ry;
       if (this.mode === '2d') {
         const yy = x * this.hx + y * this.hy;
@@ -283,6 +291,13 @@
     }
     // intersect the pixel's view ray with the plane z = h0: sets qx, qy, qd
     Q(sx, sy, h0) {
+      const ln = this.lens;
+      if (!ln) return this._Q(sx, sy, h0);
+      if (!this._Q(sx, sy, ln.tz + (h0 - ln.cz) * ln.k)) return false;
+      this.qx = ln.cx + (this.qx - ln.tx) / ln.k; this.qy = ln.cy + (this.qy - ln.ty) / ln.k;
+      return true;
+    }
+    _Q(sx, sy, h0) {
       const a = sx - this.OX, b = this.OY - sy;
       if (this.mode === '2d') {
         const A = a / this.S, up = b / this.S, yy = ((h0 - this.Tz) - up) / OBLIQUE;
@@ -306,7 +321,7 @@
     }
     bake(def) {
       const st = def.stage || E, v = def.view || E;
-      const key = [def.id, this.mode, this.W, this.H, this.night ? 1 : 0, this.transparent ? 1 : 0, this.OX, this.OY.toFixed(3), this.mode === '3d' ? this.yawV.toFixed(4) + this.pitch : 0].join('|');
+      const key = [def.id, this.mode, this.W, this.H, this.night ? 1 : 0, this.transparent ? 1 : 0, this.OX, this.OY.toFixed(3), this.mode === '3d' ? this.yawV.toFixed(4) + this.pitch : 0, this.lens ? [this.lens.k, this.lens.cx, this.lens.cy, this.lens.cz, this.lens.tx, this.lens.ty, this.lens.tz].map(x => x.toFixed(4)).join() : 0].join('|');
       if (key === this.bakeKey) return;
       this.bakeKey = key;
       const W = this.W, H = this.H, gs = groundSet(st.ground || 'stone', this.night);
@@ -333,6 +348,10 @@
       }
     }
     render(def, t) {
+      this.lensNow = null; this.guides.length = 0;
+      const ap = this.api;
+      ap.t = t; ap.mode = this.mode; ap.night = this.night; ap.props = !this.noProps; ap.def = def;   // lens may read params
+      if (def.lensAt) { try { this.lensNow = def.lensAt.call(def, t, this.api); } catch (e) { if (this.errors++ < 3) console.error('[pxfx]', def.id, e); } }
       this.camera(def);
       this.bake(def);
       this.pix.set(this.basePix); this.zb.set(this.baseZ); this.kind.set(this.baseKind);
@@ -342,7 +361,45 @@
       try { def.draw(p, t); }
       catch (e) { if (this.errors++ < 3) console.error('[pxfx]', def.id, e); }
       this.flush();
+      if (this.guides.length) this.paintGuides();
       if (this.ctx) this.ctx.putImageData(this.image, 0, 0);
+    }
+    // guide overlay (site toggle / tune.guide): 1 = guides over the effect, 2 = guides only (emissive light hidden)
+    get guideMode() { return this.guide != null ? this.guide : (this.tune.guide || 0); }
+    // paint the guide paths registered with p.guide(): 1 px lines in their colour, dotted where a solid or the
+    // ground sits in front (the part of the path that goes behind the weapon), white square markers on top
+    paintGuides() {
+      const W = this.W, H = this.H, pix = this.pix, zb = this.zb, ink = rgb(24, 20, 30), white = rgb(255, 255, 255);
+      for (const g of this.guides) {
+        const col = g.col, pts = g.pts;
+        for (let k = 0; k + 1 < pts.length; k++) {
+          const a = pts[k], b = pts[k + 1];
+          if (!a || !b) continue;
+          let x0 = Math.floor(a[0]), y0 = Math.floor(a[1]);
+          const x1 = Math.floor(b[0]), y1 = Math.floor(b[1]), dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0);
+          const sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1, n = Math.max(dx, -dy) || 1;
+          let err = dx + dy, j = 0;
+          for (;;) {
+            if (x0 >= 0 && y0 >= 0 && x0 < W && y0 < H) {
+              const i = y0 * W + x0, d = a[2] + (b[2] - a[2]) * (j / n);
+              if (zb[i] <= d + .05 || ((x0 + y0) & 1)) pix[i] = col;
+            }
+            if (x0 === x1 && y0 === y1) break;
+            const e2 = 2 * err;
+            if (e2 >= dy) { err += dy; x0 += sx; }
+            if (e2 <= dx) { err += dx; y0 += sy; }
+            j++;
+          }
+        }
+      }
+      for (const g of this.guides) for (const m of g.marks) {
+        const cx = Math.floor(m[0]), cy = Math.floor(m[1]);
+        for (let yy = -2; yy <= 2; yy++) for (let xx = -2; xx <= 2; xx++) {
+          const ix = cx + xx, iy = cy + yy;
+          if (ix < 0 || iy < 0 || ix >= W || iy >= H) continue;
+          pix[iy * W + ix] = Math.abs(xx) === 2 || Math.abs(yy) === 2 ? ink : white;
+        }
+      }
     }
     // render at display time tau through a timing() map: hit-stop, eased pacing, screen shake, flash
     renderAt(def, tau, timing, o = E) {
@@ -365,12 +422,12 @@
         const c = pix[i], k = s === 1 ? [.6, .58, .76] : [.42, .4, .6];
         pix[i] = rgb((c & 255) * k[0], (c >> 8 & 255) * k[1], (c >> 16 & 255) * k[2]);
       }
-      const GL = this.GL;
+      const GL = this.GL, gOnly = this.guideMode === 2;
       for (let i = 0; i < N; i++) {
         const g = GL[i];
         if (!g) continue;
         GL[i] = 0;
-        if (kind[i] !== 1) continue;
+        if (kind[i] !== 1 || gOnly) continue;
         const ix = i % W, iy = (i / W) | 0;
         const q = g + (bayerAt(ix, iy) - .5) * (dith ? .35 : 0);
         const amt = q < .16 ? 0 : q < .42 ? .28 : q < .7 ? .5 : .72;
@@ -412,6 +469,7 @@
         const l = L[i] * gain;
         if (!l) continue;
         L[i] = 0; LM[i] = 0;
+        if (gOnly) continue;
         if (zb[i] > LD[i] + .12 && (kind[i] === 2 || kind[i] === 4)) continue;   // a solid drawn later sits in front
         const R = rampArr(LR[i], hue), n = R.length, ix = i % W, iy = (i / W) | 0;
         // dithered modes fade out through the Bayer pattern; flat 2D needs half a step of light before the
@@ -613,7 +671,7 @@
 
     // faceless caster mannequin (~1.5 tall) with keyframed poses. o.pose: a POSES name, or { a, b, k } to blend
     // two poses; o.face: facing angle (0 = +x); o.lift: hover height; o.color: body colour; o.scale; o.lean: extra
-    // forward tilt; o.alpha < 1: dithered see-through body (afterimages); o.blade: { len, w, ramp, dir: [f, s, z] local }
+    // forward tilt; o.alpha < 1: dithered see-through body (afterimages); o.draw === false: anchors only, nothing drawn; o.blade: { len, w, ramp, dir: [f, s, z] local }
     // held in the right hand (dir defaults to the arm).
     // Returns world positions { hand, handL, elbow, head, chest, hip, foot, footL, tip, f, s } even when props are
     // hidden (sprite export), so effects can anchor to the hand or blade tip.
@@ -650,7 +708,7 @@
         out.tip = [out.hand[0] + dw[0] * len * sc, out.hand[1] + dw[1] * len * sc, out.hand[2] + dw[2] * len * sc];
         out.bladeDir = dw;
       }
-      if (this.v.noProps) return out;
+      if (this.v.noProps || o.draw === false) return out;
       const body = o.color ? (Array.isArray(o.color) ? o.color : solidRamp(o.color)) : FIGURE_RAMP, hue = this.v.hue;
       this.v.hue = 0;
       const r = .075 * sc, al = o.alpha == null ? 1 : o.alpha, ns = { shadow: false, alpha: al }, sh = { alpha: al, shadow: al > .5 };
@@ -946,10 +1004,13 @@
       x0 = Math.max(0, Math.floor(x0)); x1 = Math.min(W - 1, Math.ceil(x1));
       y0 = Math.max(0, Math.floor(y0)); y1 = Math.min(H - 1, Math.ceil(y1));
       const onGround = Math.abs(cz) < 1e-6, R2 = R * R, zb = v.zb, add = !!o.add, fs = v.fs;
+      // ground decals stay on the island: pixels where the stage has no ground (the page) are skipped, unless the
+      // stage has no ground at all or the frame is a transparent export (o.offIsland: true paints everywhere)
+      const st = this.def && this.def.stage, clip = !o.offIsland && !v.transparent && !(st && st.ground === 'none');
       for (let iy = y0; iy <= y1; iy++) for (let ix = x0; ix <= x1; ix++) {
         const i = iy * W + ix;
         let gx, gy, gd;
-        if (onGround) { if (!v.ghit[i]) continue; gx = v.gx[i] / fs; gy = v.gy[i] / fs; gd = v.gd[i]; }
+        if (onGround) { if (!v.ghit[i] || (clip && v.baseKind[i] === 0)) continue; gx = v.gx[i] / fs; gy = v.gy[i] / fs; gd = v.gd[i]; }
         else { if (!v.Q(ix + .5, iy + .5, cz * fs)) continue; gx = v.qx / fs; gy = v.qy / fs; gd = v.qd; }
         const x = gx - cx, y = gy - cy, q = x * x + y * y;
         if (q > R2) continue;
@@ -1115,6 +1176,19 @@
     // scale everything drawn after this call (in this frame) by k about the origin, on top of the size knob:
     // camera zoom-outs and growing worlds. The baked ground does not scale (use stage ground 'none' and draw your own).
     worldScale(k) { const v = this.v; v.fs = (v.tune.size || 1) * k; }
+    // guide overlay: register a path (array of [x, y, z] or an object with .pts) to be drawn as a 1 px line in a
+    // guide colour when the guide toggle is on; o.marks: world points drawn as white square markers (the moving
+    // markers of a timing test). Free when the toggle is off: check p.guiding before building expensive paths.
+    get guiding() { return !!this.v.guideMode; }
+    guide(path, color = 'red', o = E) {
+      const v = this.v;
+      if (!v.guideMode) return;
+      const src = Array.isArray(path) ? path : path && path.pts ? path.pts : [];
+      const pts = src.map(q => (v.P(q[0], q[1], q[2]) ? [v.px, v.py, v.pd] : null));
+      const marks = (o.marks || []).map(q => (v.P(q[0], q[1], q[2]) ? [v.px, v.py] : null)).filter(Boolean);
+      const c = hex(GUIDE_COLORS[color] || color);
+      v.guides.push({ pts, marks, col: rgb(c[0], c[1], c[2]) });
+    }
     // colour-grade everything drawn so far (environment darkening, desaturation, tinted domains).
     // o: { dark 0..1, desat 0..1, tint '#hex', tintAmt 0..1, bg 0..1 (how much of the page background is graded,
     // default 0), light (also grade resolved emissive pixels, default false) }. Draw the scene, grade it, then draw

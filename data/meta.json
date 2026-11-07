@@ -2653,5 +2653,235 @@
   "kind": 0,
   "previewMode": null,
   "pack": "twist"
+ },
+ {
+  "n": 127,
+  "id": "twin-coil",
+  "zh": "雙纏雷",
+  "en": "Twin Coil",
+  "descZh": "兩道電流沿固定的螺旋路徑交錯纏上長劍，繞到劍後時被劍身擋住，在另一側劍緣再出現；施法者把劍插入地面，電流在敵陣中心攤開成三臂漩渦，再沿漩渦臂放電。漩渦臂數不足時，站在臂與臂之間的士兵倖存。",
+  "descEn": "Two lightning coils wind up a sword along fixed, staggered helix paths, hidden behind the blade and back at its edge; the caster drives the sword into the ground, the coils unwind under the army as a three-armed spiral and then fire along its arms. With fewer arms, soldiers standing between them survive.",
+  "category": "enchant",
+  "schools": [
+   "storm"
+  ],
+  "tags": "武裝 附魔 雷 螺旋 遮擋 引導線 lightning coil helix enchant occlusion guide",
+  "color": "#8fe3ff",
+  "duration": 7,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "armory"
+ },
+ {
+  "n": 128,
+  "id": "drawn-lightning",
+  "zh": "拔雷",
+  "en": "Drawn Lightning",
+  "descZh": "電流纏繞刀鞘；施法者拔刀時，螺旋被拉直成一條線，原來刀身就是那道閃電，鞘內沒有鐵。電刀一拔便橫越整個戰場，刀身寬度內的敵兵全滅；站在刀身寬度以外的士兵倖存。",
+  "descEn": "Lightning coils around a scabbard; when the caster draws, the coil straightens into a line and the blade turns out to be the lightning itself, with no steel inside. The drawn blade reaches across the whole battlefield and wipes out every soldier within its width; soldiers outside that width survive.",
+  "category": "enchant",
+  "schools": [
+   "storm"
+  ],
+  "tags": "武裝 附魔 拔刀 雷刀 路徑變形 draw lightning blade scabbard path morph",
+  "color": "#bfe4ff",
+  "duration": 6.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "armory"
+ },
+ {
+  "n": 129,
+  "id": "frost-overgrowth",
+  "zh": "霜延",
+  "en": "Frost Overgrowth",
+  "descZh": "冰晶沿螺旋路徑由槍柄向上生長，長到槍尖也不停，最後長成一支十倍長的冰槍；冰槍砸落敵陣，再沿同一條螺旋裂開粉碎。落點範圍以外的士兵倖存。",
+  "descEn": "Ice crystals grow up a spear along a helix path and keep going past the tip until the spear is a lance of ice ten times its length; the lance slams into the army, then cracks along the same helix and shatters. Soldiers outside the impact area survive.",
+  "category": "enchant",
+  "schools": [
+   "ice"
+  ],
+  "tags": "武裝 附魔 冰 生長 長槍 冰槍 frost growth spear lance helix",
+  "color": "#bfefff",
+  "duration": 6.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "armory"
+ },
+ {
+  "n": 130,
+  "id": "siphon",
+  "zh": "血吸",
+  "en": "Siphon",
+  "descZh": "範圍內每名敵兵身上抽出一道血流，沿曲線飛向戰斧，再繞斧柄螺旋上升；每吸收一道計一殺，斧頭隨殺數一級級變亮。抽取範圍以外的士兵倖存。",
+  "descEn": "A stream of blood is drawn from every soldier within reach, curves through the air to the axe and spirals up its haft; every stream counts as a kill and the axe head brightens a step with the count. Soldiers beyond the reach survive.",
+  "category": "enchant",
+  "schools": [
+   "dark"
+  ],
+  "tags": "武裝 附魔 吸血 戰斧 匯流 siphon blood axe streams converge",
+  "color": "#e0324a",
+  "duration": 6.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "armory"
+ },
+ {
+  "n": 131,
+  "id": "rune-projector",
+  "zh": "符文投影",
+  "en": "Rune Projector",
+  "descZh": "三個符文環在大劍周圍以不同高度反向旋轉，收緊壓入血槽刻成鏤空；陽光穿過鏤空，在戰場上投出巨型符文。站在符文筆畫光中的敵兵被燒死，站在筆畫之間暗處的倖存。",
+  "descEn": "Three rune rings orbit a greatsword at different heights in opposite directions, then tighten and press into the fuller as cut-outs; sunlight shines through them and projects giant runes onto the battlefield. Soldiers standing in the lit strokes burn; those in the dark between strokes survive.",
+  "category": "enchant",
+  "schools": [
+   "light",
+   "arcane"
+  ],
+  "tags": "武裝 附魔 符文 投影 大劍 鏤空 rune projector greatsword stencil light",
+  "color": "#ffd36a",
+  "duration": 6.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "armory"
+ },
+ {
+  "n": 132,
+  "id": "echo-blade",
+  "zh": "回音刃",
+  "en": "Echo Blade",
+  "descZh": "劍士揮出一刀，同一條刀路上隨即出現八個延遲的殘影，逐一重複同一刀，每次向前一步；人已收刀，擊殺數仍在跳。所有殘影刀弧以外的士兵倖存。",
+  "descEn": "A swordsman makes one cut and eight delayed echoes appear on the same blade path, each repeating it one step further forward; he has already lowered his blade while the kill count keeps climbing. Soldiers outside every echo’s arc survive.",
+  "category": "enchant",
+  "schools": [
+   "wind",
+   "arcane"
+  ],
+  "tags": "武裝 附魔 殘影 延遲 揮刀 雙刀 echo afterimage delayed slash blades",
+  "color": "#9fd8ff",
+  "duration": 6.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "armory"
+ },
+ {
+  "n": 133,
+  "id": "traced-halo",
+  "zh": "描線浮劍",
+  "en": "Traced Halo",
+  "descZh": "一個光點沿劍的輪廓描一圈，再由劍柄向劍尖填色，由白色冷卻成金屬色；八把劍輪流描出，環繞施法者旋轉，轉到背後時被身體擋住。八把劍逐一射向最近的敵人，射完沿同一條輪廓重新描出。沒有被劍選中的敵兵倖存。",
+  "descEn": "A point of light traces a sword’s outline, then fills it from hilt to tip, cooling from white to steel; eight swords are traced in turn and orbit the caster, hidden by the body as they pass behind. They fire one by one at the nearest enemies and are traced again along the same outlines. Soldiers no sword picks survive.",
+  "category": "summon",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "武裝 召喚 浮劍 描線 環繞 輪廓 traced outline floating swords halo orbit",
+  "color": "#e8f0ff",
+  "duration": 6.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "armory"
+ },
+ {
+  "n": 134,
+  "id": "land-blade",
+  "zh": "割地成劍",
+  "en": "Land Blade",
+  "descZh": "光點在地上沿一把巨劍的輪廓描線，圈住敵軍；輪廓內的地面整塊升起，原來是一把從戰場切出來的劍，敵軍就站在劍身上。施法者揮動它再猛然停住，劍上的士兵全被甩飛；輪廓以外的士兵留在地上，得以倖存。",
+  "descEn": "A point of light traces the outline of a giant sword on the ground around the army; the ground inside lifts out in one piece, a sword cut from the battlefield itself with the army standing on it. The caster swings it and stops it dead, flinging every soldier on the blade; soldiers outside the outline stay on the ground and survive.",
+  "category": "summon",
+  "schools": [
+   "sand"
+  ],
+  "tags": "武裝 召喚 地面 巨劍 描線 切割 land blade ground outline giant sword",
+  "color": "#c8a878",
+  "duration": 6.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "armory"
+ },
+ {
+  "n": 135,
+  "id": "thousand-into-one",
+  "zh": "千兵鑄一",
+  "en": "Thousand into One",
+  "descZh": "範圍內每名敵兵手中的劍被扯走，沿錯開的螺旋路徑升空，一把把嵌進一把巨劍的槽位；嵌滿成形後，巨劍砸落敵陣。巨劍落點範圍以外的士兵只被繳械，得以倖存。",
+  "descEn": "Every sword within reach is pulled out of the soldiers’ hands and spirals up on staggered paths into the slots of one giant sword; once it is full, the giant sword falls on the army. Soldiers outside its impact area are only disarmed and survive.",
+  "category": "summon",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "武裝 召喚 繳械 組裝 巨劍 千把劍 disarm assemble giant sword thousand blades",
+  "color": "#d8dce8",
+  "duration": 6.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "armory"
+ },
+ {
+  "n": 136,
+  "id": "anvil-field",
+  "zh": "鐵砧戰場",
+  "en": "Anvil Field",
+  "descZh": "天上出現一個鑄模，熔鐵沿引導線流入；每一拍有一記無形巨錘打落敵陣，熔鐵由白、橙、紅一級級冷卻成鐵色：敵軍就是鐵砧。三錘之後武器鑄成。不在錘面範圍內的士兵倖存。",
+  "descEn": "A mould appears in the sky and molten iron runs into it along guide lines; on every beat an invisible giant hammer comes down on the army below while the iron cools step by step from white to orange, red and steel: the army is the anvil. After three blows the weapon is forged. Soldiers outside the hammer faces survive.",
+  "category": "summon",
+  "schools": [
+   "fire"
+  ],
+  "tags": "武裝 召喚 鍛造 鐵砧 熔鐵 錘 forge anvil molten iron hammer mould",
+  "color": "#ff8a3a",
+  "duration": 6.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "armory"
+ },
+ {
+  "n": 137,
+  "id": "needle-thread",
+  "zh": "穿針",
+  "en": "Needle Thread",
+  "descZh": "召喚出來的只是一支針。它沿一條預先算好的路線逐一穿過每名敵兵，身後拖著一條發光的線，在每個人身前身後交替穿過；施法者一扯，全軍被索成一束。線長用完之後的士兵沒有被穿到，得以倖存。",
+  "descEn": "The summon is just one needle. It flies a pre-computed route through every soldier in turn, trailing a glowing thread that passes in front of and behind each of them; the caster pulls and the whole army is cinched into one bundle. Soldiers past the end of the thread are never threaded and survive.",
+  "category": "summon",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "武裝 召喚 針 線 路線 穿過 needle thread route weave pull",
+  "color": "#ffe08a",
+  "duration": 6.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "armory"
+ },
+ {
+  "n": 138,
+  "id": "endless-blade",
+  "zh": "無盡劍",
+  "en": "Endless Blade",
+  "descZh": "施法者面前打開一個小小的傳送門，劍柄伸了出來，然後劍身一直伸、一直伸，伸過整個戰場；傳送門平面切開劍身，未出來的一段完全看不見。劍完全出來後以門為軸橫掃一個扇形，扇形內的士兵被擊倒，扇形外的倖存。",
+  "descEn": "A small portal opens in front of the caster and a hilt slides out, then the blade keeps coming, and coming, across the whole battlefield; the portal plane cuts the blade, so the part still inside is never seen. Once it is out it sweeps a fan about the portal, striking down every soldier inside the fan; those outside survive.",
+  "category": "summon",
+  "schools": [
+   "arcane"
+  ],
+  "tags": "武裝 召喚 傳送門 長劍 橫掃 endless blade portal sweep long sword",
+  "color": "#a8b8ff",
+  "duration": 6.5,
+  "burst": false,
+  "kind": 0,
+  "previewMode": null,
+  "pack": "armory"
  }
 ]

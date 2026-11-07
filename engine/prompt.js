@@ -245,6 +245,7 @@
     out.push('', zh ? '## 調色盤（由暗到亮）' : '## Palette (dark → bright)');
     out.push(...palettes(def, tw && tw.hue));
     out.push('', zh ? `## 時間軸（特效時間，一個循環 ${sec(def.loop)} 秒）` : `## Timeline (effect clock, one loop = ${sec(def.loop)} s)`);
+    if (def.loopWindow) out.push(zh ? `（${sec(def.loopWindow[0])}–${sec(def.loopWindow[1])} 秒是武器上的無縫附魔循環：遊戲中持續附魔時只循環播放這一段。）` : `(${sec(def.loopWindow[0])}–${sec(def.loopWindow[1])} s is a seamless enchant loop on the weapon: loop only this stretch while the enchant is active in a game.)`);
     const ST = PXFX.STAGES || {};
     for (const ph of def.timeline || []) {
       const st = ph.k && ST[ph.k] ? (zh ? `【${ST[ph.k][0]}】` : `[${ST[ph.k][1]}] `) : '';
@@ -281,13 +282,13 @@
       out.push('- 時間分兩層：特效本身用時間 t 計算畫面（同一 t 畫面永遠相同），頓幀、加減速、震屏、閃光由外層時間映射處理，方便遊戲按命中結果觸發。');
       out.push('- 循環播放無跳格；在 2 個以上的整數放大倍率下檢查：沒有半像素、沒有模糊、沒有混色的漸層帶。');
       out.push('- 附一張逐格 sprite sheet 匯出（按上面 fps，頓幀以重複格表現，震屏不烘入）方便美術檢查。');
-      out.push('', meta && meta.pack === 'ultimate' ? '（原創設計：Pixel VFX Codex 必殺技包，MIT；像素渲染風格參考 pixel-plays，MIT。）' : meta && meta.pack === 'mass' ? '（原創設計：Pixel VFX Codex 群體魔法包，MIT；像素渲染風格參考 pixel-plays，MIT。）' : meta && meta.pack === 'scale' ? '（原創設計：Pixel VFX Codex 十百千萬包，MIT；像素渲染風格參考 pixel-plays，MIT。）' : meta && meta.pack === 'twist' ? '（原創設計：Pixel VFX Codex 反轉包，MIT；像素渲染風格參考 pixel-plays，MIT。）' : `（設計參考：00GameDevs「${meta ? meta.en : def.id}」，MIT；像素渲染風格參考 pixel-plays，MIT。）`);
+      out.push('', meta && meta.pack === 'ultimate' ? '（原創設計：Pixel VFX Codex 必殺技包，MIT；像素渲染風格參考 pixel-plays，MIT。）' : meta && meta.pack === 'mass' ? '（原創設計：Pixel VFX Codex 群體魔法包，MIT；像素渲染風格參考 pixel-plays，MIT。）' : meta && meta.pack === 'scale' ? '（原創設計：Pixel VFX Codex 十百千萬包，MIT；像素渲染風格參考 pixel-plays，MIT。）' : meta && meta.pack === 'twist' ? '（原創設計：Pixel VFX Codex 反轉包，MIT；像素渲染風格參考 pixel-plays，MIT。）' : meta && meta.pack === 'armory' ? '（原創設計：Pixel VFX Codex 武裝包，MIT；像素渲染風格參考 pixel-plays，MIT。）' : `（設計參考：00GameDevs「${meta ? meta.en : def.id}」，MIT；像素渲染風格參考 pixel-plays，MIT。）`);
     } else {
       out.push('- A reusable effect module: every parameter above is an input (defaults = current values), plus speed; start / stop (natural fade-out) / hit (where relevant).');
       out.push('- Two clocks: the effect draws from its own time t (same t, same frame); hit-stop, pacing, shake and flash live in an outer time map so the game can trigger them on real hits.');
       out.push('- Loops without a pop; check at two or more integer zoom levels: no half pixels, no blur, no blended gradient bands.');
       out.push('- Export a frame-by-frame sprite sheet at the fps above (hit-stop as repeated frames, shake not baked in) for art review.');
-      out.push('', meta && meta.pack === 'ultimate' ? '(Original design from the Pixel VFX Codex Ultimates pack, MIT. Pixel render style after pixel-plays, MIT.)' : meta && meta.pack === 'mass' ? '(Original design from the Pixel VFX Codex Mass Spells pack, MIT. Pixel render style after pixel-plays, MIT.)' : meta && meta.pack === 'scale' ? '(Original design from the Pixel VFX Codex Scale Ladder pack, MIT. Pixel render style after pixel-plays, MIT.)' : meta && meta.pack === 'twist' ? '(Original design from the Pixel VFX Codex Twist pack, MIT. Pixel render style after pixel-plays, MIT.)' : `(Design reference: 00GameDevs "${meta ? meta.en : def.id}", MIT. Pixel render style after pixel-plays, MIT.)`);
+      out.push('', meta && meta.pack === 'ultimate' ? '(Original design from the Pixel VFX Codex Ultimates pack, MIT. Pixel render style after pixel-plays, MIT.)' : meta && meta.pack === 'mass' ? '(Original design from the Pixel VFX Codex Mass Spells pack, MIT. Pixel render style after pixel-plays, MIT.)' : meta && meta.pack === 'scale' ? '(Original design from the Pixel VFX Codex Scale Ladder pack, MIT. Pixel render style after pixel-plays, MIT.)' : meta && meta.pack === 'twist' ? '(Original design from the Pixel VFX Codex Twist pack, MIT. Pixel render style after pixel-plays, MIT.)' : meta && meta.pack === 'armory' ? '(Original design from the Pixel VFX Codex Armory pack, MIT. Pixel render style after pixel-plays, MIT.)' : `(Design reference: 00GameDevs "${meta ? meta.en : def.id}", MIT. Pixel render style after pixel-plays, MIT.)`);
     }
     return out.join('\n');
   }

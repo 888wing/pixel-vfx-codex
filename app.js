@@ -6,8 +6,8 @@
   const { View, MODES } = PXFX;
   const P = window.PXFX_PROMPT;
   const SIZE = P.SIZE;
-  const CATS = { projectile: '飛行彈', beam: '光束', area: '範圍', burst: '爆發', vortex: '旋風', smoke: '煙霧', shield: '護盾', portal: '傳送門', environment: '環境', screen: '畫面', slash: '斬擊', strike: '近身打擊', domain: '領域', summon: '召喚', aura: '氣場' };
-  const PACKS = { library: '特效庫', ultimate: '必殺技', mass: '群體魔法', scale: '十百千萬', twist: '反轉' };
+  const CATS = { projectile: '飛行彈', beam: '光束', area: '範圍', burst: '爆發', vortex: '旋風', smoke: '煙霧', shield: '護盾', portal: '傳送門', environment: '環境', screen: '畫面', slash: '斬擊', strike: '近身打擊', domain: '領域', summon: '召喚', aura: '氣場', enchant: '附魔' };
+  const PACKS = { library: '特效庫', ultimate: '必殺技', mass: '群體魔法', scale: '十百千萬', twist: '反轉', armory: '武裝' };
   const packOf = m => m.pack || 'library';
   const SCHOOLS = { fire: '火', ice: '冰', storm: '雷', arcane: '奧術', light: '光', dark: '暗', shadow: '影', wind: '風', sand: '砂', water: '水', nature: '自然', poison: '毒', astral: '星' };
   const MODE_NAME = { '3d': '3D', '25d': '2.5D', '2d': '2D' };
@@ -220,7 +220,7 @@
   }
 
   /* ---------- detail dialog ---------- */
-  const detail = { card: null, view: null, mode: state.mode, playing: !REDUCED, t: 0, speed: 1, yaw: .5, orbit: !REDUCED, drag: null, target: state.target, lang: state.lang, compare: false };
+  const detail = { card: null, view: null, mode: state.mode, playing: !REDUCED, t: 0, speed: 1, guide: 0, loopOnly: false, yaw: .5, orbit: !REDUCED, drag: null, target: state.target, lang: state.lang, compare: false };
   const dlg = $('#detail');
   function openDetail(card) {
     if (!card.def) { toast('這個特效仍在製作中'); return; }
@@ -234,6 +234,8 @@
     $('#d-desc').replaceChildren(m.descZh, Object.assign(document.createElement('span'), { className: 'en', textContent: m.descEn }), ...(mods.length ? [Object.assign(document.createElement('span'), { className: 'mods', textContent: '模組：' + mods.join('・') })] : []));
     $('#d-credit').innerHTML = packOf(m) === 'ultimate'
       ? '原創設計（必殺技包）：把動畫必殺技的視覺語言拆成起手、集氣、成形、推進、命中、餘波六段，再用共用模組重新組合；不使用任何作品的角色、名稱或美術。像素版由 PXFX 渲染器以 pixel-plays 規則繪製。'
+      : packOf(m) === 'armory'
+      ? '原創設計（武裝包）：召喚武器與武器附魔。做法是先設計能量的路徑，再畫形狀：路徑每格不變，繞到武器後面的一段被擋住、在邊緣再出現，筆觸每兩格才換一次形狀，用白芯、主色、暗邊三級硬色階，消散時先退亮芯再碎成像素。打開「引導線」可看到每招的路徑與移動標記；附魔招可只播放武器上的無縫循環。判定與畫面一致，範圍外的敵兵會倖存。不使用任何作品的角色、名稱或美術。像素版由 PXFX 渲染器以 pixel-plays 規則繪製。'
       : packOf(m) === 'twist'
       ? '原創設計（反轉包）：每招藏一個觀眾猜不到的反轉——攻擊畫面本身、以小搏大、改寫地圖、或令敵人自己的東西反過來；判定仍與畫面一致，範圍外的敵兵會倖存，角落的擊殺計數即時顯示有沒有全滅，每招都是一條可用於法術模擬遊戲的新判定規則。不使用任何作品的角色、名稱或美術。像素版由 PXFX 渲染器以 pixel-plays 規則繪製。'
       : packOf(m) === 'scale'
@@ -241,6 +243,10 @@
       : packOf(m) === 'mass'
       ? '原創設計（群體魔法包）：一個巨大的法術對一整群細小敵兵；每個敵兵按與爆心或波前的距離延遲中招，傷害像波浪一樣掃過人群，再按招式播放各自的反應。不使用任何作品的角色、名稱或美術。像素版由 PXFX 渲染器以 pixel-plays 規則繪製。'
       : `原作：<a href="https://00gamedevs.com/zh-TW/effects/${m.id}/" target="_blank" rel="noopener">00GameDevs · ${m.en}</a>（MIT）。像素版由 PXFX 渲染器以 pixel-plays 規則重製。`;
+    const lw = card.def.loopWindow;
+    $('#d-loopw').hidden = !lw;
+    if (!lw) detail.loopOnly = false;
+    $('#d-loop').checked = detail.loopOnly;
     history.replaceState(null, '', '#' + m.id);
     if (!dlg.open) dlg.showModal();
     buildTune();
@@ -364,6 +370,9 @@
     $('#x-info').textContent = `${n} 格 · ${w}×${h} · ${fps} fps`;
     drawDetail();
   }
+  // the enchant loop window ([a, b] in effect time) when "play the enchant loop only" is on, else null
+  function loopWin(card) { return detail.loopOnly && card && card.def.loopWindow ? card.def.loopWindow : null; }
+  function playLength(card) { const w = loopWin(card); return w ? w[1] - w[0] : timingOf(card).length; }
   function drawDetail() {
     const card = detail.card, v = detail.view;
     if (!card || !v) return;
@@ -371,8 +380,11 @@
     v.mode = detail.mode; v.night = state.night;
     applyTweaks(v, card);
     v.yaw = detail.mode === '3d' ? detail.yaw : null;
-    v.renderAt(card.def, PXFX.frameTime(detail.t, detail.mode), tm);
-    $('#d-scrub').value = Math.round(detail.t / tm.length * 1000);
+    v.guide = detail.guide;
+    const w = loopWin(card);
+    if (w) v.render(card.def, w[0] + PXFX.frameTime(detail.t, detail.mode) % (w[1] - w[0]));
+    else v.renderAt(card.def, PXFX.frameTime(detail.t, detail.mode), tm);
+    $('#d-scrub').value = Math.round(detail.t / playLength(card) * 1000);
     $('#d-time').textContent = detail.t.toFixed(2) + 's';
   }
   function step(dir) {
@@ -383,18 +395,22 @@
   }
 
   /* ---------- export ---------- */
-  function exportSheet() {
+  // o.keys: export only that many key frames spread over the loop, in one row (a breakdown strip)
+  function exportSheet(o = {}) {
     const card = detail.card;
     if (!card) return;
     const mode = detail.mode, res = card.tw.tune.res || 1;
     const w = Math.round(SIZE[mode][0] * res), h = Math.round(SIZE[mode][1] * res);
-    const tm = timingOf(card), fps = MODES[mode].fps, n = Math.max(1, Math.round(tm.length * fps));
+    const tm = timingOf(card), fps = MODES[mode].fps, win = loopWin(card), len = playLength(card);
+    const n = o.keys || Math.max(1, Math.round(len * fps));
+    const at = k => (o.keys ? (k + .5) / o.keys * len : k / fps);
     const scale = +$('#x-scale').value, clear = $('#x-clear').checked, shake = $('#x-shake').checked;
-    const cols = Math.min(n, 8), rows = Math.ceil(n / cols);
+    const cols = o.keys ? n : Math.min(n, 8), rows = Math.ceil(n / cols);
     const v = new View(null, w, h);
     v.mode = mode; v.night = state.night; v.transparent = clear; v.noProps = clear;
     applyTweaks(v, card);
     v.yaw = mode === '3d' ? detail.yaw : null;
+    v.guide = detail.guide;
     const out = document.createElement('canvas');
     out.width = cols * w * scale; out.height = rows * h * scale;
     const octx = out.getContext('2d');
@@ -403,14 +419,16 @@
     frame.width = w; frame.height = h;
     const fctx = frame.getContext('2d'), img = new ImageData(new Uint8ClampedArray(v.pix.buffer), w, h);
     for (let k = 0; k < n; k++) {
-      v.renderAt(card.def, k / fps, tm, { noShake: !shake });
+      if (win) v.render(card.def, win[0] + at(k));
+      else v.renderAt(card.def, at(k), tm, { noShake: !shake });
       fctx.clearRect(0, 0, w, h);
       fctx.putImageData(img, 0, 0);
       octx.drawImage(frame, (k % cols) * w * scale, Math.floor(k / cols) * h * scale, w * scale, h * scale);
     }
-    const filename = `${card.meta.id}_${mode}_${w}x${h}_${n}f_${fps}fps${clear ? '_clear' : ''}@${scale}x.png`;
+    const tag = (win ? '_loop' : '') + (detail.guide ? '_guide' + detail.guide : '') + (o.keys ? `_keys${n}` : `_${n}f_${fps}fps`);
+    const filename = `${card.meta.id}_${mode}_${w}x${h}${tag}${clear ? '_clear' : ''}@${scale}x.png`;
     out.toBlob(async blob => {
-      const done = `已匯出 ${n} 格 sprite sheet（${cols}×${rows}）`;
+      const done = o.keys ? `已匯出 ${n} 格關鍵格` : `已匯出 ${n} 格 sprite sheet（${cols}×${rows}）`;
       if (hostDownloads) {           // inside a claude.ai artifact: the frame cannot download by itself
         try { await hostDownloads.save({ filename, data: blob }); toast(done); }
         catch (e) { toast(e && e.code === 'declined' ? '已取消下載' : '這個環境不能下載檔案'); }
@@ -438,7 +456,7 @@
     prev = now;
     const start = performance.now();
     if (detail.card && dlg.open) {
-      const len = timingOf(detail.card).length;
+      const len = playLength(detail.card);
       if (detail.playing) detail.t = (detail.t + dt * detail.speed) % len;
       if (detail.mode === '3d' && detail.orbit && !detail.drag) detail.yaw += dt * .3;
       drawDetail();
@@ -496,7 +514,10 @@
     $('#d-prev').addEventListener('click', () => step(-1));
     $('#d-next').addEventListener('click', () => step(1));
     $('#d-pp').addEventListener('click', () => { detail.playing = !detail.playing; $('#d-pp').textContent = detail.playing ? '暫停' : '播放'; });
-    $('#d-scrub').addEventListener('input', e => { if (detail.card) { detail.t = e.target.value / 1000 * timingOf(detail.card).length; drawDetail(); } });
+    $('#d-scrub').addEventListener('input', e => { if (detail.card) { detail.t = e.target.value / 1000 * playLength(detail.card); drawDetail(); } });
+    $('#d-guide').addEventListener('change', e => { detail.guide = +e.target.value; });
+    $('#d-loop').addEventListener('change', e => { detail.loopOnly = e.target.checked; detail.t = 0; });
+    $('#x-keys').addEventListener('click', () => exportSheet({ keys: 6 }));
     $('#d-speed').addEventListener('change', e => { detail.speed = +e.target.value; });
     $('#x-png').addEventListener('click', exportSheet);
     dlg.addEventListener('keydown', e => {

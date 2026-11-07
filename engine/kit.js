@@ -775,7 +775,7 @@
     const sq = s.sq == null ? 1 : s.sq, wd = s.wide || 1, alpha = s.alpha == null ? 1 : s.alpha, Hh = .62 * sc * sq;
     const ux = td[0] * st, uy = td[1] * st, uz = ct;
     const res = { chest: [x + ux * Hh * .45, y + uy * Hh * .45, gz + .02 + uz * Hh * .45], head: [x + ux * Hh * .85, y + uy * Hh * .85, gz + .02 + uz * Hh * .85] };
-    const hue = v.hue, hpx = .62 * sc * v.S * v.fs;
+    const hue = v.hue, hpx = .62 * sc * v.S * v.fs * (v.lens ? v.lens.k : 1);
     SV = v; SA = alpha;
     if (s.shards != null) {
       const ice = ramp32(MAT[s.shardMat] || MAT.ice, hue), g = 4.9;
@@ -911,7 +911,7 @@
     // scale 'auto' fits the pawns to the formation spacing (o.maxScale caps it); lod 'auto' swaps to pixel sprites
     // once a pawn would be under ~7.5 px tall (hundreds and more), 'full' / 'sprite' force one
     const sc = o.scale === 'auto' ? clamp((units.spacing || .4) / .4 * (o.fill || 1), o.minScale || .08, o.maxScale || 1.5) : o.scale || 1;
-    const vw = (this.def && this.def.view) || E, S0 = 240 / (2 * (vw.r || 3) * 1.12) * (vw.zoom || 1) * this.v.fs;   // mode-independent px per unit
+    const vw = (this.def && this.def.view) || E, S0 = 240 / (2 * (vw.r || 3) * 1.12) * (vw.zoom || 1) * this.v.fs * (this.v.lens ? this.v.lens.k : 1);   // mode-independent px per unit (lens zoom included)
     const lod = o.lod && o.lod !== 'auto' ? o.lod : .62 * sc * S0 < 7.5 ? 'sprite' : 'full';
     const pal = typeof o.pal === 'string' ? PALS[o.pal] || PAWN : o.pal, draw = lod === 'sprite' ? this.pawnSprite : this.pawn;
     const po = { scale: sc, pal, spears: o.spears }, ro = Object.assign({ t }, o);
@@ -968,6 +968,256 @@
     return out;
   };
 
+  /* ---------- Armory: weapon props, guide paths, energy strokes along a path, structured breakup ----------
+   * The order a pixel artist works in: design the path first (stable from frame to frame), check that it passes
+   * behind the weapon (the weapon writes depth, so the back half of a coil is hidden by the blade and reappears
+   * at its edge), then draw a jagged stroke along it that changes shape every other frame, in hard tiers
+   * (white core, main colour, dark edge), and break it up instead of fading it. */
+  const W_STEEL = ['#454a5e', '#6c7286', '#979db0', '#c6cad6', '#eef0f5'];
+  const W_GRIP = ['#2b1d24', '#45292d', '#653c34', '#86553f'];
+  const W_GILT = ['#6b4a1f', '#a5772c', '#d6a840', '#f5d97a'];
+  const W_WOOD = ['#3b2a22', '#5c4030', '#7d5a3e', '#a07a52'];
+  const W_LACQ = ['#1e1424', '#33203a', '#4c2c52', '#6a4070'];
+  // len: total length; blade: where the blade starts (fraction of len); hw(b): blade half-width, b = 0..1 along the blade
+  const WSPEC = {
+    sword: { len: 1.15, blade: .2, guard: .17, gw: .16, hw: b => (b < .84 ? .062 : .062 * (1 - b) / .16) },
+    greatsword: { len: 1.9, blade: .19, guard: .18, gw: .27, hw: b => (b < .86 ? .105 : .105 * (1 - b) / .14), fuller: [.05, .8] },
+    katana: { len: 1.25, blade: .27, guard: .26, gw: .075, round: true, curve: .06, hw: b => (b < .92 ? .04 : .04 * (1 - b) / .08 + .004) },
+    dagger: { len: .55, blade: .3, guard: .28, gw: .1, hw: b => (b < .6 ? .048 : .048 * (1 - b) / .4) },
+    needle: { len: .4, blade: 0, hw: b => (b < .82 ? .013 : .013 * (1 - b) / .18 + .002), eye: .08 },
+    scabbard: { len: 1.0, blade: 0, hw: b => (b < .93 ? .056 : .03 + .026 * (1 - b) / .07), lacquer: true, curve: .06 },
+    spear: { len: 2.3, shaft: .036, blade: .84, hw: b => .078 * Math.pow(Math.sin(Math.PI * Math.min(1, .12 + b * .98)), .8) },
+    axe: { len: 1.35, shaft: .036, blade: 1, head: 'axe' },
+    hammer: { len: 1.3, shaft: .04, blade: 1, head: 'hammer' },
+  };
+  X.WEAPONS = Object.keys(WSPEC);
+  // p.weapon(kind, base, dir, o): draws a weapon from its butt/pommel `base` along unit `dir` (towards the tip).
+  // The flat of the blade faces the camera unless o.nrm is given (it is turned about the axis by o.spin).
+  // o: len, scale, ramp (blade), grip, guard (ramps), alpha (ghosts), blade: false (grip and guard only),
+  // draw: false (geometry only). Returns { base, dir, side, nrm, len, tip, u0 (blade start), axis(u), hw(u),
+  // at(u, v, off) (v -1..1 across the blade, off along nrm towards the camera), behind(pt), spec }.
+  K.weapon = function (kind, base, dir, o = E) {
+    const sp = WSPEC[kind] || WSPEC.sword, v = this.v, c = this.cam();
+    const d = norm(dir), len = (o.len || sp.len) * (o.scale || 1), ws = (o.scale || 1) * (o.width || 1);
+    let n = o.nrm ? o.nrm : c.fwd;
+    const nd = n[0] * d[0] + n[1] * d[1] + n[2] * d[2];
+    n = [n[0] - d[0] * nd, n[1] - d[1] * nd, n[2] - d[2] * nd];
+    if (Math.hypot(n[0], n[1], n[2]) < 1e-3) n = c.up;
+    n = norm(n);
+    let side = norm(cross(d, n));
+    if (o.spin) { const cs = Math.cos(o.spin), sn = Math.sin(o.spin), n2 = sum3([0, 0, 0], n, cs, side, sn), s2 = sum3([0, 0, 0], side, cs, n, -sn); n = n2; side = s2; }
+    const curve = (sp.curve || 0) * (o.curve == null ? 1 : o.curve);
+    const axis = u => { const bend = curve * len * u * u; return [base[0] + d[0] * u * len + side[0] * bend, base[1] + d[1] * u * len + side[1] * bend, base[2] + d[2] * u * len + side[2] * bend]; };
+    const u0 = sp.blade, hw = u => (u < u0 || u > 1 || sp.head ? 0 : sp.hw(u0 >= 1 ? 0 : (u - u0) / (1 - u0)) * ws);
+    const G = { kind, base, dir: d, side, nrm: n, len, u0, axis, hw, spec: sp, tip: axis(1) };
+    G.at = (u, vv = 0, off = 0) => { const a = axis(u), h = hw(u) * vv; return [a[0] + side[0] * h + n[0] * off, a[1] + side[1] * h + n[1] * off, a[2] + side[2] * h + n[2] * off]; };
+    G.behind = pt => { const rel = [pt[0] - base[0], pt[1] - base[1], pt[2] - base[2]]; return rel[0] * n[0] + rel[1] * n[1] + rel[2] * n[2] < 0; };
+    if (o.draw === false) return G;
+    const hue = v.hue; v.hue = 0;
+    const al = o.alpha == null ? 1 : o.alpha, so = { alpha: al, shadow: al > .5 && o.shadow !== false };
+    const steel = o.ramp || (sp.lacquer ? W_LACQ : W_STEEL), grip = o.grip || (sp.shaft ? W_WOOD : W_GRIP), gilt = o.guard || W_GILT;
+    // grip / shaft
+    if (sp.shaft) this.capsule(axis(0), axis(Math.min(1, sp.head ? .97 : u0 + .02)), sp.shaft * ws, sp.shaft * ws * .9, grip, so);
+    else if (u0 > 0) {
+      this.capsule(axis(.02), axis(u0 - .01), .032 * ws, .03 * ws, grip, so);
+      this.ball(...axis(0), .042 * ws, gilt, { alpha: al, shadow: false });
+    }
+    if (sp.guard != null && o.guardOff !== true) {
+      const g = axis(sp.guard), gw = sp.gw * ws;
+      if (sp.round) this.capsule(sum3(g, side, -gw, n, 0), sum3(g, side, gw, n, 0), .024 * ws, .024 * ws, gilt, so);
+      else this.capsule(sum3(g, side, -gw, d, -.01), sum3(g, side, gw, d, -.01), .026 * ws, .026 * ws, gilt, so);
+    }
+    if (o.blade !== false) {
+      if (sp.head === 'axe') this._axeHead(G, steel, ws, al);
+      else if (sp.head === 'hammer') this._hammerHead(G, steel, ws, al);
+      else {
+        const N = Math.max(4, Math.round(10 + len * 4)), L = [], M = [], R = [], ridge = o.flatBlade ? 0 : .02 * ws;
+        for (let k = 0; k <= N; k++) {
+          const u = u0 + (1 - u0) * k / N, a = axis(u), h = hw(u);
+          L.push(sum3(a, side, h, n, 0)); M.push(sum3(a, n, ridge, side, 0)); R.push(sum3(a, side, -h, n, 0));
+        }
+        const fu = sp.fuller, fb = u => (u - u0) / (1 - u0);
+        const pat = o.pattern;   // optional fn(u, v, half) -> level override or null
+        const dz = o.dz || 0;
+        this.sribbon(L, M, (uu, vv) => {
+          const u = u0 + (1 - u0) * uu, q = pat && pat(u, vv, 0);
+          if (q != null) return q;
+          if (fu && vv > .55 && fb(u) > fu[0] && fb(u) < fu[1]) return .3;
+          return vv < .22 ? .95 : vv > .82 ? .9 : .72;
+        }, steel, { alpha: al, dz });
+        this.sribbon(M, R, (uu, vv) => {
+          const u = u0 + (1 - u0) * uu, q = pat && pat(u, vv, 1);
+          if (q != null) return q;
+          if (fu && vv < .45 && fb(u) > fu[0] && fb(u) < fu[1]) return .15;
+          return vv > .8 ? .3 : .45;
+        }, steel, { alpha: al, dz });
+        if (sp.eye) { const e = axis(sp.eye); this.ball(e[0], e[1], e[2], .006 * ws, ['#20202c'], { alpha: al, shadow: false }); }
+      }
+    }
+    v.hue = hue;
+    return G;
+  };
+  K._axeHead = function (G, steel, ws, al) {
+    const N = 8, L = [], R = [], B = [], C = [];
+    for (let k = 0; k <= N; k++) {
+      const b = k / N, u = .7 + .27 * b, a = G.axis(u), w = (.08 + .24 * Math.pow(Math.sin(Math.PI * b), .6)) * ws;
+      L.push(sum3(a, G.side, .03 * ws, G.nrm, 0)); R.push(sum3(a, G.side, w, G.d || G.dir, (b - .5) * .12 * ws));
+      const wb = (.04 + .1 * Math.pow(Math.sin(Math.PI * b), 1.4)) * ws;
+      B.push(sum3(a, G.side, -.03 * ws, G.nrm, 0)); C.push(sum3(a, G.side, -wb, G.nrm, 0));
+    }
+    this.sribbon(L, R, (u, vv) => (vv > .82 ? .95 : vv > .6 ? .72 : .45), steel, { alpha: al });
+    this.sribbon(B, C, (u, vv) => (vv > .7 ? .6 : .35), steel, { alpha: al });
+    G.head = { at: (b, vv = 1) => { const u = .7 + .27 * b, a = G.axis(u), w = (.08 + .24 * Math.pow(Math.sin(Math.PI * b), .6)) * ws * vv; return sum3(a, G.side, w, G.dir, (b - .5) * .12 * ws * vv); } };
+  };
+  K._hammerHead = function (G, steel, ws, al) {
+    const L = [], R = [];
+    for (let k = 0; k <= 4; k++) { const u = .8 + .18 * k / 4, a = G.axis(u); L.push(sum3(a, G.side, .22 * ws, G.nrm, .02)); R.push(sum3(a, G.side, -.22 * ws, G.nrm, .02)); }
+    this.sribbon(L, R, (u, vv) => (u < .15 || u > .85 ? .95 : vv < .2 ? .75 : vv > .8 ? .35 : .55), steel, { alpha: al });
+  };
+
+  // p.path(src, n): a path with arc-length lookup. src = array of [x, y, z] or fn(u) -> [x, y, z] sampled n times.
+  // Returns { pts, len, at(s), tan(s) } with s = 0..1 along the arc length (clamped).
+  K.path = function (src, n = 48) {
+    const pts = typeof src === 'function' ? Array.from({ length: n + 1 }, (_, k) => src(k / n)) : src;
+    const cum = [0];
+    for (let k = 1; k < pts.length; k++) cum.push(cum[k - 1] + Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1], pts[k][2] - pts[k - 1][2]));
+    const len = cum[cum.length - 1] || 1e-6;
+    const find = s => {
+      const L = clamp(s, 0, 1) * len;
+      let lo = 0, hi = cum.length - 1;
+      while (hi - lo > 1) { const m = (lo + hi) >> 1; if (cum[m] <= L) lo = m; else hi = m; }
+      const seg = cum[hi] - cum[lo] || 1e-6;
+      return [lo, hi, (L - cum[lo]) / seg];
+    };
+    return {
+      pts, len,
+      at(s) { const [a, b, f] = find(s), A = pts[a], B = pts[b]; return [A[0] + (B[0] - A[0]) * f, A[1] + (B[1] - A[1]) * f, A[2] + (B[2] - A[2]) * f]; },
+      tan(s) { const [a, b] = find(s); return norm([pts[b][0] - pts[a][0], pts[b][1] - pts[a][1], pts[b][2] - pts[a][2]]); },
+      slice(s0, s1, m = 16) { const out = []; for (let k = 0; k <= m; k++) out.push(this.at(s0 + (s1 - s0) * k / m)); return out; },
+    };
+  };
+  // p.helix(o): a coil as a path. o.w: a weapon from p.weapon (axis, side and nrm come from it; o.u0..o.u1 is
+  // the stretch of the weapon it wraps) or o.c (start of the axis), o.dir, o.len, o.side, o.nrm.
+  // o.r (radius, or o.r0 -> o.r1), o.turns, o.phase (radians; +pi = the opposite coil), o.n samples.
+  // Angle 0 points along side, pi/2 towards the camera (in front of the blade), -pi/2 behind it.
+  K.helix = function (o = E) {
+    const w = o.w, u0 = o.u0 == null ? (w ? w.u0 : 0) : o.u0, u1 = o.u1 == null ? 1 : o.u1;
+    const side = o.side || (w ? w.side : [1, 0, 0]), nrm = o.nrm || (w ? w.nrm : [0, 1, 0]);
+    const r0 = o.r0 == null ? (o.r == null ? .14 : o.r) : o.r0, r1 = o.r1 == null ? r0 : o.r1, turns = o.turns || 3, ph = o.phase || 0;
+    const ax = w ? (u => w.axis(u0 + (u1 - u0) * u)) : (u => along(o.c, o.dir, u * o.len));
+    return this.path(u => {
+      const a = ax(u), th = ph + turns * TAU * u, r = r0 + (r1 - r0) * u;
+      return sum3(a, side, Math.cos(th) * r, nrm, Math.sin(th) * r);
+    }, o.n || Math.max(24, Math.round(turns * 24)));
+  };
+  // seed that changes fps times a second: hand-drawn shapes held for two frames read as energy, not noise.
+  // period (e.g. def.loop or a loopWindow length): the seeds repeat every period with whole buckets, so a stroke
+  // that is lit across a loop seam does not jump there
+  K.hold = function (t, fps = 15, period = 0) {
+    if (!period) return Math.floor(t * fps);
+    const n = Math.max(1, Math.round(period * fps)), q = ((t % period) + period) % period;
+    return Math.floor(q / period * n);
+  };
+
+  // p.zap(path, s0, s1, ramp, o): a jagged pixel stroke along path between arc positions s0 < s1 (s1 = the head),
+  // drawn in hard tiers of a 4-step ramp [dark edge, main, bright, core]: a 1 px core (2 px on some segments)
+  // ringed by the main colour, then the dark edge. The path never changes; the zigzag, kinks, gaps and forks
+  // come from o.seed (use p.hold(t)). o: jag (zigzag amplitude, px), step (px per zig), gaps (0..1), forks,
+  // tail (tier drop towards s0: the old end loses its core first), back(pt) -> true where the path is behind the
+  // weapon (one tier dimmer, reads in flat 2D), dim (tiers to drop), fade (0..1 breakup: core retreats, then the
+  // ring, then the stroke breaks into segments and single pixels), thick (0 thin, 1 default, 2 heavy).
+  K.zap = function (path, s0, s1, ramp, o = E) {
+    if (!(s1 > s0)) return;
+    const v = this.v, W = v.W, H = v.H, zb = v.zb, rid = X.rampId(ramp), n = X.rampArr(rid, 0).length;
+    const seed = o.seed || 0, jag = o.jag == null ? 2.2 : o.jag, step = o.step || 4, gaps = o.gaps == null ? .06 : o.gaps;
+    const fade = clamp(o.fade || 0, 0, 1), thick = o.thick == null ? 1 : o.thick, dim0 = o.dim || 0, tail = o.tail == null ? 1 : o.tail;
+    // screen length -> number of zigs
+    let est = 0, px0 = null;
+    for (let k = 0; k <= 8; k++) { const q = path.at(s0 + (s1 - s0) * k / 8); if (!v.P(q[0], q[1], q[2])) continue; if (px0) est += Math.hypot(v.px - px0[0], v.py - px0[1]); px0 = [v.px, v.py]; }
+    const m = clamp(Math.round(est / step), 2, 240);
+    const S = [];
+    for (let k = 0; k <= m; k++) {
+      const s = s0 + (s1 - s0) * k / m, q = path.at(s);
+      if (!v.P(q[0], q[1], q[2])) { S.push(null); continue; }
+      S.push({ x: v.px, y: v.py, d: v.pd, back: o.back ? o.back(q) : false, f: k / m });
+    }
+    const R = this.r.bind(this);
+    for (let k = 0; k <= m; k++) {
+      const a = S[k]; if (!a) continue;
+      const p0 = S[Math.max(0, k - 1)] || a, p1 = S[Math.min(m, k + 1)] || a;
+      let tx = p1.x - p0.x, ty = p1.y - p0.y; const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+      const edge = k === 0 || k === m ? .35 : 1, big = R(seed * 13 + k, 4) > .86 ? 1.8 : 1;
+      const off = jag * edge * big * (k & 1 ? 1 : -1) * (.35 + .65 * R(seed * 13 + k, 3));
+      a.x += -ty * off; a.y += tx * off; a.tx = tx; a.ty = ty;
+    }
+    // tiers: 3 core, 2 bright, 1 main, 0 edge; the breakup drops tiers and pixels
+    const coreT = fade < .12 ? 3 : fade < .4 ? 2 : fade < .7 ? 1 : 0, ringOn = fade < .55, edgeOn = fade < .25 && thick > 0;
+    const put = (x, y, d, tier) => {
+      if (tier < 0 || x < 0 || y < 0 || x >= W || y >= H) return;
+      const i = y * W + x;
+      if (zb[i] > d + .05) return;
+      const lv = n >= 4 ? n - 4 + tier : Math.max(0, tier - 4 + n);
+      this._put(i, (Math.min(lv, n - 1) + .5) / n, rid, d, false);
+    };
+    const plot = (x, y, d, ct, wide) => {
+      put(x, y, d, ct);
+      if (wide) put(x + 1, y, d, ct);
+      if (ringOn) {
+        const rt = ct >= 2 ? 1 : ct - 1;
+        put(x - 1, y, d, rt); put(x + 1 + (wide ? 1 : 0), y, d, rt); put(x, y - 1, d, rt); put(x, y + 1, d, rt);
+        if (wide) { put(x + 1, y - 1, d, rt); put(x + 1, y + 1, d, rt); }
+        if (thick > 1) { put(x - 1, y - 1, d, rt); put(x + 1, y + 1, d, rt); put(x + 1, y - 1, d, rt); put(x - 1, y + 1, d, rt); }
+        if (edgeOn) { const et = rt - 1; put(x - 2, y, d, et); put(x + 2 + (wide ? 1 : 0), y, d, et); put(x, y - 2, d, et); put(x, y + 2, d, et); if (thick > 1) { put(x - 1, y - 2, d, et); put(x + 1, y + 2, d, et); } }
+      }
+    };
+    const seg = (a, b, k, ct, wide) => {
+      let x0 = Math.floor(a.x), y0 = Math.floor(a.y);
+      const x1 = Math.floor(b.x), y1 = Math.floor(b.y), dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0);
+      const sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1, len = Math.max(dx, -dy) || 1;
+      let err = dx + dy, j = 0;
+      const broken = fade > .45, single = fade > .72;
+      if (single) {   // the last stage: one pixel per segment, drifting and dropping out
+        const f = (fade - .72) / .28, mx = Math.floor((a.x + b.x) / 2 + (R(k, 21) - .5) * 6 * f), my = Math.floor((a.y + b.y) / 2 + R(k, 22) * 5 * f);
+        if (R(k, 23) > f) put(mx, my, a.d, Math.max(0, ct));
+        return;
+      }
+      for (;;) {
+        if (!broken || ((j + k) & 1) === 0) plot(x0, y0, a.d + (b.d - a.d) * (j / len), ct, wide);
+        if (x0 === x1 && y0 === y1) break;
+        const e2 = 2 * err;
+        if (e2 >= dy) { err += dy; x0 += sx; }
+        if (e2 <= dx) { err += dx; y0 += sy; }
+        j++;
+      }
+    };
+    const drop = fade > .35 ? (fade - .35) / .65 * .7 : 0;
+    for (let k = 0; k < m; k++) {
+      const a = S[k], b = S[k + 1];
+      if (!a || !b) continue;
+      if (R(seed * 7 + k, 5) < gaps || R(k * 3 + 1, 6) < drop) continue;
+      const tl = tail < 1 ? Math.floor((1 - a.f) * (1 - tail) * 3.2) : 0;
+      const ct = coreT - dim0 - tl - (a.back && b.back ? 1 : 0);
+      if (ct < 0) continue;
+      seg(a, b, k, ct, thick > 0 && ct >= 2 && R(seed * 5 + k, 8) > .6);
+    }
+    // forks: short side branches off a few vertices, one tier lower
+    const nf = fade > .3 ? 0 : o.forks == null ? 1 : o.forks;
+    for (let f = 0; f < nf; f++) {
+      const k = 1 + Math.floor(R(seed * 3 + f, 9) * (m - 1)), a = S[k];
+      if (!a || !a.tx) continue;
+      const sgn = R(seed * 3 + f, 10) > .5 ? 1 : -1, ang = sgn * (.7 + .5 * R(seed * 3 + f, 11)), ca = Math.cos(ang), sa = Math.sin(ang);
+      let bx = a.tx * ca - a.ty * sa, by = a.tx * sa + a.ty * ca, prev = a;
+      const ct = coreT - dim0 - 1 - (a.back ? 1 : 0);
+      if (ct < 0) continue;
+      for (let j = 0; j < 2; j++) {
+        const L = step * (1.1 + R(f * 5 + j, 12));
+        const q = { x: prev.x + bx * L + (j & 1 ? 1 : -1) * by * 1.5, y: prev.y + by * L - (j & 1 ? 1 : -1) * bx * 1.5, d: a.d };
+        seg(prev, q, k + j * 31, j ? ct - 1 : ct, false);
+        prev = q;
+      }
+    }
+  };
+
   // module documentation for the copyable prompts (def.modules lists the keys an effect uses)
   X.KIT = {
     figure: { zh: '起手姿勢（Pose）：無臉人偶施法者，關鍵姿勢之間用緩動插值，手部與刀尖位置作為特效錨點。', en: 'Pose: a faceless caster mannequin; key poses blended with easing; hand and blade-tip positions anchor the effect.' },
@@ -986,6 +1236,7 @@
     crowd: { zh: '群眾（Crowd）：一群細小敵兵（人數見「敵兵數量」參數；近景時高約施法者的 40%，暗色身體、紅色頭盔與肩甲、長矛）以均勻但不規則的點陣排成一群；每個單位的命中時間 = 起始時間 + 與爆心／波前的距離 ÷ 波速，傷害像波浪一樣掃過人群；每個單位按招式播放反應（拋飛翻滾後躺下、升空、原地倒下、壓扁、凍成冰雕後碎裂、燒成焦炭再崩成灰、觸電抽搐倒下、被吸走、化成白光蒸發），命中瞬間全身閃白 2 格；屍體淡出後新一批敵兵由場邊走回原位，令動畫可以無縫循環。', en: 'Crowd: a horde of small enemy soldiers (count from the enemy-count knob; about 40% of the caster’s height up close; dark bodies, red helmets and shoulder pads, spears) spread evenly but irregularly in a group. Each unit is hit at start time + its distance from the blast centre or wave front / wave speed, so the damage sweeps through the horde as a wave. Each unit plays the move’s reaction (thrown with a tumble then lying down, launched, toppling, flattened, frozen into a statue then shattered, burnt to charcoal then crumbling to ash, convulsing from a shock then falling, pulled away, or vaporised into white light) and flashes white for 2 frames on the hit. The bodies fade and a fresh horde walks back in from the edge, so the animation loops seamlessly.' },
     troops: { zh: '陣型（Formation）：敵兵按陣型排列（方陣、橫列、縱隊、楔形、圓陣、鶴翼、分隊、散兵），陣型在固定範圍內排開，兵距決定士兵大小；人數由十到一萬時自動換細節級別：近景是有頭盔、肩甲、長矛的 3D 小兵，數百人以上改為 1–3 像素寬的像素小兵（頭盔深淺隨機、偶有矛尖反光），一萬人時成為一片頭盔海。', en: 'Formation: enemies stand in a formation (block, line, column, wedge, ring, crescent, squads, scatter) laid out inside a fixed area, and the spacing sets the soldier size; from ten to ten thousand the level of detail switches automatically: 3D soldiers with helmet, shoulder pads and spear up close, 1–3 px wide pixel soldiers from a few hundred on (random helmet shades, the odd spear-tip glint), and a sea of helmets at ten thousand.' },
     tally: { zh: '擊殺計數（Kill Counter）：畫面角落的 3×5 像素字 HUD，一個骷髏加「已擊殺／總數」，帶深色外框；命中時即時累加，全滅時變金色並放大一下；有漏網之魚時停在實際數字，一眼看出招式有沒有覆蓋整個陣型。', en: 'Kill counter: a HUD in the corner in 3×5 pixel digits, a skull plus "killed/total" with a dark outline; it counts up live as units are hit, turns gold with a short pop on a full wipe, and stops at the real number when some survive, so you can see at a glance whether the spell covered the whole formation.' },
+    armory: { zh: '武裝（Armory）：先設計能量的路徑（螺旋繞刃、輪廓描線、匯流曲線、巡迴路線），路徑每格不變；武器寫入深度，路徑繞到刃後的一段被刃身擋住、在刃緣再出現；沿路徑畫鋸齒能量筆觸，每兩格才換一次形狀（折角、分叉、斷口），快的一段拉長；硬邊色階：白色亮芯、主色、暗色邊，不用模糊光暈；消散分三段：亮芯先退，剩主色殘影，再斷成碎段與單粒像素。', en: 'Armory: design the energy path first (a coil around the blade, an outline being traced, converging curves, a route), stable from frame to frame; the weapon writes depth, so the part of the path behind the blade is hidden and reappears at its edge; draw a jagged stroke along the path that changes shape every other frame (kinks, forks, gaps), longer where it moves fast; hard colour tiers: white core, main colour, dark edge, no soft bloom; break it up in three stages: the core retreats, a main-colour afterimage remains, then it splits into segments and single pixels.' },
     grade: { zh: '環境調色（Grade）：出招前把環境壓暗、去飽和或染色（不影響發光部分）。', en: 'Grade: darken, desaturate or tint the environment before the move (emissive parts unaffected).' },
   };
   X.STAGES = {

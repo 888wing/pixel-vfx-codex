@@ -22,6 +22,7 @@ button, select, input, textarea { font: inherit; color: inherit; }
 .btn.done { background: var(--accent); border-color: var(--accent); color: #fff; }
 select { background: var(--paper); border: 1px solid var(--faint); padding: 3px 4px; }
 .field { color: var(--muted); display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; }
+.field[hidden] { display: none; }
 .field select, .field input { color: var(--ink); }
 
 .seg { display: inline-flex; border: 1px solid var(--ink); }

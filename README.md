@@ -1,6 +1,6 @@
 # Pixel VFX Codex
 
-**126 pixel-art VFX: 64 game effects, 28 original anime-style ultimate moves, 10 mass spells that wipe out a whole horde, 12 attack spells scaled from 10 to 10,000 enemies and 12 spells with a twist. One definition, three cameras: 3D, 2.5D and 2D. Tune any effect, then copy a prompt that rebuilds it in your own engine.**
+**138 pixel-art VFX: 64 game effects, 28 original anime-style ultimate moves, 10 mass spells that wipe out a whole horde, 12 attack spells scaled from 10 to 10,000 enemies, 12 spells with a twist and 12 summoned and enchanted weapons. One definition, three cameras: 3D, 2.5D and 2D. Tune any effect, then copy a prompt that rebuilds it in your own engine.**
 
 **[▶ Live demo](https://888wing.github.io/pixel-vfx-codex/)** · [Promo video](https://github.com/888wing/pixel-vfx-codex/releases/tag/v1.0.0) · [Write your own effect](docs/AUTHORING.md) · [中文說明](#中文說明)
 
@@ -77,15 +77,38 @@ Each spell hides a twist the viewer does not see coming, and each twist is a new
 Rules stay honest and the kill counter stays in the corner; the million-strong army is drawn by a per-pixel horde
 shader and counted exactly from sorted distances. See the [authoring guide](docs/AUTHORING.md#twist-pack-screen-spells-moving-ground-and-armies-too-big-to-list).
 
+### Armory pack (12 original weapon spells: summoned and enchanted)
+
+Six enchants put the effect on a weapon and six summons are about how a weapon appears. All twelve are built the way
+a pixel artist animates a sword wrapped in lightning: **design the path first, then the shape.** The energy follows
+stable paths, the stretch behind the weapon is hidden by it and comes back at its edge, the jagged stroke changes
+shape every other frame, colours sit in hard tiers (white core, main colour, dark edge) and the stroke breaks up
+instead of fading. The **guide toggle** shows those paths in red and green with moving markers, over the effect or
+alone, and every enchant has a **seamless loop on the weapon** you can play and export on its own.
+
+- **Enchants:** two staggered coils on a sword that land as a spiral (`turns`, `lag`, `jag`, `arms`), a scabbard whose
+  blade is the lightning itself (`reach`, `width`), frost that keeps growing until the spear is longer than the
+  battlefield (`length`, `frost`), an axe that siphons blood and brightens with every kill (`reach`, `flow`), a
+  greatsword that projects its engraved runes onto the army (`stroke`, `slide`) and one swing replayed by eight
+  delayed echoes (`echoes`, `stride`).
+- **Summons:** swords traced by a point of light and traced again after they fire (`swords`, `rounds`), a sword cut
+  out of the battlefield with the army on it (`length`, `width`), a giant sword built from the soldiers' own swords
+  (`reach`, `size`), a weapon forged with the army as the anvil (`blows`, `face`), one needle threaded through a
+  thousand soldiers (`thread`, `speed`) and a blade that keeps coming out of a portal (`length`, `sweep`).
+
+Hit rules stay honest and the kill counter stays in the corner. See the
+[authoring guide](docs/AUTHORING.md#armory-pack-paths-first-then-the-shape).
+
 ![All 64 effects](docs/media/gallery.png)
 
 ## What you can do
 
-- **Browse** the 126 effects by pack (library / ultimates / mass spells / scale ladder / twist), type (projectile, beam, slash, domain, summon, aura…) or element, live in all three cameras, on a light or dark page.
+- **Browse** the 138 effects by pack (library / ultimates / mass spells / scale ladder / twist / armory), type (projectile, beam, slash, domain, summon, enchant, aura…) or element, live in all three cameras, on a light or dark page.
 - **Tune** every effect. Each one has 3–4 knobs of its own, such as missile count, fork count, flame height, arc angle or sector angle. Shared knobs cover main colour, size, brightness, particle density, hit-stop, screen shake, flash, pacing contrast, dither, outline and pixel density. Settings are remembered per effect.
 - **Feel the hits.** A timing layer speeds up into each impact, freezes on it (hit-stop), shakes the camera, flashes and then slows out. A toggle switches it off so you can compare.
 - **Copy a prompt** for Canvas 2D (plain JS), Three.js, Godot 4 or Unity URP, or an image-model prompt for a sprite sheet, in English or Traditional Chinese. Each prompt includes the camera spec, the palette in hex, the timeline, a layer-by-layer breakdown, the pacing and impact numbers, every knob with its current value, how to build it in that engine, and acceptance checks.
-- **Export a sprite sheet** (PNG) of any effect in any camera, optionally without background and props.
+- **Export a sprite sheet** (PNG) of any effect in any camera, optionally without background and props, or a strip of six key frames.
+- **See the paths.** The guide toggle draws the paths an effect's energy follows (red and green lines, white moving markers, dotted where they pass behind something), over the effect or alone. Enchants can play and export only their seamless loop on the weapon.
 
 ## Run it
 
@@ -96,7 +119,7 @@ It is a static site with no build step and no runtime dependencies. Open `index.
 - `engine/pxfx.js` is a small software rasteriser. Its primitives cover solids (balls, crystals, rocks, boxes) and light (glows, beams, rings, lightning, ground decals, camera-facing cards, sphere shells, ribbons). Light is collected in a per-pixel buffer and resolved through colour ramps with ordered dithering. There are also screen operations: warp, flash and post.
 - Every effect is `fx/<id>.js`: `PXFX.define({ id, loop, view, stage, palette, timeline, layers, beats, params, draw(p, t) })`. `draw` is a pure function of time, so any frame can be scrubbed to and exported.
 - `PXFX.timing(def, tune)` turns an effect's `beats` (hit / burst / cast / pulse) into a display-time map with hit-stop, eased pacing, whole-pixel screen shake and a light flash.
-- `engine/kit.js` holds the Ultimates modules (caster poses, charge, core, crescent, swarm formations, serpent, growth, shockwave, aura, domain, aftermath) and the crowd module of the Mass Spells, Scale Ladder and Twist packs (formations, level of detail, kill counter).
+- `engine/kit.js` holds the Ultimates modules (caster poses, charge, core, crescent, swarm formations, serpent, growth, shockwave, aura, domain, aftermath) the crowd module of the Mass Spells, Scale Ladder and Twist packs (formations, level of detail, kill counter) and the Armory module (weapons, paths, jagged strokes in hard tiers, breakup).
 - `engine/prompt.js` writes the prompts from each definition. `app.js` runs the catalogue on one shared renderer with a per-frame time budget.
 
 See [docs/AUTHORING.md](docs/AUTHORING.md) for the full API and the style and motion rules.
@@ -114,7 +137,7 @@ npm install && node tools/site-check.mjs     # browser checks (puppeteer; set CH
 
 ## Credits and license
 
-- Ultimates, Mass Spells, Scale Ladder and Twist packs: original designs, MIT, part of this repository.
+- Ultimates, Mass Spells, Scale Ladder, Twist and Armory packs: original designs, MIT, part of this repository.
 - Effect designs of the 64-effect library: [00GameDevs](https://00gamedevs.com/) VFX library, MIT, © 00GameDevs (@00vchannel). Names, descriptions, colours and timings in `data/` come from its catalogue. The 00GameDevs website UI and branding are not used.
 - Rendering rules and techniques: [pixel-plays](https://github.com/amirmushichge/pixel-plays) by Amir Mushich, MIT. Its music is not used.
 - Promo music and sound effects were generated with PixelBananas and are not part of this repository.

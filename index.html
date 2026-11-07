@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Pixel VFX Codex · 像素特效圖鑑</title>
-<meta name="description" content="126 個像素風特效：64 個遊戲特效、28 個原創動畫風必殺技、10 個橫掃整群敵人的群體魔法、12 個由十人到一萬人分級的攻擊魔法，加 12 個帶反轉的法術，3D／2.5D／2D 即時預覽，每個特效可調參數與打擊感，一鍵複製實作 prompt（Canvas、Three.js、Godot 4、Unity、AI 繪圖）。">
+<meta name="description" content="138 個像素風特效：64 個遊戲特效、28 個原創動畫風必殺技、10 個橫掃整群敵人的群體魔法、12 個由十人到一萬人分級的攻擊魔法、12 個帶反轉的法術，加 12 個召喚武器與武器附魔，3D／2.5D／2D 即時預覽，每個特效可調參數與打擊感，一鍵複製實作 prompt（Canvas、Three.js、Godot 4、Unity、AI 繪圖）。">
 <meta property="og:title" content="Pixel VFX Codex · 像素特效圖鑑">
-<meta property="og:description" content="126 pixel-art VFX: 64 game effects, 28 original anime-style ultimate moves, 10 mass spells that sweep through a whole horde, 12 attack spells scaled from 10 to 10,000 enemies and 12 spells with a twist. One definition, three cameras (3D / 2.5D / 2D). Tune any effect, copy a prompt for Godot, Unity, Three.js or Canvas. MIT.">
+<meta property="og:description" content="138 pixel-art VFX: 64 game effects, 28 original anime-style ultimate moves, 10 mass spells that sweep through a whole horde, 12 attack spells scaled from 10 to 10,000 enemies, 12 spells with a twist and 12 summoned and enchanted weapons. One definition, three cameras (3D / 2.5D / 2D). Tune any effect, copy a prompt for Godot, Unity, Three.js or Canvas. MIT.">
 <meta property="og:image" content="https://888wing.github.io/pixel-vfx-codex/docs/media/og.png">
 <meta property="og:url" content="https://888wing.github.io/pixel-vfx-codex/">
 <meta name="twitter:card" content="summary_large_image">
@@ -17,7 +17,7 @@
 <header class="top">
   <div class="brand">
     <h1>Pixel VFX Codex</h1>
-    <p>像素特效圖鑑 · <span id="total">126</span> 個特效 · 同一份定義，三種鏡頭</p>
+    <p>像素特效圖鑑 · <span id="total">138</span> 個特效 · 同一份定義，三種鏡頭</p>
   </div>
   <div class="controls">
     <div class="seg" id="modes" role="radiogroup" aria-label="渲染模式">
@@ -68,6 +68,8 @@
         <input type="range" id="d-scrub" min="0" max="1000" value="0" aria-label="時間">
         <span class="mono" id="d-time">0.00s</span>
         <label class="field">速度 <select id="d-speed"><option value=".25">0.25×</option><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></label>
+        <label class="field">引導線 <select id="d-guide"><option value="0" selected>關</option><option value="1">疊加</option><option value="2">只看路徑</option></select></label>
+        <label class="field" id="d-loopw" hidden><input type="checkbox" id="d-loop"> 只播附魔循環</label>
       </div>
       <div class="tune" id="d-tune" aria-label="調整"></div>
       <p class="desc" id="d-desc"></p>
@@ -78,6 +80,7 @@
         <label><input type="checkbox" id="x-shake"> 含震屏</label>
         <label class="field">放大 <select id="x-scale"><option>1</option><option selected>2</option><option>4</option></select>×</label>
         <button type="button" class="btn" id="x-png">下載 PNG</button>
+        <button type="button" class="btn" id="x-keys">下載關鍵 6 格</button>
         <span class="hint" id="x-info"></span>
       </div>
     </section>
@@ -97,7 +100,7 @@
 </dialog>
 
 <footer class="foot">
-  <p>特效庫 64 個特效的設計與原始碼：<a href="https://00gamedevs.com/zh-TW/" target="_blank" rel="noopener">00GameDevs</a>（MIT）；必殺技包 28 個招式、群體魔法包 10 個招式、十百千萬包 12 個招式與反轉包 12 個招式為原創設計。像素渲染風格與規則：<a href="https://github.com/amirmushichge/pixel-plays" target="_blank" rel="noopener">pixel-plays</a> by AmirMushich（MIT）。本站的像素版特效與渲染器同樣以 MIT 授權。</p>
+  <p>特效庫 64 個特效的設計與原始碼：<a href="https://00gamedevs.com/zh-TW/" target="_blank" rel="noopener">00GameDevs</a>（MIT）；必殺技包 28 個招式、群體魔法包 10 個招式、十百千萬包 12 個招式、反轉包 12 個招式與武裝包 12 個招式為原創設計。像素渲染風格與規則：<a href="https://github.com/amirmushichge/pixel-plays" target="_blank" rel="noopener">pixel-plays</a> by AmirMushich（MIT）。本站的像素版特效與渲染器同樣以 MIT 授權。</p>
   <p class="hint">純靜態網站，無建置步驟、無外部依賴；直接打開 index.html 亦可運作。原始碼：<a href="https://github.com/888wing/pixel-vfx-codex" target="_blank" rel="noopener">github.com/888wing/pixel-vfx-codex</a></p>
 </footer>
 <div id="toast" role="status" aria-live="polite"></div>
