@@ -1,5 +1,6 @@
-// Sound cues for a twist promo part: the edit's own cues (segment starts, hits, ticks) plus a chime on every frame a
-// kill counter first turns gold. usage: node promo/cues.mjs <part>  -> promo/cues-<part>.json (headless Chrome, file://)
+// Sound cues for a promo part: the edit's own cues (segment starts, hits, ticks) plus a chime on every frame a kill
+// counter first turns gold. usage: [PAGE=armory.html PREFIX=a] node promo/cues.mjs <part>  -> promo/cues-<prefix><part>.json
+// (headless Chrome, file://; PAGE defaults to twist.html)
 import puppeteer from 'puppeteer';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -9,7 +10,8 @@ const CHROME = process.env.CHROME || (fs.existsSync('/Applications/Google Chrome
 const browser = await puppeteer.launch({ executablePath: CHROME, headless: true, args: ['--allow-file-access-from-files'] });
 const page = await browser.newPage();
 await page.setViewport({ width: 1080, height: 1350 });
-await page.goto('file://' + path.join(dir, 'twist.html') + '?v=' + part);
+const page0 = process.env.PAGE || 'twist.html', prefix = process.env.PREFIX || '';
+await page.goto('file://' + path.join(dir, page0) + '?v=' + part);
 await page.waitForFunction('window.REEL');
 const cues = await page.evaluate(() => {
   const c = REEL.cues();
@@ -24,6 +26,6 @@ const cues = await page.evaluate(() => {
   }
   return c.sort((a, b) => a.t - b.t);
 });
-fs.writeFileSync(path.join(dir, `cues-${part}.json`), JSON.stringify({ duration: await page.evaluate('REEL.FRAMES / REEL.FPS'), cues }, null, 1));
+fs.writeFileSync(path.join(dir, `cues-${prefix}${part}.json`), JSON.stringify({ duration: await page.evaluate('REEL.FRAMES / REEL.FPS'), cues }, null, 1));
 console.log(part, cues.length, 'cues');
 await browser.close();

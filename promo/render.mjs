@@ -22,11 +22,12 @@ const total = await page.evaluate('REEL.FRAMES');
 const only = process.env.ONLY ? process.env.ONLY.split(',').map(Number) : null;
 const from = +(process.argv[2] || 0), to = Math.min(total, +(process.argv[3] || total));
 const list = only || Array.from({ length: to - from }, (_, k) => from + k);
-fs.mkdirSync(path.join(dir, frameDir), { recursive: true });
+const outDir = path.isAbsolute(frameDir) ? frameDir : path.join(dir, frameDir);
+fs.mkdirSync(outDir, { recursive: true });
 const t0 = Date.now();
 for (const i of list) {
   const url = await page.evaluate(n => REEL.frame(n), i);
-  fs.writeFileSync(path.join(dir, frameDir, `f${String(i).padStart(4, '0')}.png`), Buffer.from(url.split(',')[1], 'base64'));
+  fs.writeFileSync(path.join(outDir, `f${String(i).padStart(4, '0')}.png`), Buffer.from(url.split(',')[1], 'base64'));
 }
 console.log(JSON.stringify({ fonts, total, rendered: list.length, seconds: ((Date.now() - t0) / 1000).toFixed(1) }), errors.length ? errors.slice(0, 5).join('\n') : 'no errors');
 await browser.close();
